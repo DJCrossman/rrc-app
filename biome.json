@@ -6,8 +6,34 @@
     "useIgnoreFile": false
   },
   "files": {
-    "ignoreUnknown": false,
-    "ignore": []
+    "include": [
+      "*.ts",
+      "*.tsx",
+      "*.js",
+      "*.jsx",
+      "*.json",
+      "*.html",
+      "*.css",
+      "*.md",
+      "*.cjs",
+      "*.mjs"
+    ],
+    "ignore": [
+      "node_modules/*",
+      "dist/*",
+      ".turbo/*",
+      "./docs-build/*",
+      ".vercel/*",
+      ".svelte-kit/*",
+      "apps/api/test/*",
+      ".next/*",
+      "api/src/migrations/*",
+      "kysely-types.ts",
+      ".sst/*",
+      "sst-env.d.ts",
+      "reset.css"
+    ],
+    "ignoreUnknown": true
   },
   "formatter": {
     "enabled": true,
