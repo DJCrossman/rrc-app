@@ -10,9 +10,9 @@ import {
   IconFileWord,
   IconFolder,
   IconHelp,
-  IconInnerShadowTop,
   IconListDetails,
   IconReport,
+  IconSailboat2,
   IconSearch,
   IconSettings,
   IconUsers,
@@ -47,106 +47,24 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: 'Lifecycle',
+      title: 'Programs',
       url: '#',
       icon: IconListDetails,
     },
     {
-      title: 'Analytics',
+      title: 'Boats',
       url: '#',
-      icon: IconChartBar,
+      icon: IconSailboat2,
     },
     {
-      title: 'Projects',
+      title: 'Training Plans',
       url: '#',
       icon: IconFolder,
     },
     {
-      title: 'Team',
+      title: 'Rowers',
       url: '#',
       icon: IconUsers,
-    },
-  ],
-  navClouds: [
-    {
-      title: 'Capture',
-      icon: IconCamera,
-      isActive: true,
-      url: '#',
-      items: [
-        {
-          title: 'Active Proposals',
-          url: '#',
-        },
-        {
-          title: 'Archived',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Proposal',
-      icon: IconFileDescription,
-      url: '#',
-      items: [
-        {
-          title: 'Active Proposals',
-          url: '#',
-        },
-        {
-          title: 'Archived',
-          url: '#',
-        },
-      ],
-    },
-    {
-      title: 'Prompts',
-      icon: IconFileAi,
-      url: '#',
-      items: [
-        {
-          title: 'Active Proposals',
-          url: '#',
-        },
-        {
-          title: 'Archived',
-          url: '#',
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: 'Settings',
-      url: '#',
-      icon: IconSettings,
-    },
-    {
-      title: 'Get Help',
-      url: '#',
-      icon: IconHelp,
-    },
-    {
-      title: 'Search',
-      url: '#',
-      icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: 'Data Library',
-      url: '#',
-      icon: IconDatabase,
-    },
-    {
-      name: 'Reports',
-      url: '#',
-      icon: IconReport,
-    },
-    {
-      name: 'Word Assistant',
-      url: '#',
-      icon: IconFileWord,
     },
   ],
 };
@@ -162,7 +80,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a
-                href={process.env.HOME_URL}
+                href={process.env.NEXT_PUBLIC_HOME_URL}
                 className="flex items-center gap-2 font-medium"
               >
                 <Image
@@ -181,8 +99,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

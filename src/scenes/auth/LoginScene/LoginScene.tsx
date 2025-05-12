@@ -31,7 +31,7 @@ export const LoginScene = () => {
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <a
-            href={process.env.HOME_URL}
+            href={process.env.NEXT_PUBLIC_HOME_URL}
             className="flex items-center gap-2 font-medium"
           >
             <Image
