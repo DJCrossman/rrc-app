@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "name": "Sarah ",
+    "program": "masters",
+    "meters": 18000,
+    "points": 5
+  },
+  {
+    "id": 2,
+    "name": "Ivy",
+    "program": "masters",
+    "meters": 29000,
+    "points": 24
+  },
+  {
+    "id": 3,
+    "name": "Gabe",
+    "program": "masters",
+    "meters": 10000,
+    "points": 13
+  },
+  {
+    "id": 4,
+    "name": "Mike",
+    "program": "masters",
+    "meters": 27000,
+    "points": 23
+  },
+  {
+    "id": 5,
+    "name": "David ",
+    "program": "masters",
+    "meters": 2000,
+    "points": 16
+  },
+  {
+    "id": 6,
+    "name": "Michelle ",
+    "program": "masters",
+    "meters": 20000,
+    "points": 8
+  },
+  {
+    "id": 7,
+    "name": "Angie ",
+    "program": "masters",
+    "meters": 19000,
+    "points": 21
+  },
+  {
+    "id": 8,
+    "name": "Ainsley ",
+    "program": "juniors",
+    "meters": 25000,
+    "points": 26
+  },
+  {
+    "id": 9,
+    "name": "Brenda ",
+    "program": "juniors",
+    "meters": 7000,
+    "points": 23
+  },
+  {
+    "id": 10,
+    "name": "Nykole",
+    "program": "juniors",
+    "meters": 30000,
+    "points": 28
+  },
+  {
+    "id": 11,
+    "name": "Jinger ",
+    "program": "juniors",
+    "meters": 9000,
+    "points": 31
+  },
+  {
+    "id": 12,
+    "name": "Nolan",
+    "program": "juniors",
+    "meters": 12000,
+    "points": 0
+  }
+]

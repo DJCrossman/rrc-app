@@ -1,0 +1,18 @@
+{
+  "totalMeters": {
+    "amount": 106732,
+    "change": 0.125
+  },
+  "totalWorkouts": {
+    "amount": 12,
+    "change": -0.2
+  },
+  "totalPoints": {
+    "amount": 25,
+    "change": 0.1
+  },
+  "attendance": {
+    "amount": 0.95,
+    "change": 0.045
+  }
+}
