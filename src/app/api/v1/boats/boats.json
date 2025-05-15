@@ -1,0 +1,54 @@
+[
+  {
+    "id": 1,
+    "name": "No Limits",
+    "manufacturer": "hudson",
+    "seats": "4",
+    "rigging": "sculling",
+    "meters": 125000,
+    "weightRange": {
+      "min": 75,
+      "max": 88,
+      "unit": "kilogram"
+    }
+  },
+  {
+    "id": 2,
+    "name": "The Maverick",
+    "manufacturer": "empacher",
+    "seats": "2",
+    "rigging": "sculling",
+    "meters": 82000,
+    "weightRange": {
+      "min": 68,
+      "max": 79,
+      "unit": "kilogram"
+    }
+  },
+  {
+    "id": 3,
+    "name": "Prairie Fire",
+    "manufacturer": "fluidesign",
+    "seats": "8",
+    "rigging": "sweep",
+    "meters": 179000,
+    "weightRange": {
+      "min": 70,
+      "max": 95,
+      "unit": "kilogram"
+    }
+  },
+  {
+    "id": 4,
+    "name": "Swift Current",
+    "manufacturer": "vespoli",
+    "seats": "1",
+    "rigging": "sculling",
+    "meters": 80000,
+    "weightRange": {
+      "min": 65,
+      "max": 82,
+      "unit": "kilogram"
+    }
+  }
+]

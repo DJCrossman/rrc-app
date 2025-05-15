@@ -14,8 +14,9 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { AnalyticMetrics } from '@/schemas';
+import { formatMeters, formatPeriod, formatPercent } from '@/lib/formatters';
 
-interface IProps {
+export interface IProps {
   data: AnalyticMetrics;
   period: 'three_months' | 'thirty_days' | 'seven_days';
 }
@@ -87,47 +88,6 @@ export function AnalyticMetricCards({ data, period }: IProps) {
     </div>
   );
 }
-
-const formatPeriod = (period: IProps['period']) => {
-  switch (period) {
-    case 'three_months':
-      return '3 months';
-    case 'thirty_days':
-      return '30 days';
-    case 'seven_days':
-      return '7 days';
-    default:
-      return 'unknown period';
-  }
-};
-
-const formatMeters = (meters: number) => {
-  if (meters > 1000) {
-    meters = Math.round(meters / 1000);
-    return new Intl.NumberFormat('en-US', {
-      style: 'unit',
-      unit: 'kilometer',
-      unitDisplay: 'short',
-    }).format(meters);
-  }
-  return new Intl.NumberFormat('en-US', {
-    style: 'unit',
-    unit: 'meter',
-    unitDisplay: 'short',
-  }).format(meters);
-};
-
-const formatPercent = (percent: number) => {
-  return [
-    percent > 0 ? '+' : '',
-    new Intl.NumberFormat('en-US', {
-      style: 'percent',
-      maximumFractionDigits: 1,
-    }).format(percent),
-  ]
-    .filter(Boolean)
-    .join('');
-};
 
 const TrendingBadge = ({ change }: { change: number }) => {
   if (change > 0) {

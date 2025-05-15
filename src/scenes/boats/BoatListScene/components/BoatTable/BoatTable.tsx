@@ -41,10 +41,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { formatMeters } from '@/lib/formatters';
-import { Leaderboard } from '@/schemas/leaderboard.schema';
+import { Boat, Boats } from '@/schemas';
+import { formatMeters, formatSeatSetup, formatWeightRange } from '@/lib/formatters';
 
-const columns: ColumnDef<Leaderboard[number]>[] = [
+
+const boatSizes = ['all', '1', '2', '4', '8'] as const;
+
+const columns: ColumnDef<Boat>[] = [
   {
     accessorKey: 'name',
     header: () => <div className="lg:w-100">Name</div>,
@@ -52,20 +55,34 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: 'program',
-    header: 'Program',
+    accessorKey: 'manufacturer',
+    header: 'Manufacturer',
     cell: ({ row }) => {
-      const programTitle =
-        row.original.program.charAt(0).toUpperCase() +
-        row.original.program.slice(1);
+      const manufacturerTitle =
+        row.original.manufacturer.charAt(0).toUpperCase() +
+        row.original.manufacturer.slice(1);
       return (
         <div className="w-16">
           <Badge variant="outline" className="text-muted-foreground px-1.5">
-            {programTitle}
+            {manufacturerTitle}
           </Badge>
         </div>
       );
     },
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'seats',
+    header: 'Seats',
+    cell: ({ row }) => formatSeatSetup(row.original),
+    enableHiding: false,
+    enableSorting: true,
+  },
+  {
+    accessorKey: 'rigging',
+    header: 'Rigging',
+    cell: ({ row }) => row.original.rigging.charAt(0).toUpperCase() +
+      row.original.rigging.slice(1),
     enableSorting: true,
   },
   {
@@ -75,21 +92,23 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: 'points',
-    header: () => <div className="w-full">Points</div>,
+    accessorKey: 'weightRange',
+    header: () => <div className="w-full">Meters</div>,
+    cell: ({ row }) => formatWeightRange(row.original.weightRange),
+    sortingFn: (a, b) => a.original.weightRange.max - b.original.weightRange.max,
     enableSorting: true,
   },
 ];
 
-interface ILeaderboardTableProps {
-  data: Leaderboard;
+interface IBoatTableProps {
+  data: Boats;
 }
 
-export function LeaderboardTable({ data }: ILeaderboardTableProps) {
+export function BoatTable({ data }: IBoatTableProps) {
   const [rowSelection, setRowSelection] = useState({});
   const [filterBy, setFilterBy] = useState<{
-    program?: Leaderboard[number]['program'] | 'all';
-  }>({ program: 'all' });
+    seats?: Boat['seats'] | 'all';
+  }>({ seats: 'all' });
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -97,8 +116,8 @@ export function LeaderboardTable({ data }: ILeaderboardTableProps) {
   });
 
   const filteredData = useMemo(() => {
-    if (filterBy.program === 'all') return data;
-    return data.filter((item) => item.program === filterBy.program);
+    if (filterBy.seats === 'all') return data;
+    return data.filter((item) => item.seats === filterBy.seats);
   }, [data, filterBy]);
 
   const table = useReactTable({
@@ -130,13 +149,12 @@ export function LeaderboardTable({ data }: ILeaderboardTableProps) {
         </Label>
         <Select
           defaultValue="outline"
-          value={filterBy.program?.toLowerCase()}
+          value={filterBy.seats}
           onValueChange={(value) => {
-            const validValues = ['all', 'masters', 'juniors'] as const;
             setFilterBy((prev) => ({
               ...prev,
-              program:
-                validValues.find((i) => i.toLowerCase() === value) || 'all',
+              seats:
+                boatSizes.find((i) => i.toLowerCase() === value) || 'all',
             }));
           }}
         >
@@ -144,16 +162,18 @@ export function LeaderboardTable({ data }: ILeaderboardTableProps) {
             <SelectValue placeholder="Select a view" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Athletes</SelectItem>
-            <SelectItem value="masters">Masters</SelectItem>
-            <SelectItem value="juniors">Juniors</SelectItem>
+            {boatSizes.map((seats) => (
+              <SelectItem key={seats} value={seats}>
+                {seats === 'all' ? 'All Boats' : formatSeatSetup({ seats })}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm">
             <IconPlus />
-            <span className="hidden lg:inline">Add Workout</span>
+            <span className="hidden lg:inline">Add Boat</span>
           </Button>
         </div>
       </div>
@@ -174,9 +194,9 @@ export function LeaderboardTable({ data }: ILeaderboardTableProps) {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
                           {{
                             asc: <IconCaretUp />,
                             desc: <IconCaretDown />,

@@ -1,27 +1,14 @@
 'use client';
 
 import {
-  IconCamera,
-  IconChartBar,
   IconDashboard,
-  IconDatabase,
-  IconFileAi,
-  IconFileDescription,
-  IconFileWord,
   IconFolder,
-  IconHelp,
-  IconListDetails,
-  IconReport,
   IconSailboat2,
-  IconSearch,
-  IconSettings,
-  IconUsers,
+  IconUsers
 } from '@tabler/icons-react';
 import * as React from 'react';
 
-import { NavDocuments } from '@/components/nav-documents';
 import { NavMain } from '@/components/nav-main';
-import { NavSecondary } from '@/components/nav-secondary';
 import { NavUser } from '@/components/nav-user';
 import {
   Sidebar,
@@ -43,17 +30,12 @@ const data = {
   navMain: [
     {
       title: 'Dashboard',
-      url: '#',
+      url: '/',
       icon: IconDashboard,
     },
     {
-      title: 'Programs',
-      url: '#',
-      icon: IconListDetails,
-    },
-    {
       title: 'Boats',
-      url: '#',
+      url: '/boats',
       icon: IconSailboat2,
     },
     {
