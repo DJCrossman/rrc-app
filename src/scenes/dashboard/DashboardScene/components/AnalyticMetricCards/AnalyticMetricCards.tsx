@@ -13,8 +13,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { formatMeters, formatPercent, formatPeriod } from '@/lib/formatters';
 import { AnalyticMetrics } from '@/schemas';
-import { formatMeters, formatPeriod, formatPercent } from '@/lib/formatters';
 
 export interface IProps {
   data: AnalyticMetrics;

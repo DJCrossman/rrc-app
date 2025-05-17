@@ -1,13 +1,13 @@
 'use client';
 
 import { AppSidebar } from '@/components/app-sidebar';
-import { AnalyticMetricCards } from '@/scenes/dashboard/DashboardScene/components/AnalyticMetricCards/AnalyticMetricCards';
 import { SiteHeader } from '@/components/site-header';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import {
   LeaderboardTable,
   MetersTimeSeriesChart,
 } from '@/scenes/dashboard/DashboardScene/components';
+import { AnalyticMetricCards } from '@/scenes/dashboard/DashboardScene/components/AnalyticMetricCards/AnalyticMetricCards';
 import { AnalyticMetrics, Leaderboard, MetersTimeSeries } from '@/schemas';
 import { default as React, useState } from 'react';
 
@@ -34,11 +34,14 @@ export const DashboardScene = ({ data }: IProps) => {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader breadcrumbs={[]} />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <AnalyticMetricCards data={data.analyticMetrics} period={period} />
+              <AnalyticMetricCards
+                data={data.analyticMetrics}
+                period={period}
+              />
               <div className="px-4 lg:px-6">
                 <MetersTimeSeriesChart
                   data={data.metersTimeSeries}

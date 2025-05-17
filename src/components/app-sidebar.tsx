@@ -4,7 +4,7 @@ import {
   IconDashboard,
   IconFolder,
   IconSailboat2,
-  IconUsers
+  IconUsers,
 } from '@tabler/icons-react';
 import * as React from 'react';
 
@@ -20,6 +20,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
+import { routes } from '@/lib/routes';
 
 const data = {
   user: {
@@ -30,23 +31,23 @@ const data = {
   navMain: [
     {
       title: 'Dashboard',
-      url: '/',
+      url: routes.dashboard.home(),
       icon: IconDashboard,
     },
     {
       title: 'Boats',
-      url: '/boats',
+      url: routes.boats.list(),
       icon: IconSailboat2,
-    },
-    {
-      title: 'Training Plans',
-      url: '#',
-      icon: IconFolder,
     },
     {
       title: 'Rowers',
       url: '#',
       icon: IconUsers,
+    },
+    {
+      title: 'Training Plans',
+      url: '#',
+      icon: IconFolder,
     },
   ],
 };

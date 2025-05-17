@@ -1,7 +1,7 @@
 [
   {
     "id": 1,
-    "name": "No Limits",
+    "name": "No Limits - Sans Limites",
     "manufacturer": "hudson",
     "seats": "4",
     "rigging": "sculling",
@@ -14,8 +14,8 @@
   },
   {
     "id": 2,
-    "name": "The Maverick",
-    "manufacturer": "empacher",
+    "name": "Kathy Black",
+    "manufacturer": "hudson",
     "seats": "2",
     "rigging": "sculling",
     "meters": 82000,
@@ -27,7 +27,7 @@
   },
   {
     "id": 3,
-    "name": "Prairie Fire",
+    "name": "Bob & Barb Ellard",
     "manufacturer": "fluidesign",
     "seats": "8",
     "rigging": "sweep",
@@ -40,8 +40,8 @@
   },
   {
     "id": 4,
-    "name": "Swift Current",
-    "manufacturer": "vespoli",
+    "name": "Russell Hart",
+    "manufacturer": "hudson",
     "seats": "1",
     "rigging": "sculling",
     "meters": 80000,

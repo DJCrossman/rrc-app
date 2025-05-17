@@ -8,7 +8,7 @@ import { default as React } from 'react';
 import { BoatTable } from './components';
 
 interface IProps {
-  data: Boats
+  data: Boats;
 }
 
 export const BoatListScene = ({ data }: IProps) => {
@@ -23,7 +23,7 @@ export const BoatListScene = ({ data }: IProps) => {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+        <SiteHeader breadcrumbs={[{ label: 'Boats' }]} />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
