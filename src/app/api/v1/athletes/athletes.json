@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "name": "Sarah ",
+    "program": "masters"
+  },
+  {
+    "id": 2,
+    "name": "Ivy",
+    "program": "masters"
+  },
+  {
+    "id": 3,
+    "name": "Gabe",
+    "program": "masters"
+  },
+  {
+    "id": 4,
+    "name": "Mike",
+    "program": "masters"
+  },
+  {
+    "id": 5,
+    "name": "David ",
+    "program": "masters"
+  },
+  {
+    "id": 6,
+    "name": "Michelle ",
+    "program": "masters"
+  },
+  {
+    "id": 7,
+    "name": "Angie ",
+    "program": "masters"
+  },
+  {
+    "id": 8,
+    "name": "Ainsley ",
+    "program": "juniors"
+  },
+  {
+    "id": 9,
+    "name": "Brenda ",
+    "program": "juniors"
+  },
+  {
+    "id": 10,
+    "name": "Nykole",
+    "program": "juniors"
+  },
+  {
+    "id": 11,
+    "name": "Jinger ",
+    "program": "juniors"
+  },
+  {
+    "id": 12,
+    "name": "Nolan",
+    "program": "juniors"
+  }
+]

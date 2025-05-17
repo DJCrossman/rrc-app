@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  IconCaretDown,
-  IconCaretUp,
-  IconPlus
-} from '@tabler/icons-react';
+import { IconCaretDown, IconCaretUp, IconPlus } from '@tabler/icons-react';
 import {
   ColumnDef,
   SortingState,
@@ -51,6 +47,9 @@ const columns: ColumnDef<Boat>[] = [
   {
     accessorKey: 'name',
     header: () => <div className="lg:w-100">Name</div>,
+    cell: ({ row }) => (
+      <a href={`/boats/${row.original.id}`}>{row.original.name}</a>
+    ),
     enableHiding: false,
     enableSorting: true,
   },

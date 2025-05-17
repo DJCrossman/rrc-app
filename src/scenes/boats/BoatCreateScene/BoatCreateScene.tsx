@@ -37,7 +37,10 @@ export const BoatCreateScene = ({
             <div className="flex justify-center gap-4 py-4 md:gap-6 md:py-6">
               <div className="w-full md:w-1/3 p-4">
                 <h1 className="text-2xl font-bold mb-4">Create a New Boat</h1>
-                <BoatForm onSubmit={handleSubmit} />
+                <BoatForm
+                  onCancel={routes.boats.list()}
+                  onSubmit={handleSubmit}
+                />
               </div>
             </div>
           </div>

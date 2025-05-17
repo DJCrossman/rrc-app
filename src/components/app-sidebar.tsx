@@ -19,8 +19,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import Image from 'next/image';
 import { routes } from '@/lib/routes';
+import Image from 'next/image';
 
 const data = {
   user: {
@@ -40,7 +40,7 @@ const data = {
       icon: IconSailboat2,
     },
     {
-      title: 'Rowers',
+      title: 'Athletes',
       url: '#',
       icon: IconUsers,
     },

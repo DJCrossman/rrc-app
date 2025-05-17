@@ -1,10 +1,8 @@
 import { z } from 'zod';
+import { athleteSchema } from './athlete.schema';
 
 export const leaderboardSchema = z.array(
-  z.object({
-    id: z.number(),
-    name: z.string(),
-    program: z.enum(['masters', 'juniors']),
+  athleteSchema.extend({
     meters: z.number(),
     points: z.number(),
   }),

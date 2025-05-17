@@ -35,9 +35,15 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SubmitHandler, useForm } from 'react-hook-form';
 
+interface BoatFormProps {
+  onSubmit: SubmitHandler<CreateBoat>;
+  onCancel?: (() => void) | string;
+}
+
 export function BoatForm({
   onSubmit,
-}: { onSubmit: SubmitHandler<CreateBoat> }) {
+  onCancel: cancelLinkOrAction,
+}: BoatFormProps) {
   const form = useForm<CreateBoat>({
     resolver: zodResolver(createBoatSchema),
     defaultValues: {
@@ -241,8 +247,25 @@ export function BoatForm({
             </FormItem>
           )}
         />
-
-        <Button type="submit">Submit</Button>
+        <div className="flex justify-between gap-4">
+          {typeof cancelLinkOrAction === 'string' && (
+            <Button variant="outline" asChild>
+              <a href={cancelLinkOrAction}>Cancel</a>
+            </Button>
+          )}
+          {typeof cancelLinkOrAction === 'function' && (
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => {
+                cancelLinkOrAction();
+              }}
+            >
+              Cancel
+            </Button>
+          )}
+          <Button type="submit">Save</Button>
+        </div>
       </form>
     </Form>
   );

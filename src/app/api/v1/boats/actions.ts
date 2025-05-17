@@ -10,6 +10,11 @@ export const getBoats = async () => {
   };
 };
 
+export async function getBoatById(id: number): Promise<Boat | null> {
+  const boat = boatsParsed.find((boat) => boat.id === id);
+  return boat ?? null;
+}
+
 export const createBoat = async (data: CreateBoat): Promise<Boat> => {
   const boat = boatSchema.parse({
     id: boatsParsed.length + 1,
@@ -18,4 +23,17 @@ export const createBoat = async (data: CreateBoat): Promise<Boat> => {
   });
   boatsParsed.push(boat);
   return boat;
+};
+
+export const updateBoat = async (data: Boat): Promise<Boat> => {
+  const boatIndex = boatsParsed.findIndex((boat) => boat.id === data.id);
+  if (boatIndex === -1) {
+    throw new Error('Boat not found');
+  }
+  const updatedBoat = boatSchema.parse({
+    ...boatsParsed[boatIndex],
+    ...data,
+  });
+  boatsParsed[boatIndex] = updatedBoat;
+  return updatedBoat;
 };
