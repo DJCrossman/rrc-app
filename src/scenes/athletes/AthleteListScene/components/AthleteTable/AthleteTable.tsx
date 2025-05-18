@@ -33,77 +33,41 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  formatManufacturer,
-  formatMeters,
-  formatSeatSetup,
-  formatWeightRange,
-} from '@/lib/formatters';
-import { Boat, Boats, SeatTypes } from '@/schemas';
+import { formatProgram } from '@/lib/formatters';
+import { Athlete, Athletes, ProgramType } from '@/schemas';
 
-const boatSizes = ['all', ...SeatTypes] as const;
+const programOptions = ['all', ...ProgramType] as const;
 
-const columns: ColumnDef<Boat>[] = [
+const columns: ColumnDef<Athlete>[] = [
   {
     accessorKey: 'name',
     header: () => <div className="lg:w-100">Name</div>,
     cell: ({ row }) => (
-      <a href={`/boats/${row.original.id}`}>{row.original.name}</a>
+      <a href={`/athletes/${row.original.id}`}>{row.original.name}</a>
     ),
     enableHiding: false,
     enableSorting: true,
   },
   {
-    accessorKey: 'manufacturer',
-    header: 'Manufacturer',
+    accessorKey: 'program',
+    header: 'Program',
     cell: ({ row }) => (
-      <div className="w-16">
-        <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {formatManufacturer(row.original.manufacturer)}
-        </Badge>
-      </div>
+      <Badge variant="outline" className="text-muted-foreground px-1.5">
+        {formatProgram(row.original.program)}
+      </Badge>
     ),
-    enableSorting: true,
-  },
-  {
-    accessorKey: 'seats',
-    header: 'Seats',
-    cell: ({ row }) => formatSeatSetup(row.original),
-    enableHiding: false,
-    enableSorting: true,
-  },
-  {
-    accessorKey: 'rigging',
-    header: 'Rigging',
-    cell: ({ row }) =>
-      row.original.rigging.charAt(0).toUpperCase() +
-      row.original.rigging.slice(1),
-    enableSorting: true,
-  },
-  {
-    accessorKey: 'meters',
-    header: () => <div className="w-full">Meters</div>,
-    cell: ({ row }) => formatMeters(row.original.meters),
-    enableSorting: true,
-  },
-  {
-    accessorKey: 'weightRange',
-    header: () => <div className="w-full">Meters</div>,
-    cell: ({ row }) => formatWeightRange(row.original.weightRange),
-    sortingFn: (a, b) =>
-      a.original.weightRange.max - b.original.weightRange.max,
     enableSorting: true,
   },
 ];
 
-interface IBoatTableProps {
-  data: Boats;
+interface IAthleteTableProps {
+  data: Athletes;
 }
 
-export function BoatTable({ data }: IBoatTableProps) {
+export function AthleteTable({ data }: IAthleteTableProps) {
   const [filterBy, setFilterBy] = useState<{
-    seats?: Boat['seats'] | 'all';
-  }>({ seats: 'all' });
+    program?: Athlete['program'] | 'all';
+  }>({ program: 'all' });
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
@@ -111,8 +75,8 @@ export function BoatTable({ data }: IBoatTableProps) {
   });
 
   const filteredData = useMemo(() => {
-    if (filterBy.seats === 'all') return data;
-    return data.filter((item) => item.seats === filterBy.seats);
+    if (filterBy.program === 'all') return data;
+    return data.filter((item) => item.program === filterBy.program);
   }, [data, filterBy]);
 
   const table = useReactTable({
@@ -137,26 +101,26 @@ export function BoatTable({ data }: IBoatTableProps) {
   return (
     <div className="w-full flex-col justify-start gap-6">
       <div className="flex items-center justify-between p-4 lg:px-6">
-        <Label htmlFor="view-selector" className="sr-only">
-          View
+        <Label htmlFor="program-selector" className="sr-only">
+          Program
         </Label>
         <Select
-          defaultValue="outline"
-          value={filterBy.seats}
+          defaultValue="all"
+          value={filterBy.program}
           onValueChange={(value) => {
             setFilterBy((prev) => ({
               ...prev,
-              seats: boatSizes.find((i) => i === value) || 'all',
+              program: programOptions.find((i) => i === value) || 'all',
             }));
           }}
         >
-          <SelectTrigger className="flex w-fit" size="sm" id="view-selector">
-            <SelectValue placeholder="Select a view" />
+          <SelectTrigger className="flex w-fit" size="sm" id="program-selector">
+            <SelectValue placeholder="Select a program" />
           </SelectTrigger>
           <SelectContent>
-            {boatSizes.map((seats) => (
-              <SelectItem key={seats} value={seats}>
-                {seats === 'all' ? 'All Boats' : formatSeatSetup({ seats })}
+            {programOptions.map((program) => (
+              <SelectItem key={program} value={program}>
+                {program === 'all' ? 'All Programs' : formatProgram(program)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -164,9 +128,9 @@ export function BoatTable({ data }: IBoatTableProps) {
 
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
-            <a href="/boats/create">
+            <a href="/athletes/create">
               <IconPlus />
-              <span className="hidden lg:inline">Add Boat</span>
+              <span className="hidden lg:inline">Add Athlete</span>
             </a>
           </Button>
         </div>
@@ -233,7 +197,7 @@ export function BoatTable({ data }: IBoatTableProps) {
         </div>
         <div className="flex items-center justify-between px-4">
           <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-            {table.getFilteredRowModel().rows.length} of {data.length} boats.
+            {table.getFilteredRowModel().rows.length} of {data.length} athletes.
           </div>
         </div>
       </div>

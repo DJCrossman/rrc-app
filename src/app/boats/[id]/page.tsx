@@ -5,7 +5,7 @@ import { Boat } from '@/schemas';
 import { notFound } from 'next/navigation';
 
 interface BoatDetailsPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function BoatDetailsPage({

@@ -41,7 +41,7 @@ const data = {
     },
     {
       title: 'Athletes',
-      url: '#',
+      url: routes.athletes.list(),
       icon: IconUsers,
     },
     {

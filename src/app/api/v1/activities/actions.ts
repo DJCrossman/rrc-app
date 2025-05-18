@@ -9,7 +9,10 @@ const activitiesParsed = activitiesDBSchema.parse(activities);
 const atheletesParsed = athletesSchema.parse(athletes);
 const boatsParsed = boatsSchema.parse(boats);
 
-export const getActivities = async ({ boatId }: { boatId?: number }) => {
+export const getActivities = async ({
+  boatId,
+  athleteId,
+}: { boatId?: number; athleteId?: number }) => {
   const activities = activitiesParsed.map((activity) => {
     const boat =
       boatsParsed.find((boat) => boat.id === activity.boatId) ?? null;
@@ -34,6 +37,9 @@ export const getActivities = async ({ boatId }: { boatId?: number }) => {
     .filter((activity) => {
       if (boatId) {
         return activity.boat?.id === boatId;
+      }
+      if (athleteId) {
+        return activity.athlete?.id === athleteId;
       }
       return true;
     })

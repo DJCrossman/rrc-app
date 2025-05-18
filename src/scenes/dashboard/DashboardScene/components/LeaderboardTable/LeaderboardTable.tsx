@@ -41,7 +41,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { formatMeters } from '@/lib/formatters';
+import { formatMeters, formatProgram } from '@/lib/formatters';
 import { Leaderboard } from '@/schemas/leaderboard.schema';
 
 const columns: ColumnDef<Leaderboard[number]>[] = [
@@ -54,18 +54,13 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
   {
     accessorKey: 'program',
     header: 'Program',
-    cell: ({ row }) => {
-      const programTitle =
-        row.original.program.charAt(0).toUpperCase() +
-        row.original.program.slice(1);
-      return (
-        <div className="w-16">
-          <Badge variant="outline" className="text-muted-foreground px-1.5">
-            {programTitle}
-          </Badge>
-        </div>
-      );
-    },
+    cell: ({ row }) => (
+      <div className="w-16">
+        <Badge variant="outline" className="text-muted-foreground px-1.5">
+          {formatProgram(row.original.program)}
+        </Badge>
+      </div>
+    ),
     enableSorting: true,
   },
   {
