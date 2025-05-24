@@ -18,7 +18,7 @@ const activityDBSchema = activityCoreSchema.extend({
   stravaId: z.number().nullable(),
 });
 
-export type ActivitaDB = z.infer<typeof activityDBSchema>;
+export type ActivityDB = z.infer<typeof activityDBSchema>;
 
 export const activitiesDBSchema = z.array(activityDBSchema);
 

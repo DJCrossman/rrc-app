@@ -1,13 +1,52 @@
 'use server';
+import { usersSchema } from '@/schemas';
 import {
   Athlete,
   CreateAthlete,
+  athleteDBSchema,
   athleteSchema,
   athletesSchema,
 } from '@/schemas/athlete.schema';
+import { membershipsSchema } from '@/schemas/memberships.schema';
+import { DateTime, Interval } from 'luxon';
+import memberships from '../memberships/memberships.json';
+import users from '../users/users.json';
 import athletes from './athletes.json';
 
-const athletesParsed = athletesSchema.parse(athletes);
+const membershipsParsed = membershipsSchema.parse(memberships);
+const usersParsed = usersSchema.parse(users);
+const athletesParsed = athletesSchema.parse(
+  athletes.map((athlete) => {
+    const athleteEntity = athleteDBSchema.parse(athlete);
+    const user = usersParsed.find((user) => user.id === athleteEntity.userId);
+    const name = user?.roles.includes('admin')
+      ? [
+          user?.firstName,
+          user?.nickName ? `(${user?.nickName})` : '',
+          user?.lastName,
+        ]
+          .filter(Boolean)
+          .join(' ')
+      : user?.nickName || user?.firstName;
+    const activeMembership = membershipsParsed.find(
+      (membership) =>
+        membership.athleteId === athleteEntity.id &&
+        Interval.fromDateTimes(
+          DateTime.fromISO(membership.startDate),
+          DateTime.fromISO(membership.endDate),
+        ).contains(DateTime.now()),
+    );
+    const programType = membershipsParsed[0]?.programType;
+    return athleteSchema.parse({
+      ...user,
+      ...athlete,
+      userId: athleteEntity.userId,
+      name,
+      activeMembership,
+      programType,
+    });
+  }),
+);
 
 export const getAthletes = async () => {
   return {
@@ -21,8 +60,19 @@ export async function getAthleteById(id: number): Promise<Athlete | null> {
 }
 
 export const createAthlete = async (data: CreateAthlete): Promise<Athlete> => {
+  const name = data?.roles.includes('admin')
+    ? [
+        data?.firstName,
+        data?.nickName ? `(${data?.nickName})` : '',
+        data?.lastName,
+      ]
+        .filter(Boolean)
+        .join(' ')
+    : data?.nickName || data?.firstName;
   const athlete = athleteSchema.parse({
     id: athletesParsed.length + 1,
+    userId: usersParsed.length + 1,
+    name,
     ...data,
   });
   athletesParsed.push(athlete);

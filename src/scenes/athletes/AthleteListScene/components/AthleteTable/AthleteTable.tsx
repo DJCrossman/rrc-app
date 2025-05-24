@@ -1,6 +1,13 @@
 'use client';
 
-import { IconCaretDown, IconCaretUp, IconPlus } from '@tabler/icons-react';
+import {
+  IconCaretDown,
+  IconCaretUp,
+  IconCircleCheck,
+  IconPlus,
+  IconSpeakerphone,
+  IconUserCog,
+} from '@tabler/icons-react';
 import {
   ColumnDef,
   SortingState,
@@ -34,9 +41,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { formatProgram } from '@/lib/formatters';
-import { Athlete, Athletes, ProgramType } from '@/schemas';
+import { Athlete, Athletes, ProgramTypes } from '@/schemas';
+import { DateTime } from 'luxon';
 
-const programOptions = ['all', ...ProgramType] as const;
+const programOptions = ['all', ...ProgramTypes] as const;
+const activeMembershipOptions = ['all', 'true', 'false'] as const;
 
 const columns: ColumnDef<Athlete>[] = [
   {
@@ -49,14 +58,40 @@ const columns: ColumnDef<Athlete>[] = [
     enableSorting: true,
   },
   {
-    accessorKey: 'program',
+    accessorKey: 'activeMembership',
+    header: 'Active',
+    sortingFn: (rowA, rowB) => {
+      const a = rowA.getValue('activeMembership') ? 1 : 0;
+      const b = rowB.getValue('activeMembership') ? 1 : 0;
+      return a - b;
+    },
+    cell: ({ row }) =>
+      !!row.original.activeMembership ? (
+        <IconCircleCheck size={16} className="text-green-500" />
+      ) : null,
+  },
+  {
+    accessorKey: 'programType',
     header: 'Program',
-    cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
-        {formatProgram(row.original.program)}
-      </Badge>
-    ),
+    cell: ({ row }) =>
+      !row.original.programType ? (
+        ''
+      ) : (
+        <Badge variant="outline" className="text-muted-foreground px-1.5">
+          {formatProgram(row.original.programType)}
+        </Badge>
+      ),
     enableSorting: true,
+  },
+  {
+    accessorKey: 'dateJoined',
+    header: 'Date Joined',
+    cell: ({ row }) =>
+      row.original.dateJoined &&
+      DateTime.fromISO(row.original.dateJoined).toLocaleString({
+        month: 'short',
+        year: 'numeric',
+      }),
   },
 ];
 
@@ -66,17 +101,25 @@ interface IAthleteTableProps {
 
 export function AthleteTable({ data }: IAthleteTableProps) {
   const [filterBy, setFilterBy] = useState<{
-    program?: Athlete['program'] | 'all';
-  }>({ program: 'all' });
+    program?: Athlete['programType'] | 'all';
+    isActive?: 'true' | 'false' | 'all';
+  }>({ program: 'all', isActive: 'all' });
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 100,
   });
 
   const filteredData = useMemo(() => {
-    if (filterBy.program === 'all') return data;
-    return data.filter((item) => item.program === filterBy.program);
+    return data.filter((item) => {
+      if (filterBy.program && filterBy.program !== 'all') {
+        return item.programType === filterBy.program;
+      }
+      if (filterBy.isActive !== undefined && filterBy.isActive !== 'all') {
+        return !!item.activeMembership === (filterBy.isActive === 'true');
+      }
+      return true;
+    });
   }, [data, filterBy]);
 
   const table = useReactTable({
@@ -101,30 +144,69 @@ export function AthleteTable({ data }: IAthleteTableProps) {
   return (
     <div className="w-full flex-col justify-start gap-6">
       <div className="flex items-center justify-between p-4 lg:px-6">
-        <Label htmlFor="program-selector" className="sr-only">
-          Program
-        </Label>
-        <Select
-          defaultValue="all"
-          value={filterBy.program}
-          onValueChange={(value) => {
-            setFilterBy((prev) => ({
-              ...prev,
-              program: programOptions.find((i) => i === value) || 'all',
-            }));
-          }}
-        >
-          <SelectTrigger className="flex w-fit" size="sm" id="program-selector">
-            <SelectValue placeholder="Select a program" />
-          </SelectTrigger>
-          <SelectContent>
-            {programOptions.map((program) => (
-              <SelectItem key={program} value={program}>
-                {program === 'all' ? 'All Programs' : formatProgram(program)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <Label htmlFor="program-selector" className="sr-only">
+            Program
+          </Label>
+          <Select
+            defaultValue="all"
+            value={filterBy.program}
+            onValueChange={(value) => {
+              setFilterBy((prev) => ({
+                ...prev,
+                program: programOptions.find((i) => i === value) || 'all',
+              }));
+            }}
+          >
+            <SelectTrigger
+              className="flex w-fit"
+              size="sm"
+              id="program-selector"
+            >
+              <SelectValue placeholder="Select a program" />
+            </SelectTrigger>
+            <SelectContent>
+              {programOptions.map((program) => (
+                <SelectItem key={program} value={program}>
+                  {program === 'all' ? 'All Programs' : formatProgram(program)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Label htmlFor="active-membership-selector" className="sr-only">
+            Active Membership
+          </Label>
+          <Select
+            defaultValue="all"
+            value={filterBy.isActive?.toString()}
+            onValueChange={(value) => {
+              setFilterBy((prev) => ({
+                ...prev,
+                isActive:
+                  activeMembershipOptions.find((i) => i === value) || 'all',
+              }));
+            }}
+          >
+            <SelectTrigger
+              className="flex w-fit"
+              size="sm"
+              id="active-membership-selector"
+            >
+              <SelectValue placeholder="Select a program" />
+            </SelectTrigger>
+            <SelectContent>
+              {activeMembershipOptions.map((membership) => (
+                <SelectItem key={membership} value={membership}>
+                  {membership === 'all'
+                    ? 'Active & Inactive'
+                    : membership === 'true'
+                      ? 'Active'
+                      : 'Inactive'}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">

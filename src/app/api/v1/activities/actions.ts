@@ -1,12 +1,30 @@
 'use server';
 import { activitiesDBSchema, activitySchema, boatsSchema } from '@/schemas';
-import { athletesSchema } from '@/schemas/athlete.schema';
+import { usersSchema } from '@/schemas';
+import {
+  athleteDBSchema,
+  athleteSchema,
+  athletesSchema,
+} from '@/schemas/athlete.schema';
 import athletes from '../athletes/athletes.json';
 import boats from '../boats/boats.json';
+import users from '../users/users.json';
 import activities from './activities.json';
 
+const usersParsed = usersSchema.parse(users);
 const activitiesParsed = activitiesDBSchema.parse(activities);
-const atheletesParsed = athletesSchema.parse(athletes);
+const athletesParsed = athletesSchema.parse(
+  athletes.map((athlete) => {
+    const athleteEntity = athleteDBSchema.parse(athlete);
+    const user = usersParsed.find((user) => user.id === athleteEntity.userId);
+    return athleteSchema.parse({
+      ...user,
+      ...athlete,
+      userId: athleteEntity.userId,
+      name: user?.nickName || user?.firstName,
+    });
+  }),
+);
 const boatsParsed = boatsSchema.parse(boats);
 
 export const getActivities = async ({
@@ -19,7 +37,7 @@ export const getActivities = async ({
     return activitySchema.parse({
       id: activity.id,
       athlete:
-        atheletesParsed.find((athlete) => athlete.id === activity.athleteId) ??
+        athletesParsed.find((athlete) => athlete.id === activity.athleteId) ??
         null,
       boat,
       workout: null,

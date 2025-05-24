@@ -1,0 +1,145 @@
+[
+  {
+    "id": 1,
+    "firstName": "David",
+    "lastName": "Crossman",
+    "nickname": "Young Dave",
+    "gender": "male",
+    "roles": ["admin", "coach", "athlete"],
+    "phone": "13067777777",
+    "dateOfBirth": "1990-01-01",
+    "dateJoined": "2020-01-01"
+  },
+  {
+    "id": 2,
+    "firstName": "Ivy",
+    "lastName": "Smith",
+    "nickname": "Ivy",
+    "gender": "female",
+    "roles": ["athlete"],
+    "phone": "13067778888",
+    "dateOfBirth": "1995-02-02",
+    "dateJoined": "2020-02-02"
+  },
+  {
+    "id": 3,
+    "firstName": "Gabe",
+    "lastName": "Johnson",
+    "nickname": "Gabe",
+    "gender": "male",
+    "roles": ["athlete"],
+    "phone": "13067779999",
+    "dateOfBirth": "1996-03-03",
+    "dateJoined": "2020-03-03"
+  },
+  {
+    "id": 4,
+    "firstName": "Mike",
+    "lastName": "Brown",
+    "nickname": "Mike",
+    "gender": "male",
+    "roles": ["athlete"],
+    "phone": "13067771111",
+    "dateOfBirth": "1997-04-04",
+    "dateJoined": "2020-04-04"
+  },
+  {
+    "id": 5,
+    "firstName": "Sarah",
+    "lastName": "Davis",
+    "nickname": "Sarah",
+    "gender": "female",
+    "roles": ["athlete"],
+    "phone": "13067772222",
+    "dateOfBirth": "1998-05-05",
+    "dateJoined": "2020-05-05"
+  },
+  {
+    "id": 6,
+    "firstName": "Michelle",
+    "lastName": "Wilson",
+    "nickname": "Michelle",
+    "gender": "female",
+    "roles": ["athlete"],
+    "phone": "13067773333",
+    "dateOfBirth": "1999-06-06",
+    "dateJoined": "2020-06-06"
+  },
+  {
+    "id": 7,
+    "firstName": "Angie",
+    "lastName": "Taylor",
+    "nickname": "Angie",
+    "gender": "female",
+    "roles": ["athlete"],
+    "phone": "13067774444",
+    "dateOfBirth": "2000-07-07",
+    "dateJoined": "2020-07-07"
+  },
+  {
+    "id": 8,
+    "firstName": "Ainsley",
+    "lastName": "Anderson",
+    "nickname": "Ainsley",
+    "gender": "female",
+    "roles": ["athlete"],
+    "phone": "13067775555",
+    "dateOfBirth": "2001-08-08",
+    "dateJoined": "2020-08-08"
+  },
+  {
+    "id": 9,
+    "firstName": "Brenda",
+    "lastName": "Thomas",
+    "nickname": "Brenda",
+    "gender": "female",
+    "roles": ["athlete"],
+    "phone": "13067776666",
+    "dateOfBirth": "2002-09-09",
+    "dateJoined": "2020-09-09"
+  },
+  {
+    "id": 10,
+    "firstName": "Nykole",
+    "lastName": "Moore",
+    "nickname": "Nykole",
+    "gender": "female",
+    "roles": ["athlete"],
+    "phone": "13067777777",
+    "dateOfBirth": "2003-10-10",
+    "dateJoined": "2020-10-10"
+  },
+  {
+    "id": 11,
+    "firstName": "Jinger",
+    "lastName": "White",
+    "nickname": "Jinger",
+    "gender": "female",
+    "roles": ["coach", "athlete"],
+    "phone": "13067778888",
+    "dateOfBirth": "2004-11-11",
+    "dateJoined": "2020-11-11"
+  },
+  {
+    "id": 12,
+    "firstName": "Nolan",
+    "lastName": "Harris",
+    "nickname": "Nolan",
+    "gender": "male",
+    "roles": ["athlete"],
+    "phone": "13067779999",
+    "dateOfBirth": "2005-12-12",
+    "dateJoined": "2020-12-12"
+  },
+  {
+    "id": 13,
+    "firstName": "Bre",
+    "lastName": "Martin",
+    "nickname": "Bre",
+    "gender": "female",
+    "roles": ["athlete"],
+    "phone": "13067771111",
+    "dateOfBirth": "2006-01-13",
+    "dateJoined": "2021-01-13"
+  }
+]

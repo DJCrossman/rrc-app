@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "athleteId": 2,
+    "programId": 1,
+    "name": "Adult Club Membership - On Water",
+    "description": "The Adult Club Membership includes the annual Rowing Canada Aviron(RCA) membership and the annual Saskatchewan Rowing Association (SRA) membership. Registered rowers are required to hold both RCA and SRA memberships for insurance purposes. The Adult Club Membership is for athletes who have completed Learn to Row and rowing experience. Schedule: Monday and Wednesday at 6-7:30 pm, Tuesday and Thursday at 5:30 am and Saturdays at 8:00 am. Fundraising Requirement: 2 Firewood ShiftsFee: $549 for May 11th-September 13th, 2025 (plus $29.40 RCA fee and $21.50 SRA fee) + $100 Fundraising Deposit",
+    "programType": "masters",
+    "startDate": "2025-04-01",
+    "endDate": "2026-03-31"
+  },
+  {
+    "id": 2,
+    "athleteId": 3,
+    "programId": 2,
+    "name": "Adult Competitive Membership - On Water",
+    "description": "The High Performance Membership includes the annual Rowing Canada Aviron(RCA) membership and the annual Saskatchewan Rowing Association (SRA) membership. Registered rowers are required to hold both RCA and SRA memberships for insurance purposes. The Adult Competitive Membership is designed for experienced rowers who plan to train daily and compete at regattas. Regular attendance and commitment to attending regattas is encouraged. Coached sessions Mondays-Fridays at 5:30 am and Saturdays at 8:00 am. Non-coached sessions available Mondays and Wednesdays at 6 pm. Fundraising Requirement - 2 Firewood delivery shiftsFee: $875 for the year (includes $29.40 RCA fee and $21.50 SRA fee) + Fundraising Deposit $100 Monthly payment option available - please select the offline payment option and to set the monthly payment up, email the club at info@reginarowing.ca.",
+    "programType": "masters",
+    "startDate": "2025-04-01",
+    "endDate": "2026-03-31"
+  },
+  {
+    "id": 3,
+    "athleteId": 4,
+    "programId": 3,
+    "name": "Adult Learn to Row 2025 - Session #2",
+    "description": "Adult Learn to Row 2025 - Session #2Program Details:Adult Learn to Row 2025 includes the annual Rowing Canada Aviron(RCA) membership and the annual Saskatchewan Rowing Association (SRA) membership. Registered rowers are required to hold both RCA and SRA memberships for insurance purposes. Introductory programType for those new (19yrs +) to rowing. Session #2 runs May 20, May 22, May 27 and May 29 from 6-7:45 pm + 2 Club Sessions. Fee: $249.90 (includes $29.40 RCA fee and $21.50 SRA fee)",
+    "programType": "masters",
+    "startDate": "2025-04-01",
+    "endDate": "2026-03-24"
+  },
+  {
+    "id": 4,
+    "athleteId": 5,
+    "programId": 4,
+    "name": "Adult Learn to Row 2025 - Session #3",
+    "description": "Adult Learn to Row 2025 - Session #3Program Details:Adult Learn to Row 2025 includes the annual Rowing Canada Aviron(RCA) membership and the annual Saskatchewan Rowing Association (SRA) membership. Registered rowers are required to hold both RCA and SRA memberships for insurance purposes. Introductory programType for those new (19yrs +) to rowing. Session #2 runs May 17th, 18th, 24th and 25th from 10-11:30 pm + 2 Club Sessions. Fee: $249.90 (includes $29.40 RCA fee and $21.50 SRA fee)",
+    "programType": "masters",
+    "startDate": "2025-04-01",
+    "endDate": "2026-03-24"
+  },
+  {
+    "id": 5,
+    "athleteId": 13,
+    "programId": 5,
+    "name": "Alumni Membership",
+    "description": "The Alumni Membership includes the annual Rowing Canada Aviron(RCA) membership and the annual Saskatchewan Rowing Association (SRA) membership. Registered rowers are required to hold both RCA and SRA memberships for insurance purposes.The Alumni Membership is available for members with previous rowing experience who are capable of rowing independently or jump in with experienced crews. The Alumni membership permits athletes to row once a week throughout the on water season and compete at Sprints.Fee: $199 for April 1st-September 13th, 2025 (includes $29.40 RCA fee and $21.50 SRA fee)",
+    "programType": "alumni",
+    "startDate": "2025-04-01",
+    "endDate": "2026-03-31"
+  },
+  {
+    "id": 6,
+    "athleteId": 8,
+    "programId": 6,
+    "name": "Junior A Membership - Summer Program",
+    "description": "The Junior A Membership includes the annual Rowing Canada Aviron(RCA) membership and the annual Saskatchewan Rowing Association (SRA) membership.Registered rowers are required to hold both RCA and SRA memberships for insurance purposes. The Junior A Membership is for youth athletes with a high degree of skill and row in all boat classes. The Summer Program runs April 1st-October 18th and focus regattas being Alberta Open and Canada Cup. Schedule: Monday-Friday from 5:30-7:15 am, Monday, Wednesday and Friday from 4:15-5:45 pm and Saturdays from 8-10 am. Fundraising Requirement - 2 Firewood delivery shiftsFee: $875 (plus $29.40 RCA fee and $21.50 SRA fee) + $100 Fundraising DepositMonthly payment option available - please select the offline payment option and to set the monthly payment up, email the club at info@reginarowing.ca.",
+    "programType": "juniors",
+    "startDate": "2025-04-01",
+    "endDate": "2026-03-31"
+  },
+  {
+    "id": 7,
+    "athleteId": 9,
+    "programId": 7,
+    "name": "Junior B Membership - Summer Program",
+    "description": "The Junior B Membership includes the annual Rowing Canada Aviron(RCA) membership and the annual Saskatchewan Rowing Association (SRA) membership.Registered rowers are required to hold both RCA and SRA memberships for insurance purposes. The Junior B Membership is for youth athletes with rowing experience. The Summer Program runs May 11th-September 13th and focus regattas being Alberta Open and NWIRA. Schedule: Monday, Wednesday and Friday from 4:15-5:45 pm and Saturdays from 8-10 am. Additional morning sessions and Tuesday/Thursday afternoon sessions will be available. Fundraising Requirement - 2 Firewood delivery shifts.Fee: $549 (plus $29.40 RCA fee and $21.50 SRA fee if not paid previously) + $100 Fundraising Deposit",
+    "programType": "juniors",
+    "startDate": "2025-04-01",
+    "endDate": "2026-03-31"
+  },
+  {
+    "id": 8,
+    "athleteId": 10,
+    "programId": 8,
+    "name": "Junior C Membership - Summer Program",
+    "description": "The Junior C Membership includes the annual Rowing Canada Aviron(RCA) membership and the annual Saskatchewan Rowing Association (SRA) membership.Registered rowers are required to hold both RCA and SRA memberships for insurance purposes. The Junior C Membership is for youth athletes with who have completed the Junior Novice or a Learn to Row programType. The Summer Program runs May 12th-June 26th and focus regattas being Regina Sprints and Tops and Bottoms. Schedule: Tuesdays and Thursdays from 4:15-5:45 pm and Saturdays from 8-10 am. Additional morning sessions and Tuesday/Thursday afternoon sessions will be available. Fundraising Requirement - 1 Firewood delivery shiftFee: $279 (plus $29.40 RCA fee and $21.50 SRA fee if not paid previously) + $50 Fundraising Deposit",
+    "programType": "juniors",
+    "startDate": "2025-04-01",
+    "endDate": "2026-03-31"
+  },
+  {
+    "id": 9,
+    "athleteId": 11,
+    "programId": 9,
+    "name": "Junior High Performance Camp 2025",
+    "description": "Junior High Performance Camp RRC Membership includes the annual Rowing Canada Aviron(RCA) membership and the annual Saskatchewan Rowing Association (SRA) membership. Registered rowers are required to hold both RCA and SRA memberships for insurance purposes. The camp runs July 7th-July 11th from 9 am-12 pm daily. For athletes with a high performance sport background with no rowing experience (13-18 years).Fee: $199 (plus $29.40 RCA fee and $21.50 SRA fee if not paid previously)",
+    "programType": "juniors",
+    "startDate": "2025-04-01",
+    "endDate": "2026-03-31"
+  },
+  {
+    "id": 10,
+    "athleteId": 11,
+    "programId": 10,
+    "name": "Junior Novice",
+    "description": "The Junior Membership includes the annual Rowing Canada Aviron(RCA) membership and the annual Saskatchewan Rowing Association (SRA) membership. _Registered rowers are required to hold both RCA and SRA memberships for insurance purposes. The Junior Novice is is our major intake programType for junior athletes(12-17yrs) with no rowing experience. The 4 sessions are used to explain the sport, teach basic body movements, boat handling, on water safety and get athletes on the water. Following the Novice sessions, athletes will be offered spots in Junior Summer Programs should they wish to continue with the sport. Dates: May 3rd, May 4th, May 10th, May 11th 10 am-1 pm.Fee: $75 (includes $29.40 RCA fee and $21.50 SRA fee)",
+    "programType": "juniors",
+    "startDate": "2025-04-01",
+    "endDate": "2026-03-31"
+  },
+  {
+    "id": 11,
+    "athleteId": 12,
+    "programId": 11,
+    "name": "Junior Youth Camp 2025",
+    "description": "Junior Youth Camp 2025 includes the annual Rowing Canada Aviron(RCA) membership and the annual Saskatchewan Rowing Association (SRA) membership. Registered rowers are required to hold both RCA and SRA memberships for insurance purposes. The camp runs July 14th-July 18th from 9 am-12 pm daily. For youth aged 12-16 years interested in learning to row.Fee: $199 (plus $29.40 RCA fee and $21.50 SRA fee if not paid previously)",
+    "programType": "juniors",
+    "startDate": "2025-04-01",
+    "endDate": "2026-03-31"
+  },
+  {
+    "id": 708904,
+    "athleteId": 1,
+    "programId": 12,
+    "name": "Adult Club Membership - On Water",
+    "description": "N/A",
+    "programType": "masters",
+    "startDate": "2025-04-09",
+    "endDate": "2026-03-31"
+  },
+  {
+    "id": 655533,
+    "athleteId": 1,
+    "programId": 13,
+    "name": "Club Membership",
+    "description": "N/A",
+    "programType": "masters",
+    "startDate": "2024-04-15",
+    "endDate": "2025-03-31"
+  },
+  {
+    "id": 694361,
+    "athleteId": 1,
+    "programId": 14,
+    "name": "Masters Competitive (HP) Indoor Membership",
+    "description": "N/A",
+    "programType": "masters",
+    "startDate": "2024-10-22",
+    "endDate": "2025-03-31"
+  },
+  {
+    "id": 618126,
+    "athleteId": 1,
+    "programId": 15,
+    "name": "Adult/Masters Recreational On Water 2023",
+    "description": "N/A",
+    "programType": "masters",
+    "startDate": "2023-06-12",
+    "endDate": "2024-03-31"
+  },
+  {
+    "id": 639118,
+    "athleteId": 1,
+    "programId": 16,
+    "name": "Open Indoor 2023/2024 Membership",
+    "description": "N/A",
+    "programType": "masters",
+    "startDate": "2023-11-02",
+    "endDate": "2024-03-31"
+  }
+]

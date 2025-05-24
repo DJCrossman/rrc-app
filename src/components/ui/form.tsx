@@ -1,5 +1,6 @@
 'use client';
 
+import { DevTool } from '@hookform/devtools';
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
 import * as React from 'react';
@@ -16,7 +17,75 @@ import {
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-const Form = FormProvider;
+const FormDevTools = () => {
+  const form = useFormContext();
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const isLocalhost = window.location.hostname === 'localhost';
+  if (!isLocalhost) {
+    return null;
+  }
+  return <DevTool control={form.control} />;
+};
+
+function HiddenFormMessage() {
+  const form = useFormContext();
+
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const errors = Object.entries(form.formState.errors || {});
+
+  const isLocalhost = window.location.hostname === 'localhost';
+  if (!isLocalhost) {
+    return null;
+  }
+
+  if (
+    form.formState.isSubmitSuccessful ||
+    form.formState.isSubmitting ||
+    !form.formState.isSubmitted ||
+    errors.length === 0
+  ) {
+    return null;
+  }
+
+  return (
+    <p data-slot="form-message" className="text-destructive text-sm mb-4">
+      Some unexpected error occurred:
+      <details>
+        <summary>See details</summary>
+        <ul className="list-disc pl-4">
+          {errors.map(([name, error]) => (
+            <li key={name}>
+              {name}: {JSON.stringify(error)}
+            </li>
+          ))}
+        </ul>
+      </details>
+    </p>
+  );
+}
+
+const Form = <
+  TFieldValues extends FieldValues,
+  TContext = any,
+  TTransformedValues = TFieldValues,
+>({
+  children,
+  ...rest
+}: React.PropsWithChildren<
+  React.ComponentProps<
+    typeof FormProvider<TFieldValues, TContext, TTransformedValues>
+  >
+>) => (
+  <FormProvider<TFieldValues, TContext, TTransformedValues> {...rest}>
+    <HiddenFormMessage />
+    {children}
+    <FormDevTools />
+  </FormProvider>
+);
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,

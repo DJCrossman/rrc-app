@@ -3,28 +3,14 @@
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
+import { phoneNumberSchema } from '@/schemas/phoneNumber.schema';
 import { zodResolver } from '@hookform/resolvers/zod';
-import parsePhoneNumber from 'libphonenumber-js';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { PhoneInput } from '../../../../../components/phone-input';
 
 const FormSchema = z.object({
-  phoneNumber: z.string().transform((value, ctx) => {
-    const phoneNumber = parsePhoneNumber(value, {
-      defaultCountry: 'FI',
-    });
-
-    if (!phoneNumber?.isValid()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Invalid phone number',
-      });
-      return z.NEVER;
-    }
-
-    return phoneNumber.formatInternational();
-  }),
+  phoneNumber: phoneNumberSchema,
 });
 
 interface LoginFormProps {

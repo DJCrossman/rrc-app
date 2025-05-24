@@ -1,67 +1,69 @@
 [
   {
     "id": 1,
-    "name": "Sarah ",
-    "program": "masters"
+    "userId": 1,
+    "membershipIds": [
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 708904, 655533, 694361, 618126, 639118
+    ]
   },
   {
     "id": 2,
-    "name": "Ivy",
-    "program": "masters"
+    "userId": 2,
+    "membershipIds": []
   },
   {
     "id": 3,
-    "name": "Gabe",
-    "program": "masters"
+    "userId": 3,
+    "membershipIds": []
   },
   {
     "id": 4,
-    "name": "Mike",
-    "program": "masters"
+    "userId": 4,
+    "membershipIds": []
   },
   {
     "id": 5,
-    "name": "David ",
-    "program": "masters"
+    "userId": 5,
+    "membershipIds": []
   },
   {
     "id": 6,
-    "name": "Michelle ",
-    "program": "masters"
+    "userId": 6,
+    "membershipIds": []
   },
   {
     "id": 7,
-    "name": "Angie ",
-    "program": "masters"
+    "userId": 7,
+    "membershipIds": []
   },
   {
     "id": 8,
-    "name": "Ainsley ",
-    "program": "juniors"
+    "userId": 8,
+    "membershipIds": []
   },
   {
     "id": 9,
-    "name": "Brenda ",
-    "program": "juniors"
+    "userId": 9,
+    "membershipIds": []
   },
   {
     "id": 10,
-    "name": "Nykole",
-    "program": "juniors"
+    "userId": 10,
+    "membershipIds": []
   },
   {
     "id": 11,
-    "name": "Jinger ",
-    "program": "juniors"
+    "userId": 11,
+    "membershipIds": []
   },
   {
     "id": 12,
-    "name": "Nolan",
-    "program": "juniors"
+    "userId": 12,
+    "membershipIds": []
   },
   {
     "id": 13,
-    "name": "Bre",
-    "program": "alumni"
+    "userId": 13,
+    "membershipIds": []
   }
 ]

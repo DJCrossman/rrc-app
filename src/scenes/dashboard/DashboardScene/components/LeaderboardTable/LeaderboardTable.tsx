@@ -57,7 +57,7 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
     cell: ({ row }) => (
       <div className="w-16">
         <Badge variant="outline" className="text-muted-foreground px-1.5">
-          {formatProgram(row.original.program)}
+          {formatProgram(row.original.programType)}
         </Badge>
       </div>
     ),
@@ -83,7 +83,7 @@ interface ILeaderboardTableProps {
 export function LeaderboardTable({ data }: ILeaderboardTableProps) {
   const [rowSelection, setRowSelection] = useState({});
   const [filterBy, setFilterBy] = useState<{
-    program?: Leaderboard[number]['program'] | 'all';
+    program?: Leaderboard[number]['programType'] | 'all';
   }>({ program: 'all' });
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({
@@ -93,7 +93,7 @@ export function LeaderboardTable({ data }: ILeaderboardTableProps) {
 
   const filteredData = useMemo(() => {
     if (filterBy.program === 'all') return data;
-    return data.filter((item) => item.program === filterBy.program);
+    return data.filter((item) => item.programType === filterBy.program);
   }, [data, filterBy]);
 
   const table = useReactTable({
