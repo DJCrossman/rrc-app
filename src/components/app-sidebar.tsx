@@ -46,7 +46,7 @@ const data = {
     },
     {
       title: 'Training Plans',
-      url: '#',
+      url: routes.workouts.list(),
       icon: IconFolder,
     },
   ],

@@ -6,3 +6,4 @@ export * from './formatSeatSetup';
 export * from './formatManufacturer';
 export * from './formatProgram';
 export * from './formatRole';
+export * from './formatDuration';
