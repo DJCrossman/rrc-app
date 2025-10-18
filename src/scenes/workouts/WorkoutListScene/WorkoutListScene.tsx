@@ -29,7 +29,7 @@ export const WorkoutListScene = ({ data }: WorkoutListSceneProps) => {
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex items-center justify-between p-4 lg:px-6">
               <Heading as="h1">
-                Workouts
+                Training Plan
               </Heading>
               <div className="flex items-center gap-2">
                 <Button asChild variant="outline" size="sm">

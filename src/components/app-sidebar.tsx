@@ -26,7 +26,7 @@ const data = {
   user: {
     name: 'David',
     phone: '1 (306) 550 - 6678',
-    avatar: '/avatars/shadcn.jpg',
+    avatar: undefined,
   },
   navMain: [
     {
@@ -45,7 +45,7 @@ const data = {
       icon: IconUsers,
     },
     {
-      title: 'Training Plans',
+      title: 'Training Plan',
       url: routes.workouts.list(),
       icon: IconFolder,
     },
