@@ -12,6 +12,11 @@ export const routes = {
     create: () => '/athletes/create',
     view: (id: string) => `/athletes/${id}`,
   },
+  ergs: {
+    list: () => '/ergs',
+    create: () => '/ergs/create',
+    view: (id: string) => `/ergs/${id}`,
+  },
   workouts: {
     list: () => '/workouts',
     create: () => '/workouts/create',

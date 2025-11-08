@@ -4,6 +4,7 @@ import {
   IconDashboard,
   IconFolder,
   IconSailboat2,
+  IconTreadmill,
   IconUsers,
 } from '@tabler/icons-react';
 import * as React from 'react';
@@ -26,7 +27,7 @@ const data = {
   user: {
     name: 'David',
     phone: '1 (306) 550 - 6678',
-    avatar: undefined,
+    avatar: '',
   },
   navMain: [
     {
@@ -38,6 +39,11 @@ const data = {
       title: 'Boats',
       url: routes.boats.list(),
       icon: IconSailboat2,
+    },
+    {
+      title: 'ERGs',
+      url: routes.ergs.list(),
+      icon: IconTreadmill,
     },
     {
       title: 'Athletes',
