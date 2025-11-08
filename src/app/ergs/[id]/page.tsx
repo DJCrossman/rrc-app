@@ -8,9 +8,7 @@ interface ErgDetailsPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function ErgDetailsPage({
-  params,
-}: ErgDetailsPageProps) {
+export default async function ErgDetailsPage({ params }: ErgDetailsPageProps) {
   const { id } = await params;
   const erg = await getErgById(Number(id));
   const { data: activities } = await getActivities({ ergId: Number(id) });

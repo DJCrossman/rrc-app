@@ -1,12 +1,17 @@
 'use server';
-import { activitiesDBSchema, Activity, activitySchema, boatsSchema } from '@/schemas';
+import {
+  Activity,
+  activitiesDBSchema,
+  activitySchema,
+  boatsSchema,
+} from '@/schemas';
 import { usersSchema } from '@/schemas';
+import { ergsSchema } from '@/schemas';
 import {
   athleteDBSchema,
   athleteSchema,
   athletesSchema,
 } from '@/schemas/athlete.schema';
-import { ergsSchema } from '@/schemas';
 import athletes from '../athletes/athletes.json';
 import boats from '../boats/boats.json';
 import ergs from '../ergs/ergs.json';
@@ -36,10 +41,13 @@ export const getActivities = async ({
   ergId,
 }: { boatId?: number; athleteId?: number; ergId?: number }) => {
   const activities = activitiesParsed.map((activity) => {
-    const athlete = athletesParsed.find((athlete) => athlete.id === activity.athleteId) ?? null;
-    
+    const athlete =
+      athletesParsed.find((athlete) => athlete.id === activity.athleteId) ??
+      null;
+
     if (activity.type === 'water') {
-      const boat = boatsParsed.find((boat) => boat.id === activity.boatId) ?? null;
+      const boat =
+        boatsParsed.find((boat) => boat.id === activity.boatId) ?? null;
       if (!boat) {
         return null;
       }

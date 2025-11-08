@@ -43,7 +43,11 @@ interface DateInputProps
   onChange?: (e: PartialChangeEvent) => void;
 }
 
-export const DateTimeInput = ({ value, onChange, ...props }: DateInputProps) => (
+export const DateTimeInput = ({
+  value,
+  onChange,
+  ...props
+}: DateInputProps) => (
   <Popover>
     <PopoverTrigger asChild>
       <Input

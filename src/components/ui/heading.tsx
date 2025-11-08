@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 type HeadingTypes = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
@@ -19,18 +19,14 @@ const getClassName = (as: HeadingTypes) => {
     default:
       return '';
   }
-}
+};
 
-  export const Heading = ({
-    as = 'h1',
-    children,
-  }: React.PropsWithChildren<{
-    as?: HeadingTypes
-  }>) => {
-    const Component = as;
-    return (
-      <Component className={getClassName(as)}>
-        {children}
-      </Component>
-    );
-  }
+export const Heading = ({
+  as = 'h1',
+  children,
+}: React.PropsWithChildren<{
+  as?: HeadingTypes;
+}>) => {
+  const Component = as;
+  return <Component className={getClassName(as)}>{children}</Component>;
+};

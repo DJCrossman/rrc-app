@@ -51,9 +51,7 @@ const columns: ColumnDef<Erg>[] = [
     accessorKey: 'manufacturer',
     header: () => <div>Manufacturer</div>,
     cell: ({ row }) => (
-      <Badge variant="outline">
-        {row.original.manufacturer.toUpperCase()}
-      </Badge>
+      <Badge variant="outline">{row.original.manufacturer.toUpperCase()}</Badge>
     ),
     enableSorting: true,
   },
@@ -139,7 +137,7 @@ export function ErgTable({ data }: IErgTableProps) {
                         >
                           {flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                           {{
                             asc: <IconCaretUp className="ml-2 h-4 w-4" />,
@@ -149,7 +147,7 @@ export function ErgTable({ data }: IErgTableProps) {
                       ) : (
                         flexRender(
                           header.column.columnDef.header,
-                          header.getContext()
+                          header.getContext(),
                         )
                       )}
                     </TableHead>
@@ -169,7 +167,7 @@ export function ErgTable({ data }: IErgTableProps) {
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

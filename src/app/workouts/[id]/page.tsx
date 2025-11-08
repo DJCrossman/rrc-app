@@ -22,10 +22,5 @@ export default async function WorkoutDetailsPage({
     notFound();
   }
 
-  return (
-    <WorkoutDetailsScene
-      workout={workout}
-      onSubmit={handleSubmit}
-    />
-  );
+  return <WorkoutDetailsScene workout={workout} onSubmit={handleSubmit} />;
 }

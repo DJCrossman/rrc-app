@@ -1,5 +1,5 @@
 'use server';
-import { Erg, CreateErg, ergSchema, ergsSchema } from '@/schemas';
+import { CreateErg, Erg, ergSchema, ergsSchema } from '@/schemas';
 import ergs from './ergs.json';
 
 const ergsParsed = ergsSchema.parse(ergs);

@@ -22,10 +22,12 @@ export const WorkoutDetailsScene = ({
   const [isEditing, setIsEditing] = useState(false);
   return (
     <SidebarProvider
-      style={{
-        '--sidebar-width': 'calc(var(--spacing) * 72)',
-        '--header-height': 'calc(var(--spacing) * 12)',
-      }}
+      style={
+        {
+          '--sidebar-width': 'calc(var(--spacing) * 72)',
+          '--header-height': 'calc(var(--spacing) * 12)',
+        } as React.CSSProperties
+      }
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
@@ -63,12 +65,14 @@ export const WorkoutDetailsScene = ({
                     </p>
                     {workout.duration && (
                       <p>
-                        <strong>Duration:</strong> {formatDuration(workout.duration)}
+                        <strong>Duration:</strong>{' '}
+                        {formatDuration(workout.duration)}
                       </p>
                     )}
                     {workout.modifiedDescription && (
                       <p>
-                        <strong>Modified Description:</strong> {workout.modifiedDescription}
+                        <strong>Modified Description:</strong>{' '}
+                        {workout.modifiedDescription}
                       </p>
                     )}
                   </div>

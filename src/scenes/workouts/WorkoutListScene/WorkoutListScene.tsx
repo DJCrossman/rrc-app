@@ -2,13 +2,14 @@
 
 import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { Workouts } from '@/schemas/workouts.schema';
-import { WorkoutTable } from './WorkoutTable/WorkoutTable';
-import { Heading } from '@/components/ui/heading';
-import { routes } from '@/lib/routes';
-import { IconPlus } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
+import { Heading } from '@/components/ui/heading';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { routes } from '@/lib/routes';
+import { Workouts } from '@/schemas/workouts.schema';
+import { IconPlus } from '@tabler/icons-react';
+import React from 'react';
+import { WorkoutTable } from './WorkoutTable/WorkoutTable';
 
 interface WorkoutListSceneProps {
   data: Workouts;
@@ -17,10 +18,12 @@ interface WorkoutListSceneProps {
 export const WorkoutListScene = ({ data }: WorkoutListSceneProps) => {
   return (
     <SidebarProvider
-      style={{
-        '--sidebar-width': 'calc(var(--spacing) * 72)',
-        '--header-height': 'calc(var(--spacing) * 12)',
-      }}
+      style={
+        {
+          '--sidebar-width': 'calc(var(--spacing) * 72)',
+          '--header-height': 'calc(var(--spacing) * 12)',
+        } as React.CSSProperties
+      }
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
@@ -28,9 +31,7 @@ export const WorkoutListScene = ({ data }: WorkoutListSceneProps) => {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex items-center justify-between p-4 lg:px-6">
-              <Heading as="h1">
-                Training Plan
-              </Heading>
+              <Heading as="h1">Training Plan</Heading>
               <div className="flex items-center gap-2">
                 <Button asChild variant="outline" size="sm">
                   <a href={routes.workouts.create()}>
