@@ -1,3 +1,4 @@
+import { getActivities } from '@/app/api/v1/activities/actions';
 import { getErgById, updateErg } from '@/app/api/v1/ergs/actions';
 import { ErgDetailsScene } from '@/scenes/ergs';
 import { Erg } from '@/schemas';
@@ -12,8 +13,7 @@ export default async function ErgDetailsPage({
 }: ErgDetailsPageProps) {
   const { id } = await params;
   const erg = await getErgById(Number(id));
-  // For now, we'll pass an empty activities array since ergId filter may not be implemented
-  const activities: any[] = [];
+  const { data: activities } = await getActivities({ ergId: Number(id) });
 
   const handleSubmit = async (erg: Erg) => {
     'use server';
