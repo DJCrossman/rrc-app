@@ -4,15 +4,30 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { Heading } from '@/components/ui/heading';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { Boats } from '@/schemas';
+import { useNavigate } from '@/hooks/useNavigate';
+import { routes } from '@/lib/routes';
+import { Activities, Boat, Boats, CreateBoat } from '@/schemas';
 import { default as React } from 'react';
-import { BoatTable } from './components';
+import { BoatCreateDrawer, BoatDetailsDrawer, BoatTable } from './components';
 
 interface IProps {
   data: Boats;
+  selectedBoat: Boat | null;
+  activities?: Activities;
+  isCreateDrawerOpen: boolean;
+  onCreateBoat: (data: CreateBoat) => Promise<void> | void;
+  onUpdateBoat: (data: Boat) => Promise<void> | void;
 }
 
-export const BoatListScene = ({ data }: IProps) => {
+export const BoatListScene = ({
+  data,
+  selectedBoat,
+  activities = [],
+  isCreateDrawerOpen,
+  onCreateBoat,
+  onUpdateBoat,
+}: IProps) => {
+  const router = useNavigate();
   return (
     <SidebarProvider
       style={
@@ -36,6 +51,18 @@ export const BoatListScene = ({ data }: IProps) => {
           </div>
         </div>
       </SidebarInset>
+      <BoatCreateDrawer
+        isOpen={isCreateDrawerOpen}
+        onSubmit={onCreateBoat}
+        onClose={() => router.push(routes.boats.list())}
+      />
+      <BoatDetailsDrawer
+        isOpen={!!selectedBoat}
+        boat={selectedBoat}
+        activities={activities}
+        onSubmit={onUpdateBoat}
+        onClose={() => router.push(routes.boats.list())}
+      />
     </SidebarProvider>
   );
 };

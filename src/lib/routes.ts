@@ -4,8 +4,8 @@ export const routes = {
   },
   boats: {
     list: () => '/boats',
-    create: () => '/boats/create',
-    view: (id: number) => `/boats/${id}`,
+    create: () => '/boats?action=create',
+    view: (id: number) => `/boats?boatId=${id}`,
   },
   athletes: {
     list: () => '/athletes',
