@@ -38,7 +38,7 @@ const columns: ColumnDef<Erg>[] = [
     cell: ({ row }) => (
       <div className="flex items-center gap-2">
         <Link
-          href={routes.ergs.view(row.original.id.toString())}
+          href={routes.ergs.view(row.original.id)}
           className="font-medium hover:underline"
         >
           {row.original.name}

@@ -40,6 +40,7 @@ import {
   formatWeightRange,
 } from '@/lib/formatters';
 import { Boat, Boats, SeatTypes } from '@/schemas';
+import { routes } from '@/lib/routes';
 
 const boatSizes = ['all', ...SeatTypes] as const;
 
@@ -48,7 +49,7 @@ const columns: ColumnDef<Boat>[] = [
     accessorKey: 'name',
     header: () => <div className="lg:w-100">Name</div>,
     cell: ({ row }) => (
-      <a href={`/boats/${row.original.id}`}>{row.original.name}</a>
+      <a href={routes.boats.view(row.original.id)}>{row.original.name}</a>
     ),
     enableHiding: false,
     enableSorting: true,
@@ -164,7 +165,7 @@ export function BoatTable({ data }: IBoatTableProps) {
 
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
-            <a href="/boats/create">
+            <a href={routes.boats.create()}>
               <IconPlus />
               <span className="hidden lg:inline">Add Boat</span>
             </a>

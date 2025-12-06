@@ -5,7 +5,7 @@ export const routes = {
   boats: {
     list: () => '/boats',
     create: () => '/boats/create',
-    view: (id: string) => `/boats/${id}`,
+    view: (id: number) => `/boats/${id}`,
   },
   athletes: {
     list: () => '/athletes',
@@ -15,11 +15,11 @@ export const routes = {
   ergs: {
     list: () => '/ergs',
     create: () => '/ergs/create',
-    view: (id: string) => `/ergs/${id}`,
+    view: (id: number) => `/ergs/${id}`,
   },
   workouts: {
     list: () => '/workouts',
     create: () => '/workouts/create',
-    view: (id: string) => `/workouts/${id}`,
+    view: (id: number) => `/workouts/${id}`,
   },
 };

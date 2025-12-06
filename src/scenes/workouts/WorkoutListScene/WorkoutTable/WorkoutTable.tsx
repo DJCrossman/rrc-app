@@ -1,6 +1,7 @@
 'use client';
 
 import { Card } from '@/components/ui/card';
+import { routes } from '@/lib/routes';
 import { cn } from '@/lib/utils';
 import { Workout, Workouts } from '@/schemas/workouts.schema';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -138,7 +139,7 @@ const WorkoutItem = ({
 }: { workout: Workout & { timeFrame: string } }) => {
   return (
     <Card className="my-2 p-0">
-      <a href={`/workouts/${workout.id}`} className="h-full w-full p-2">
+      <a href={routes.workouts.view(workout.id)} className="h-full w-full p-2">
         {workout.description.split(';').map((line, index) => (
           <span
             key={line}
