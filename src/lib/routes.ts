@@ -14,8 +14,8 @@ export const routes = {
   },
   ergs: {
     list: () => '/ergs',
-    create: () => '/ergs/create',
-    view: (id: number) => `/ergs/${id}`,
+    create: () => '/ergs?action=create',
+    view: (id: number) => `/ergs?ergId=${id}`,
   },
   workouts: {
     list: () => '/workouts',

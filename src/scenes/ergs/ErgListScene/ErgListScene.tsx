@@ -4,15 +4,31 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { Heading } from '@/components/ui/heading';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { Ergs } from '@/schemas';
+import { useNavigate } from '@/hooks/useNavigate';
+import { routes } from '@/lib/routes';
+import { Activities, CreateErg, Erg, Ergs } from '@/schemas';
 import { default as React } from 'react';
-import { ErgTable } from './components';
+import { ErgCreateDrawer, ErgDetailsDrawer, ErgTable } from './components';
 
 interface IProps {
   data: Ergs;
+  selectedErg: Erg | null;
+  activities?: Activities;
+  isCreateDrawerOpen: boolean;
+  onCreateErg: (data: CreateErg) => Promise<void> | void;
+  onUpdateErg: (data: Erg) => Promise<void> | void;
 }
 
-export const ErgListScene = ({ data }: IProps) => {
+export const ErgListScene = ({
+  data,
+  selectedErg,
+  activities = [],
+  isCreateDrawerOpen,
+  onCreateErg,
+  onUpdateErg,
+}: IProps) => {
+  const router = useNavigate();
+
   return (
     <SidebarProvider
       style={
@@ -36,6 +52,18 @@ export const ErgListScene = ({ data }: IProps) => {
           </div>
         </div>
       </SidebarInset>
+      <ErgCreateDrawer
+        isOpen={isCreateDrawerOpen}
+        onSubmit={onCreateErg}
+        onClose={() => router.push(routes.ergs.list())}
+      />
+      <ErgDetailsDrawer
+        isOpen={!!selectedErg}
+        erg={selectedErg}
+        activities={activities}
+        onSubmit={onUpdateErg}
+        onClose={() => router.push(routes.ergs.list())}
+      />
     </SidebarProvider>
   );
 };
