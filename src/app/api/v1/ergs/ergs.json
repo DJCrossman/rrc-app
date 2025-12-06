@@ -1,32 +1,32 @@
 [
-  {
-    "id": 1,
-    "name": "ERG #1",
-    "manufacturer": "concept2",
-    "firmwareVersion": "215",
-    "hardwareVersion": "907",
-    "serialNumber": "431896593",
-    "dataCode": "1382023",
-    "meters": 298097
-  },
-  {
-    "id": 2,
-    "name": "ERG #2",
-    "manufacturer": "concept2",
-    "firmwareVersion": "215",
-    "hardwareVersion": "907",
-    "serialNumber": "431896594",
-    "dataCode": "1382024",
-    "meters": 213000
-  },
-  {
-    "id": 3,
-    "name": "ERG #3",
-    "manufacturer": "concept2",
-    "firmwareVersion": "216",
-    "hardwareVersion": "907",
-    "serialNumber": "431896595",
-    "dataCode": "1382025",
-    "meters": 340000
-  }
+	{
+		"id": 1,
+		"name": "ERG #1",
+		"manufacturer": "concept2",
+		"firmwareVersion": "215",
+		"hardwareVersion": "907",
+		"serialNumber": "431896593",
+		"dataCode": "1382023",
+		"meters": 298097
+	},
+	{
+		"id": 2,
+		"name": "ERG #2",
+		"manufacturer": "concept2",
+		"firmwareVersion": "215",
+		"hardwareVersion": "907",
+		"serialNumber": "431896594",
+		"dataCode": "1382024",
+		"meters": 213000
+	},
+	{
+		"id": 3,
+		"name": "ERG #3",
+		"manufacturer": "concept2",
+		"firmwareVersion": "216",
+		"hardwareVersion": "907",
+		"serialNumber": "431896595",
+		"dataCode": "1382025",
+		"meters": 340000
+	}
 ]

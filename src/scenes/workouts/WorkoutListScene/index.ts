@@ -1,1 +1,1 @@
-export * from './WorkoutTable/WorkoutTable';
+export * from "./WorkoutTable/WorkoutTable";

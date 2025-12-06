@@ -1,2 +1,2 @@
-export * from './LoginForm/LoginForm';
-export * from './OTPForm/OTPForm';
+export * from "./LoginForm/LoginForm";
+export * from "./OTPForm/OTPForm";

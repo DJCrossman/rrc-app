@@ -1,21 +1,21 @@
-import { z } from 'zod';
+import { z } from "zod";
 
-export const membershipTypes = ['membership', 'coach', 'admin'] as const;
+export const membershipTypes = ["membership", "coach", "admin"] as const;
 
-export const ProgramType = ['masters', 'juniors', 'alumni'] as const;
+export const ProgramType = ["masters", "juniors", "alumni"] as const;
 
 const programSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  description: z.string(),
-  programType: z.enum(ProgramType),
-  startDate: z.string(),
-  endDate: z.string(),
+	id: z.number(),
+	name: z.string(),
+	description: z.string(),
+	programType: z.enum(ProgramType),
+	startDate: z.string(),
+	endDate: z.string(),
 });
 
 export const createMembershipSchema = z.object({
-  athleteId: z.number(),
-  programId: z.number(),
+	athleteId: z.number(),
+	programId: z.number(),
 });
 
 export type CreateMembership = z.infer<typeof createMembershipSchema>;

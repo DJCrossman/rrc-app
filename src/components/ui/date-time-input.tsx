@@ -1,101 +1,64 @@
-'use client';
+"use client"
 
-import * as React from 'react';
+import * as React from "react"
+import { ChevronDownIcon } from "lucide-react"
 
-import { Calendar } from '@/components/ui/calendar';
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import { DateTime } from 'luxon';
-import { Input } from './input';
+} from "@/components/ui/popover"
 
-const userAgent = navigator.userAgent;
-const hasNativeSupport =
-  /\b(BlackBerry|webOS|iPhone|IEMobile)\b/i.test(userAgent) ||
-  /\b(Android|Windows Phone|iPad|iPod)\b/i.test(userAgent) ||
-  /\b(Version\/((14.[1-9].[0-9])|(14.[1-9])|(1[5-9].[0-9])|([2-9][0-9].[0-9])|([0-9][0-9][0-9].[0-9]))( Mobile\/15E148 | )Safari)\b/i.test(
-    userAgent,
-  );
-const isSafari =
-  /\b(Version\/(([0-9][0-9].[0-9].[0-9])|([0-9][0-9].[0-9])|([0-9][0-9][0-9].[0-9]))( Mobile\/15E148 | )Safari)\b/i.test(
-    userAgent,
-  );
+export function Calendar24() {
+  const [open, setOpen] = React.useState(false)
+  const [date, setDate] = React.useState<Date | undefined>(undefined)
 
-type PartialChangeEvent = {
-  target: {
-    value: React.ChangeEvent<HTMLInputElement>['target']['value'];
-    name?: string;
-  };
-};
-
-interface DateInputProps
-  extends Omit<
-    React.DetailedHTMLProps<
-      React.InputHTMLAttributes<HTMLInputElement>,
-      HTMLInputElement
-    >,
-    'value' | 'onChange'
-  > {
-  value?: string;
-  onChange?: (e: PartialChangeEvent) => void;
-}
-
-export const DateTimeInput = ({
-  value,
-  onChange,
-  ...props
-}: DateInputProps) => (
-  <Popover>
-    <PopoverTrigger asChild>
-      <Input
-        {...props}
-        type="datetime-local"
-        className={cn(
-          isSafari ? 'safari-date' : '',
-          !hasNativeSupport ? 'unsupported-date' : '',
-          props.className,
-        )}
-        value={value ?? ''}
-        onChange={onChange}
-      />
-    </PopoverTrigger>
-    {!hasNativeSupport && (
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          captionLayout="dropdown-buttons"
-          selected={value ? DateTime.fromISO(value).toJSDate() : undefined}
-          defaultMonth={value ? DateTime.fromISO(value).toJSDate() : undefined}
-          onSelect={(date) =>
-            onChange?.({
-              target: {
-                value: date
-                  ? (DateTime.fromJSDate(date).toISODate() ?? '')
-                  : '',
-                name: props.name,
-              },
-            })
-          }
-          initialFocus
-          required={props.required}
-        />
-        <input
+  return (
+    <div className="flex gap-4">
+      <div className="flex flex-col gap-3">
+        <Label htmlFor="date-picker" className="px-1">
+          Date
+        </Label>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              id="date-picker"
+              className="w-32 justify-between font-normal"
+            >
+              {date ? date.toLocaleDateString() : "Select date"}
+              <ChevronDownIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={date}
+              captionLayout="dropdown"
+              onSelect={(date) => {
+                setDate(date)
+                setOpen(false)
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div className="flex flex-col gap-3">
+        <Label htmlFor="time-picker" className="px-1">
+          Time
+        </Label>
+        <Input
           type="time"
-          className="w-full mt-2"
-          value={value ? DateTime.fromISO(value).toFormat('HH:mm') : ''}
-          onChange={(e) =>
-            onChange?.({
-              target: {
-                value: e.target.value,
-                name: props.name,
-              },
-            })
-          }
+          id="time-picker"
+          step="1"
+          defaultValue="10:30:00"
+          className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
         />
-      </PopoverContent>
-    )}
-  </Popover>
-);
+      </div>
+    </div>
+  )
+}

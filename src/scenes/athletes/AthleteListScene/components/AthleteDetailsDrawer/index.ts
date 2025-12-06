@@ -1,1 +1,1 @@
-export * from './AthleteDetailsDrawer';
+export * from "./AthleteDetailsDrawer";

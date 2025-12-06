@@ -1,3 +1,3 @@
-export * from './BoatListScene/BoatListScene';
-export * from './BoatCreateScene/BoatCreateScene';
-export * from './BoatDetailsScene/BoatDetailsScene';
+export * from "./BoatCreateScene/BoatCreateScene";
+export * from "./BoatDetailsScene/BoatDetailsScene";
+export * from "./BoatListScene/BoatListScene";

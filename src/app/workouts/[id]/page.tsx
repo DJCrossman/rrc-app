@@ -1,26 +1,26 @@
-import { getWorkoutById, updateWorkout } from '@/app/api/v1/workouts/actions';
-import { WorkoutDetailsScene } from '@/scenes/workouts';
-import { Workout } from '@/schemas';
-import { notFound } from 'next/navigation';
+import { notFound } from "next/navigation";
+import { getWorkoutById, updateWorkout } from "@/app/api/v1/workouts/actions";
+import { WorkoutDetailsScene } from "@/scenes/workouts";
+import type { Workout } from "@/schemas";
 
 interface WorkoutDetailsPageProps {
-  params: Promise<{ id: string }>;
+	params: Promise<{ id: string }>;
 }
 
 export default async function WorkoutDetailsPage({
-  params,
+	params,
 }: WorkoutDetailsPageProps) {
-  const { id } = await params;
-  const workout = await getWorkoutById(Number(id));
+	const { id } = await params;
+	const workout = await getWorkoutById(Number(id));
 
-  const handleSubmit = async (workout: Workout) => {
-    'use server';
-    await updateWorkout(workout);
-  };
+	const handleSubmit = async (workout: Workout) => {
+		"use server";
+		await updateWorkout(workout);
+	};
 
-  if (!workout) {
-    notFound();
-  }
+	if (!workout) {
+		notFound();
+	}
 
-  return <WorkoutDetailsScene workout={workout} onSubmit={handleSubmit} />;
+	return <WorkoutDetailsScene workout={workout} onSubmit={handleSubmit} />;
 }

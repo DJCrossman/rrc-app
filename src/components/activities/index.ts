@@ -1,1 +1,1 @@
-export * from './ActivityTable/ActivityTable';
+export * from "./ActivityTable/ActivityTable";

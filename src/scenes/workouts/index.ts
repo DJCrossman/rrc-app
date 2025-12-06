@@ -1,3 +1,3 @@
-export * from './WorkoutListScene/WorkoutListScene';
-export * from './WorkoutCreateScene/WorkoutCreateScene';
-export * from './WorkoutDetailsScene/WorkoutDetailsScene';
+export * from "./WorkoutCreateScene/WorkoutCreateScene";
+export * from "./WorkoutDetailsScene/WorkoutDetailsScene";
+export * from "./WorkoutListScene/WorkoutListScene";

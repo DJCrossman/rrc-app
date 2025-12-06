@@ -62,10 +62,10 @@ export const DateInput = ({ value, onChange, ...props }: DateInputProps) => (
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
-          captionLayout="dropdown-buttons"
+          captionLayout="dropdown"
           selected={value ? DateTime.fromISO(value).toJSDate() : undefined}
           defaultMonth={value ? DateTime.fromISO(value).toJSDate() : undefined}
-          onSelect={(date) =>
+          onSelect={(date?: Date) =>
             onChange?.({
               target: {
                 value: date

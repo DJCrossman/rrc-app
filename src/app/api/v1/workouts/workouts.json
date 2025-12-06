@@ -1,113 +1,113 @@
 [
-  {
-    "id": 1,
-    "description": "60' C6; 3x3km w/4' rest (1.5km @ R18, 1km @ R20, 500m @ R22)",
-    "modifiedDescription": "3 x 2k w/ 4' rest (1km @ R18, 500m @ R20, 500m @ R22)",
-    "startDate": "2025-10-12T00:00:00.000Z",
-    "duration": 3600000
-  },
-  {
-    "id": 2,
-    "description": "70' C6; 60' SS w/10 stroke burst every 10'",
-    "startDate": "2025-10-13T00:00:00.000Z",
-    "duration": 7800000
-  },
-  {
-    "id": 3,
-    "description": "70' C6 SS; 80' 8 x 2.5' steps R20-28 w/5' AR (up 2 beats every 30\")",
-    "modifiedDescription": "6 x 2.5' steps R20-28 w/ 5' active rest (up 2 beats every 30\")",
-    "startDate": "2025-10-14T00:00:00.000Z",
-    "duration": 9000000
-  },
-  {
-    "id": 4,
-    "description": "70' C6; 60' Steady State w/ 10 stroke burst every 10'",
-    "startDate": "2025-10-15T12:00:00.000Z",
-    "duration": 7800000
-  },
-  {
-    "id": 5,
-    "description": "70' Steady State with starts; 80' Steady State w/ 60' of 12 hard strokes every 5' (build over 2, go for 10)",
-    "startDate": "2025-10-16T00:00:00.000Z",
-    "duration": 9000000
-  },
-  {
-    "id": 6,
-    "description": "20' warm up; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
-    "startDate": "2025-10-17T00:00:00.000Z"
-  },
-  {
-    "id": 7,
-    "description": "60' C6; 80' 3 x 3k w/4' rest (1.5km @ R18, 1km @ R20, 500m @ R22)",
-    "modifiedDescription": "3 x 2k w/ 4 rest (1km @ R18, 500m @ R20, 500m @ R22)",
-    "startDate": "2025-10-19T00:00:00.000Z",
-    "duration": 8400000
-  },
-  {
-    "id": 8,
-    "description": "80' C6; 60' SS w/10 stroke burst every 10'",
-    "startDate": "2025-10-20T00:00:00.000Z",
-    "duration": 8400000
-  },
-  {
-    "id": 9,
-    "description": "70' C6 SS; 8 x 2.5' steps R20-28 w/5' AR (up 2 beats every 30\")",
-    "modifiedDescription": "6 x 2.5' steps R20-28 w/ 5' active rest (up 2 beats every 30\")",
-    "startDate": "2025-10-21T00:00:00.000Z",
-    "duration": 7500000
-  },
-  {
-    "id": 10,
-    "description": "80' C6; 60' Steady State w/ 10 stroke burst every 10'",
-    "startDate": "2025-10-22T00:00:00.000Z",
-    "duration": 8400000
-  },
-  {
-    "id": 11,
-    "description": "70' Steady State with starts; 80' Steady State w/ 60' of 12 hard strokes every 5' (build over 2, go for 10)",
-    "startDate": "2025-10-23T00:00:00.000Z",
-    "duration": 9000000
-  },
-  {
-    "id": 12,
-    "description": "20' warm up; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
-    "startDate": "2025-10-24T00:00:00.000Z"
-  },
-  {
-    "id": 13,
-    "description": "60' C6; 3x3km w/4 rest (1.5km @ R20, 1km @ R22, 500m @ R24)",
-    "modifiedDescription": "3 x 2k w/ 4' rest (1km @ R20, 500m @ R22, 500m @ R24)",
-    "startDate": "2025-10-26T00:00:00.000Z",
-    "duration": 3600000
-  },
-  {
-    "id": 14,
-    "description": "90' C6; 60' SS w/10 stroke burst every 10'",
-    "startDate": "2025-10-27T00:00:00.000Z",
-    "duration": 9000000
-  },
-  {
-    "id": 15,
-    "description": "70' C6 SS; 80' 7 x 2.5' steps R22-30 w/5' AR (up 2 beats every 30\")",
-    "modifiedDescription": "5 x 2.5' steps R22-30 w/ 5' active rest (up 2 beats every 30\")",
-    "startDate": "2025-10-28T00:00:00.000Z",
-    "duration": 7100000
-  },
-  {
-    "id": 16,
-    "description": "90' C6; 60' Steady State w/ 10 stroke burst every 10'",
-    "startDate": "2025-10-29T00:00:00.000Z",
-    "duration": 9000000
-  },
-  {
-    "id": 17,
-    "description": "70' Steady State with starts; 80' Steady State w/ 60' of 10 hard strokes every 3' (build for 2 & go for 8)",
-    "startDate": "2025-10-30T00:00:00.000Z",
-    "duration": 9000000
-  },
-  {
-    "id": 18,
-    "description": "20' warm up; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
-    "startDate": "2025-10-31T00:00:00.000Z"
-  }
+	{
+		"id": 1,
+		"description": "60' C6; 3x3km w/4' rest (1.5km @ R18, 1km @ R20, 500m @ R22)",
+		"modifiedDescription": "3 x 2k w/ 4' rest (1km @ R18, 500m @ R20, 500m @ R22)",
+		"startDate": "2025-10-12T00:00:00.000Z",
+		"duration": 3600000
+	},
+	{
+		"id": 2,
+		"description": "70' C6; 60' SS w/10 stroke burst every 10'",
+		"startDate": "2025-10-13T00:00:00.000Z",
+		"duration": 7800000
+	},
+	{
+		"id": 3,
+		"description": "70' C6 SS; 80' 8 x 2.5' steps R20-28 w/5' AR (up 2 beats every 30\")",
+		"modifiedDescription": "6 x 2.5' steps R20-28 w/ 5' active rest (up 2 beats every 30\")",
+		"startDate": "2025-10-14T00:00:00.000Z",
+		"duration": 9000000
+	},
+	{
+		"id": 4,
+		"description": "70' C6; 60' Steady State w/ 10 stroke burst every 10'",
+		"startDate": "2025-10-15T12:00:00.000Z",
+		"duration": 7800000
+	},
+	{
+		"id": 5,
+		"description": "70' Steady State with starts; 80' Steady State w/ 60' of 12 hard strokes every 5' (build over 2, go for 10)",
+		"startDate": "2025-10-16T00:00:00.000Z",
+		"duration": 9000000
+	},
+	{
+		"id": 6,
+		"description": "20' warm up; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
+		"startDate": "2025-10-17T00:00:00.000Z"
+	},
+	{
+		"id": 7,
+		"description": "60' C6; 80' 3 x 3k w/4' rest (1.5km @ R18, 1km @ R20, 500m @ R22)",
+		"modifiedDescription": "3 x 2k w/ 4 rest (1km @ R18, 500m @ R20, 500m @ R22)",
+		"startDate": "2025-10-19T00:00:00.000Z",
+		"duration": 8400000
+	},
+	{
+		"id": 8,
+		"description": "80' C6; 60' SS w/10 stroke burst every 10'",
+		"startDate": "2025-10-20T00:00:00.000Z",
+		"duration": 8400000
+	},
+	{
+		"id": 9,
+		"description": "70' C6 SS; 8 x 2.5' steps R20-28 w/5' AR (up 2 beats every 30\")",
+		"modifiedDescription": "6 x 2.5' steps R20-28 w/ 5' active rest (up 2 beats every 30\")",
+		"startDate": "2025-10-21T00:00:00.000Z",
+		"duration": 7500000
+	},
+	{
+		"id": 10,
+		"description": "80' C6; 60' Steady State w/ 10 stroke burst every 10'",
+		"startDate": "2025-10-22T00:00:00.000Z",
+		"duration": 8400000
+	},
+	{
+		"id": 11,
+		"description": "70' Steady State with starts; 80' Steady State w/ 60' of 12 hard strokes every 5' (build over 2, go for 10)",
+		"startDate": "2025-10-23T00:00:00.000Z",
+		"duration": 9000000
+	},
+	{
+		"id": 12,
+		"description": "20' warm up; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
+		"startDate": "2025-10-24T00:00:00.000Z"
+	},
+	{
+		"id": 13,
+		"description": "60' C6; 3x3km w/4 rest (1.5km @ R20, 1km @ R22, 500m @ R24)",
+		"modifiedDescription": "3 x 2k w/ 4' rest (1km @ R20, 500m @ R22, 500m @ R24)",
+		"startDate": "2025-10-26T00:00:00.000Z",
+		"duration": 3600000
+	},
+	{
+		"id": 14,
+		"description": "90' C6; 60' SS w/10 stroke burst every 10'",
+		"startDate": "2025-10-27T00:00:00.000Z",
+		"duration": 9000000
+	},
+	{
+		"id": 15,
+		"description": "70' C6 SS; 80' 7 x 2.5' steps R22-30 w/5' AR (up 2 beats every 30\")",
+		"modifiedDescription": "5 x 2.5' steps R22-30 w/ 5' active rest (up 2 beats every 30\")",
+		"startDate": "2025-10-28T00:00:00.000Z",
+		"duration": 7100000
+	},
+	{
+		"id": 16,
+		"description": "90' C6; 60' Steady State w/ 10 stroke burst every 10'",
+		"startDate": "2025-10-29T00:00:00.000Z",
+		"duration": 9000000
+	},
+	{
+		"id": 17,
+		"description": "70' Steady State with starts; 80' Steady State w/ 60' of 10 hard strokes every 3' (build for 2 & go for 8)",
+		"startDate": "2025-10-30T00:00:00.000Z",
+		"duration": 9000000
+	},
+	{
+		"id": 18,
+		"description": "20' warm up; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
+		"startDate": "2025-10-31T00:00:00.000Z"
+	}
 ]
