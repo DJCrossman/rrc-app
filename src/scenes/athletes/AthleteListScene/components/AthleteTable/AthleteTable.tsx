@@ -43,6 +43,7 @@ import {
 import { formatProgram } from '@/lib/formatters';
 import { Athlete, Athletes, ProgramTypes } from '@/schemas';
 import { DateTime } from 'luxon';
+import { routes } from '@/lib/routes';
 
 const programOptions = ['all', ...ProgramTypes] as const;
 const activeMembershipOptions = ['all', 'true', 'false'] as const;
@@ -52,7 +53,7 @@ const columns: ColumnDef<Athlete>[] = [
     accessorKey: 'name',
     header: () => <div className="lg:w-100">Name</div>,
     cell: ({ row }) => (
-      <a href={`/athletes/${row.original.id}`}>{row.original.name}</a>
+      <a href={routes.athletes.view(row.original.id)}>{row.original.name}</a>
     ),
     enableHiding: false,
     enableSorting: true,
@@ -210,7 +211,7 @@ export function AthleteTable({ data }: IAthleteTableProps) {
 
         <div className="flex items-center gap-2">
           <Button asChild variant="outline" size="sm">
-            <a href="/athletes/create">
+            <a href={routes.athletes.create()}>
               <IconPlus />
               <span className="hidden lg:inline">Add Athlete</span>
             </a>
@@ -234,9 +235,9 @@ export function AthleteTable({ data }: IAthleteTableProps) {
                           {header.isPlaceholder
                             ? null
                             : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
                           {{
                             asc: <IconCaretUp />,
                             desc: <IconCaretDown />,

@@ -4,15 +4,31 @@ import { AppSidebar } from '@/components/app-sidebar';
 import { SiteHeader } from '@/components/site-header';
 import { Heading } from '@/components/ui/heading';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { Athletes } from '@/schemas';
+import { useNavigate } from '@/hooks/useNavigate';
+import { routes } from '@/lib/routes';
+import { Activities, Athlete, Athletes, CreateAthlete } from '@/schemas';
 import React from 'react';
-import { AthleteTable } from './components';
+import { AthleteCreateDrawer, AthleteDetailsDrawer, AthleteTable } from './components';
 
 interface IProps {
   data: Athletes;
+  selectedAthlete: Athlete | null;
+  activities?: Activities;
+  isCreateDrawerOpen: boolean;
+  onCreateAthlete: (data: CreateAthlete) => Promise<void> | void;
+  onUpdateAthlete: (data: Athlete) => Promise<void> | void;
 }
 
-export const AthleteListScene = ({ data }: IProps) => {
+export const AthleteListScene = ({
+  data,
+  selectedAthlete,
+  activities = [],
+  isCreateDrawerOpen,
+  onCreateAthlete,
+  onUpdateAthlete,
+}: IProps) => {
+  const router = useNavigate();
+
   return (
     <SidebarProvider
       style={
@@ -31,11 +47,25 @@ export const AthleteListScene = ({ data }: IProps) => {
               <Heading as="h1">Athletes</Heading>
             </div>
             <div className="flex flex-col gap-4 md:gap-6">
-              <AthleteTable data={data} />
+              <AthleteTable
+                data={data}
+              />
             </div>
           </div>
         </div>
       </SidebarInset>
+      <AthleteCreateDrawer
+        isOpen={isCreateDrawerOpen}
+        onSubmit={onCreateAthlete}
+        onClose={() => router.push(routes.athletes.list())}
+      />
+      <AthleteDetailsDrawer
+        isOpen={!!selectedAthlete}
+        athlete={selectedAthlete}
+        activities={activities}
+        onSubmit={onUpdateAthlete}
+        onClose={() => router.push(routes.athletes.list())}
+      />
     </SidebarProvider>
   );
 };

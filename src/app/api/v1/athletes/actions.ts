@@ -54,7 +54,7 @@ export const getAthletes = async () => {
   };
 };
 
-export async function getAthleteById(id: number): Promise<Athlete | null> {
+export async function getAthleteById(id?: number): Promise<Athlete | null> {
   const athlete = athletesParsed.find((athlete) => athlete.id === id);
   return athlete ?? null;
 }

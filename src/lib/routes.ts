@@ -9,8 +9,8 @@ export const routes = {
   },
   athletes: {
     list: () => '/athletes',
-    create: () => '/athletes/create',
-    view: (id: string) => `/athletes/${id}`,
+    create: () => '/athletes?action=create',
+    view: (id: number) => `/athletes?athleteId=${id}`,
   },
   ergs: {
     list: () => '/ergs',
