@@ -1,3 +1,7 @@
+"use client";
+
+import type { DateTime } from "luxon";
+
 export const routes = {
 	dashboard: {
 		home: () => "/",
@@ -18,8 +22,31 @@ export const routes = {
 		view: (id: number) => `/ergs?ergId=${id}`,
 	},
 	workouts: {
-		list: () => "/workouts",
-		create: () => "/workouts/create",
-		view: (id: number) => `/workouts/${id}`,
+		list: ({ week }: { week?: DateTime<true> } = {}) => {
+			const params = new URLSearchParams();
+			if (week) {
+				params.append("week", week.toISODate());
+			}
+			const queryString = params.toString();
+			if (queryString) {
+				return `/workouts?${queryString}`;
+			}
+			return "/workouts";
+		},
+		create: ({ week }: { week?: DateTime<true> } = {}) => {
+			const params = new URLSearchParams({ action: "create" });
+			if (week) {
+				params.append("week", week.toISODate());
+			}
+			return `/workouts?${params.toString()}`;
+		},
+		view: ({ id, week }: { id: number; week?: DateTime<true> }) => {
+			const params = new URLSearchParams({ workoutId: id.toString() });
+			if (week) {
+				params.append("week", week.toISODate());
+			}
+			const queryString = params.toString();
+			return `/workouts?${queryString}`;
+		},
 	},
 };

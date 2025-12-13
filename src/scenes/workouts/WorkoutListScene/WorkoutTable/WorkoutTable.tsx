@@ -2,21 +2,23 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DateTime, Interval } from "luxon";
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import type { Workout, Workouts } from "@/schemas/workouts.schema";
+import { getWorkoutBreakdown } from "../utils/getWorkoutBreakdown";
 
 interface WorkoutTableProps {
 	data: Workouts;
+	currentWeek: DateTime<true>;
+	onWeekChange: (dateTime: DateTime<true>) => void;
 }
 
-export function WorkoutTable({ data }: WorkoutTableProps) {
-	const [currentWeek, setCurrentWeek] = useState(
-		DateTime.now().startOf("week").minus({ days: 1 }),
-	);
-
+export function WorkoutTable({
+	data,
+	currentWeek,
+	onWeekChange,
+}: WorkoutTableProps) {
 	const currentInterval = Interval.fromDateTimes(
 		currentWeek,
 		currentWeek.plus({ weeks: 1 }),
@@ -81,7 +83,7 @@ export function WorkoutTable({ data }: WorkoutTableProps) {
 				<button
 					type="button"
 					onClick={() => {
-						setCurrentWeek((prev) => prev.minus({ weeks: 1 }));
+						onWeekChange(currentWeek.minus({ weeks: 1 }));
 					}}
 				>
 					<ChevronLeft className="inline align-text-bottom" size={16} />
@@ -91,7 +93,7 @@ export function WorkoutTable({ data }: WorkoutTableProps) {
 				<button
 					type="button"
 					onClick={() => {
-						setCurrentWeek((prev) => prev.plus({ weeks: 1 }));
+						onWeekChange(currentWeek.plus({ weeks: 1 }));
 					}}
 				>
 					Next <span className="hidden sm:inline">Week</span>
@@ -113,7 +115,11 @@ export function WorkoutTable({ data }: WorkoutTableProps) {
 							<h4 className="font-semibold mb-2">Morning</h4>
 							{!!morningWorkouts.length &&
 								morningWorkouts.map((workout) => (
-									<WorkoutItem key={workout.id} workout={workout} />
+									<WorkoutItem
+										key={workout.id}
+										workout={getWorkoutBreakdown(workout)}
+										currentWeek={currentWeek}
+									/>
 								))}
 							{!morningWorkouts.length && (
 								<p className="text-gray-500">No morning workouts.</p>
@@ -123,7 +129,11 @@ export function WorkoutTable({ data }: WorkoutTableProps) {
 							<h4 className="font-semibold mb-2">Evening</h4>
 							{!!eveningWorkouts.length &&
 								eveningWorkouts.map((workout) => (
-									<WorkoutItem key={workout.id} workout={workout} />
+									<WorkoutItem
+										key={workout.id}
+										workout={getWorkoutBreakdown(workout)}
+										currentWeek={currentWeek}
+									/>
 								))}
 							{!eveningWorkouts.length && (
 								<p className="text-gray-500">No evening workouts.</p>
@@ -136,19 +146,22 @@ export function WorkoutTable({ data }: WorkoutTableProps) {
 	);
 }
 
-const WorkoutItem = ({
+const WorkoutItem = <T extends Workout>({
 	workout,
+	currentWeek,
 }: {
-	workout: Workout & { timeFrame: string };
+	workout: ReturnType<typeof getWorkoutBreakdown<T>> & { timeFrame: string };
+	currentWeek: DateTime;
 }) => {
 	return (
 		<Card className="my-2 p-0">
-			<a href={routes.workouts.view(workout.id)} className="h-full w-full p-2">
-				{workout.description.split(";").map((line, index) => (
-					<span
-						key={line}
-						className={cn("block", index > 0 ? "text-sm" : "font-semibold")}
-					>
+			<a
+				href={routes.workouts.view({ id: workout.id, week: currentWeek })}
+				className="h-full w-full p-2"
+			>
+				<span className={cn("block", "font-semibold")}>{workout.title}</span>
+				{workout.descriptionLines.map((line) => (
+					<span key={line} className={cn("block", "text-sm")}>
 						{line.trim()}
 					</span>
 				))}
