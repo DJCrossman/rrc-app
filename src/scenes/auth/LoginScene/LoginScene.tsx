@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import type { SubmitHandler } from "react-hook-form";
+import { envVars } from "@/lib/env";
 import { LoginForm, OTPForm } from "./components";
 import { useLoginSteps } from "./hooks";
 
@@ -31,7 +32,7 @@ export const LoginScene = () => {
 			<div className="flex flex-col gap-4 p-6 md:p-10">
 				<div className="flex justify-center gap-2 md:justify-start">
 					<a
-						href={process.env.NEXT_PUBLIC_HOME_URL}
+						href={envVars.NEXT_PUBLIC_HOME_URL}
 						className="flex items-center gap-2 font-medium"
 					>
 						<Image
@@ -40,7 +41,7 @@ export const LoginScene = () => {
 							width={24}
 							height={24}
 						/>
-						<span className="text-base font-semibold">Reging Rowing Club</span>
+						<span className="text-base font-semibold">Regina Rowing Club</span>
 					</a>
 				</div>
 				<div className="flex flex-1 items-center justify-center">

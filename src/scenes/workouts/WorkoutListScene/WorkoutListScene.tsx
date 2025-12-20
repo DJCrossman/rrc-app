@@ -4,6 +4,7 @@ import { IconPlus } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { redirect } from "next/navigation";
 import type React from "react";
+import type { UploadWorkoutScreenshotResult } from "@/app/api/v1/workouts/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
@@ -20,8 +21,13 @@ interface WorkoutListSceneProps {
 	currentWeekIsoDate: string;
 	selectedWorkout: Workout | null;
 	isCreateDrawerOpen: boolean;
-	onCreateWorkout: (data: CreateWorkout) => Promise<void> | void;
+	onCreateWorkouts: (data: {
+		workouts: CreateWorkout[];
+	}) => Promise<void> | void;
 	onUpdateWorkout: (data: Workout) => Promise<void> | void;
+	onUploadWorkoutScreenshot?: (
+		file: File,
+	) => Promise<UploadWorkoutScreenshotResult>;
 }
 
 export const WorkoutListScene = ({
@@ -29,8 +35,9 @@ export const WorkoutListScene = ({
 	currentWeekIsoDate,
 	selectedWorkout,
 	isCreateDrawerOpen,
-	onCreateWorkout,
+	onCreateWorkouts,
 	onUpdateWorkout,
+	onUploadWorkoutScreenshot,
 }: WorkoutListSceneProps) => {
 	const router = useNavigate();
 
@@ -88,7 +95,8 @@ export const WorkoutListScene = ({
 			</SidebarInset>
 			<WorkoutCreateDrawer
 				isOpen={isCreateDrawerOpen}
-				onSubmit={onCreateWorkout}
+				onSubmit={onCreateWorkouts}
+				onUploadWorkoutScreenshot={onUploadWorkoutScreenshot}
 				onClose={() => router.push(routes.workouts.list({ week: currentWeek }))}
 			/>
 			<WorkoutDetailsDrawer

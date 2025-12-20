@@ -36,7 +36,7 @@ export const WorkoutDetailsDrawer = ({
 		onClose();
 	};
 
-	const handleSubmit = async (data: CreateWorkout) => {
+	const handleSubmit = async (data: { workouts: CreateWorkout[] }) => {
 		if (!workout) return;
 
 		await onSubmit({
@@ -76,8 +76,12 @@ export const WorkoutDetailsDrawer = ({
 					{isEditing ? (
 						<WorkoutForm
 							defaultValues={{
-								description: workout.description,
-								startDate: startDate?.toISODate() || undefined,
+								workouts: [
+									{
+										description: workout.description,
+										startDate: startDate?.toISODate() || undefined,
+									},
+								],
 							}}
 							onCancel={() => setIsEditing(false)}
 							onSubmit={handleSubmit}
@@ -122,14 +126,6 @@ export const WorkoutDetailsDrawer = ({
 										<p className="text-base">
 											{formatDuration(workout.duration)}
 										</p>
-									</div>
-								)}
-								{workout.modifiedDescription && (
-									<div>
-										<strong className="text-sm text-muted-foreground">
-											Modified Description
-										</strong>
-										<p className="text-base">{workout.modifiedDescription}</p>
 									</div>
 								)}
 							</div>

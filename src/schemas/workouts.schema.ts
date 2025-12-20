@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const workoutCoreSchema = z.object({
 	description: z.string(),
-	modifiedDescription: z.string().optional(),
 	startDate: z.string(),
 	duration: z.number().optional(),
 });

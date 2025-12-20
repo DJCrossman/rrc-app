@@ -20,6 +20,7 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { envVars } from "@/lib/env";
 import { routes } from "@/lib/routes";
 
 const data = {
@@ -68,7 +69,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							className="data-[slot=sidebar-menu-button]:!p-1.5"
 						>
 							<a
-								href={process.env.NEXT_PUBLIC_HOME_URL}
+								href={envVars.NEXT_PUBLIC_HOME_URL}
 								className="flex items-center gap-2 font-medium"
 							>
 								<Image
@@ -78,7 +79,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									height={24}
 								/>
 								<span className="text-base font-semibold">
-									Reging Rowing Club
+									Regina Rowing Club
 								</span>
 							</a>
 						</SidebarMenuButton>

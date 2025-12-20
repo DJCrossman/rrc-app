@@ -6,7 +6,9 @@ import {
 	getWorkoutById,
 	getWorkouts,
 	updateWorkout,
+	uploadWorkoutScreenshot,
 } from "@/app/api/v1/workouts/actions";
+import { envVars } from "@/lib/env";
 import { routes } from "@/lib/routes";
 import { WorkoutListScene } from "@/scenes/workouts";
 import type { CreateWorkout, Workout } from "@/schemas";
@@ -36,15 +38,29 @@ export default async function WorkoutsPage({
 			selectedWorkout={selectedWorkout}
 			currentWeekIsoDate={week}
 			isCreateDrawerOpen={action === "create"}
-			onCreateWorkout={async (workout: CreateWorkout) => {
+			onCreateWorkouts={async ({ workouts }: { workouts: CreateWorkout[] }) => {
 				"use server";
-				await createWorkout(workout);
-				redirect(routes.workouts.list(), RedirectType.push);
+				const week = DateTime.fromISO(workouts[0].startDate);
+				for (const workout of workouts) {
+					await createWorkout(workout);
+				}
+				redirect(
+					routes.workouts.list({ week: week.isValid ? week : undefined }),
+					RedirectType.push,
+				);
 			}}
 			onUpdateWorkout={async (workout: Workout) => {
 				"use server";
 				await updateWorkout(workout);
 			}}
+			onUploadWorkoutScreenshot={
+				envVars.NEXT_PUBLIC_AI_ENABLED
+					? async (file: File) => {
+							"use server";
+							return await uploadWorkoutScreenshot(file);
+						}
+					: undefined
+			}
 		/>
 	);
 }

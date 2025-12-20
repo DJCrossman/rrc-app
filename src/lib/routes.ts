@@ -1,5 +1,3 @@
-"use client";
-
 import type { DateTime } from "luxon";
 
 export const routes = {

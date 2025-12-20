@@ -1,6 +1,7 @@
 "use client";
 
 import { IconX } from "@tabler/icons-react";
+import type { UploadWorkoutScreenshotResult } from "@/app/api/v1/workouts/actions";
 import {
 	Drawer,
 	DrawerClose,
@@ -14,16 +15,20 @@ import { WorkoutForm } from "../WorkoutForm/WorkoutForm";
 
 interface WorkoutCreateDrawerProps {
 	isOpen: boolean;
+	onSubmit: (data: { workouts: CreateWorkout[] }) => Promise<void> | void;
+	onUploadWorkoutScreenshot?: (
+		file: File,
+	) => Promise<UploadWorkoutScreenshotResult>;
 	onClose: () => void;
-	onSubmit: (data: CreateWorkout) => Promise<void> | void;
 }
 
 export const WorkoutCreateDrawer = ({
 	isOpen,
+	onUploadWorkoutScreenshot,
 	onClose,
 	onSubmit,
 }: WorkoutCreateDrawerProps) => {
-	const handleSubmit = async (data: CreateWorkout) => {
+	const handleSubmit = async (data: { workouts: CreateWorkout[] }) => {
 		await onSubmit(data);
 		onClose();
 	};
@@ -46,7 +51,11 @@ export const WorkoutCreateDrawer = ({
 					</DrawerClose>
 				</DrawerHeader>
 				<div className="flex-1 overflow-y-auto p-6">
-					<WorkoutForm onSubmit={handleSubmit} onCancel={onClose} />
+					<WorkoutForm
+						onSubmit={handleSubmit}
+						onCancel={onClose}
+						onUploadWorkoutScreenshot={onUploadWorkoutScreenshot}
+					/>
 				</div>
 			</DrawerContent>
 		</Drawer>
