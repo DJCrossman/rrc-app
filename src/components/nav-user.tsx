@@ -1,12 +1,12 @@
 "use client";
 
 import {
-	IconCreditCard,
+	IconApps,
 	IconDotsVertical,
 	IconLogout,
-	IconNotification,
 	IconUserCircle,
 } from "@tabler/icons-react";
+import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -24,6 +24,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { routes } from "@/lib/routes";
 
 export function NavUser({
 	user,
@@ -35,6 +36,11 @@ export function NavUser({
 	};
 }) {
 	const { isMobile } = useSidebar();
+	const avatarFallbackInitials = user.name
+		.split(" ")
+		.map((n) => n.charAt(0).toUpperCase())
+		.slice(0, 2)
+		.join("");
 
 	return (
 		<SidebarMenu>
@@ -47,7 +53,9 @@ export function NavUser({
 						>
 							<Avatar className="h-8 w-8 rounded-lg grayscale">
 								<AvatarImage src={user.avatar} alt={user.name} />
-								<AvatarFallback className="rounded-lg">CN</AvatarFallback>
+								<AvatarFallback className="rounded-lg">
+									{avatarFallbackInitials}
+								</AvatarFallback>
 							</Avatar>
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-medium">{user.name}</span>
@@ -68,7 +76,9 @@ export function NavUser({
 							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 								<Avatar className="h-8 w-8 rounded-lg">
 									<AvatarImage src={user.avatar} alt={user.name} />
-									<AvatarFallback className="rounded-lg">CN</AvatarFallback>
+									<AvatarFallback className="rounded-lg">
+										{avatarFallbackInitials}
+									</AvatarFallback>
 								</Avatar>
 								<div className="grid flex-1 text-left text-sm leading-tight">
 									<span className="truncate font-medium">{user.name}</span>
@@ -80,18 +90,18 @@ export function NavUser({
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
-							<DropdownMenuItem>
-								<IconUserCircle />
-								Account
-							</DropdownMenuItem>
-							<DropdownMenuItem>
-								<IconCreditCard />
-								Billing
-							</DropdownMenuItem>
-							<DropdownMenuItem>
-								<IconNotification />
-								Notifications
-							</DropdownMenuItem>
+							<Link href={routes.settings.account()}>
+								<DropdownMenuItem>
+									<IconUserCircle />
+									Account
+								</DropdownMenuItem>
+							</Link>
+							<Link href={routes.settings.apps()}>
+								<DropdownMenuItem>
+									<IconApps />
+									Connected Apps
+								</DropdownMenuItem>
+							</Link>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
 						<a href="/logout">

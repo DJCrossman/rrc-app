@@ -28,9 +28,9 @@ export const baseUserSchema = z.object({
 export const userSchema = baseUserSchema.extend({
 	id: z.number(),
 	// OAuth integration fields
-	concept2Connected: z.boolean().optional(),
+	concept2Connected: z.boolean().default(false),
 	concept2UserId: z.string().optional(),
-	stravaConnected: z.boolean().optional(),
+	stravaConnected: z.boolean().default(false),
 	stravaAthleteId: z.string().optional(),
 });
 

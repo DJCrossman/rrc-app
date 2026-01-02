@@ -47,4 +47,8 @@ export const routes = {
 			return `/workouts?${queryString}`;
 		},
 	},
+	settings: {
+		account: () => "/settings/account",
+		apps: () => "/settings/apps",
+	},
 };

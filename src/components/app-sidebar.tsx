@@ -20,45 +20,12 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useCurrentUser } from "@/hooks/useAuth";
 import { envVars } from "@/lib/env";
 import { routes } from "@/lib/routes";
 
-const data = {
-	user: {
-		name: "David",
-		phone: "1 (306) 550 - 6678",
-		avatar: "",
-	},
-	navMain: [
-		{
-			title: "Dashboard",
-			url: routes.dashboard.home(),
-			icon: IconDashboard,
-		},
-		{
-			title: "Boats",
-			url: routes.boats.list(),
-			icon: IconSailboat2,
-		},
-		{
-			title: "ERGs",
-			url: routes.ergs.list(),
-			icon: IconTreadmill,
-		},
-		{
-			title: "Athletes",
-			url: routes.athletes.list(),
-			icon: IconUsers,
-		},
-		{
-			title: "Training Plan",
-			url: routes.workouts.list(),
-			icon: IconFolder,
-		},
-	],
-};
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const { user } = useCurrentUser();
 	return (
 		<Sidebar collapsible="offcanvas" {...props}>
 			<SidebarHeader>
@@ -66,7 +33,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					<SidebarMenuItem>
 						<SidebarMenuButton
 							asChild
-							className="data-[slot=sidebar-menu-button]:!p-1.5"
+							className="data-[slot=sidebar-menu-button]:p-1.5!"
 						>
 							<a
 								href={envVars.NEXT_PUBLIC_HOME_URL}
@@ -87,10 +54,48 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				</SidebarMenu>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={data.navMain} />
+				<NavMain
+					items={[
+						{
+							title: "Dashboard",
+							url: routes.dashboard.home(),
+							icon: IconDashboard,
+						},
+						{
+							title: "Boats",
+							url: routes.boats.list(),
+							icon: IconSailboat2,
+						},
+						{
+							title: "ERGs",
+							url: routes.ergs.list(),
+							icon: IconTreadmill,
+						},
+						{
+							title: "Athletes",
+							url: routes.athletes.list(),
+							icon: IconUsers,
+						},
+						{
+							title: "Training Plan",
+							url: routes.workouts.list(),
+							icon: IconFolder,
+						},
+					]}
+				/>
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser user={data.user} />
+				<NavUser
+					user={{
+						name:
+							user.nickname ||
+							[user.firstName, user.lastName.charAt(0)]
+								.filter(Boolean)
+								.join(" "),
+						phone: user.phone || "",
+						avatar: "",
+					}}
+				/>
 			</SidebarFooter>
 		</Sidebar>
 	);
