@@ -22,12 +22,12 @@ const athletesParsed = athletesSchema.parse(
 		const name = user?.roles.includes("admin")
 			? [
 					user?.firstName,
-					user?.nickName ? `(${user?.nickName})` : "",
+					user?.nickname ? `(${user?.nickname})` : "",
 					user?.lastName,
 				]
 					.filter(Boolean)
 					.join(" ")
-			: user?.nickName || user?.firstName;
+			: user?.nickname || user?.firstName;
 		const activeMembership = membershipsParsed.find(
 			(membership) =>
 				membership.athleteId === athleteEntity.id &&
@@ -63,12 +63,12 @@ export const createAthlete = async (data: CreateAthlete): Promise<Athlete> => {
 	const name = data?.roles.includes("admin")
 		? [
 				data?.firstName,
-				data?.nickName ? `(${data?.nickName})` : "",
+				data?.nickname ? `(${data?.nickname})` : "",
 				data?.lastName,
 			]
 				.filter(Boolean)
 				.join(" ")
-		: data?.nickName || data?.firstName;
+		: data?.nickname || data?.firstName;
 	const athlete = athleteSchema.parse({
 		id: athletesParsed.length + 1,
 		userId: usersParsed.length + 1,

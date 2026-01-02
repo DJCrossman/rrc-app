@@ -44,7 +44,7 @@ export function AthleteForm({
 		defaultValues: {
 			firstName: initialValues?.firstName ?? "",
 			lastName: initialValues?.lastName ?? "",
-			nickName: initialValues?.nickName ?? "",
+			nickname: initialValues?.nickname ?? "",
 			phone: initialValues?.phone ?? "",
 			dateOfBirth: initialValues?.dateOfBirth ?? "",
 			dateJoined: initialValues?.dateJoined ?? "",
@@ -85,7 +85,7 @@ export function AthleteForm({
 				/>
 				<FormField
 					control={form.control}
-					name="nickName"
+					name="nickname"
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Preferred name</FormLabel>

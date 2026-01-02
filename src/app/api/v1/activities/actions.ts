@@ -28,7 +28,7 @@ const athletesParsed = athletesSchema.parse(
 			...user,
 			...athlete,
 			userId: athleteEntity.userId,
-			name: user?.nickName || user?.firstName,
+			name: user?.nickname || user?.firstName,
 		});
 	}),
 );

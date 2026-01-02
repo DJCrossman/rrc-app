@@ -6,7 +6,7 @@ export const leaderboardSchema = z.array(
 		.omit({
 			firstName: true,
 			lastName: true,
-			nickName: true,
+			nickname: true,
 			gender: true,
 			phone: true,
 			roles: true,

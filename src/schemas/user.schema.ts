@@ -8,7 +8,7 @@ export const GenderTypes = ["male", "female", "nonbinary"] as const;
 export const baseUserSchema = z.object({
 	firstName: z.string().min(1),
 	lastName: z.string().min(1),
-	nickName: z.string().optional(),
+	nickname: z.string().optional(),
 	phone: phoneNumberSchema,
 	roles: z.array(z.enum(UserRoles)).min(1),
 	dateJoined: z
@@ -27,6 +27,11 @@ export const baseUserSchema = z.object({
 
 export const userSchema = baseUserSchema.extend({
 	id: z.number(),
+	// OAuth integration fields
+	concept2Connected: z.boolean().optional(),
+	concept2UserId: z.string().optional(),
+	stravaConnected: z.boolean().optional(),
+	stravaAthleteId: z.string().optional(),
 });
 
 export type User = z.infer<typeof userSchema>;
