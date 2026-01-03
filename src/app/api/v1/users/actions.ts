@@ -1,5 +1,5 @@
 "use server";
-import { type User, usersSchema } from "@/schemas";
+import { type UpdateUser, type User, usersSchema } from "@/schemas";
 import users from "./users.json";
 
 const usersParsed = usersSchema.parse(users);
@@ -9,21 +9,12 @@ export async function getUserById(id: number): Promise<User | null> {
 	return user ?? null;
 }
 
-export async function getCurrentUser(): Promise<User> {
-	// TODO: Replace with actual authentication logic
-	const firstUserId = usersParsed[0];
+export async function updateUserProfile(data: UpdateUser): Promise<User> {
+	const currentUser = await getUserById(data.id);
 
-	const user = await getUserById(firstUserId.id);
-	if (!user) {
+	if (!currentUser) {
 		throw new Error("User not found");
 	}
-	return user;
-}
-
-export async function updateUserProfile(data: Partial<User>): Promise<User> {
-	// TODO: Replace with actual database update logic
-	// For now, simulate a successful update by returning the updated data
-	const currentUser = await getCurrentUser();
 
 	const updatedUser = {
 		...currentUser,

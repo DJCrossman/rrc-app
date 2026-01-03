@@ -2,16 +2,22 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useContext, useEffect, useState } from "react";
-import { getCurrentUser } from "@/app/api/v1/users/actions";
 import { generateQueryKey } from "@/lib/keygen";
-import type { UserRole } from "@/schemas";
+import type { User, UserRole } from "@/schemas";
 
 export const useAuth = () => {
 	const [currentRole, setCurrentRole] = useState<UserRole | null>(null);
 
 	const { data, error, isFetching } = useQuery({
 		queryKey: generateQueryKey({ type: "currentUser" }),
-		queryFn: async () => getCurrentUser(),
+		queryFn: async (): Promise<User> => {
+			const response = await fetch("/api/v1/users/me");
+			const data = await response.json();
+			if (!response.ok) {
+				throw new Error(data.message || "Failed to fetch user data");
+			}
+			return data;
+		},
 	});
 
 	useEffect(() => {

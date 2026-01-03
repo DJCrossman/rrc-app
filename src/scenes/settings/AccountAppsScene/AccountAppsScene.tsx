@@ -1,6 +1,7 @@
 "use client";
 
 import { IconBrandStrava } from "@tabler/icons-react";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
@@ -23,26 +24,12 @@ import {
 } from "@/components/ui/dialog";
 import { useCurrentUser } from "@/hooks/useAuth";
 
-type IntegrationApplication = {
+export type IntegrationApplication = {
 	id: "concept2" | "strava";
 	name: string;
 	description: string;
+	authUrl?: string;
 };
-
-const IntegrationApplications: IntegrationApplication[] = [
-	{
-		id: "concept2",
-		name: "Concept2",
-		description:
-			"Sync your erg workouts and performance data from Concept2 Logbook",
-	},
-	{
-		id: "strava",
-		name: "Strava",
-		description:
-			"Connect your Strava account to sync activities and training data",
-	},
-];
 
 const checkIfConnected = ({
 	user,
@@ -62,7 +49,11 @@ const checkIfConnected = ({
 	return false;
 };
 
-export const AccountAppsScene = () => {
+export const AccountAppsScene = ({
+	integrations,
+}: {
+	integrations: IntegrationApplication[];
+}) => {
 	const { user } = useCurrentUser();
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [selectedApp, setSelectedApp] = useState<IntegrationApplication>();
@@ -79,7 +70,7 @@ export const AccountAppsScene = () => {
 			</div>
 
 			<div className="grid gap-6 md:grid-cols-2">
-				{IntegrationApplications.map((app) => {
+				{integrations.map((app) => {
 					const isConnected = checkIfConnected({ user, app });
 					return (
 						<Card key={app.id}>
@@ -103,24 +94,35 @@ export const AccountAppsScene = () => {
 								<CardDescription>{app.description}</CardDescription>
 							</CardContent>
 							<CardFooter>
-								<Button
-									onClick={() => {
-										if (isConnected) {
-											// Show disconnect confirmation dialog
-											setSelectedApp(app);
-											setDialogOpen(true);
-										} else {
-											toast.success(`Connected to ${app?.name}`, {
-												description:
-													"Your account has been successfully linked",
-											});
-										}
-									}}
-									variant={isConnected ? "outline" : "default"}
-									className="w-full"
-								>
-									{isConnected ? "Disconnect" : "Connect"}
-								</Button>
+								{!!app.authUrl && !isConnected && (
+									<Button
+										asChild
+										variant={isConnected ? "outline" : "default"}
+										className="w-full"
+									>
+										<Link href={app.authUrl}>Connect</Link>
+									</Button>
+								)}
+								{!app.authUrl && (
+									<Button
+										onClick={() => {
+											if (isConnected) {
+												// Show disconnect confirmation dialog
+												setSelectedApp(app);
+												setDialogOpen(true);
+											} else {
+												toast.success(`Connected to ${app?.name}`, {
+													description:
+														"Your account has been successfully linked",
+												});
+											}
+										}}
+										variant={isConnected ? "outline" : "default"}
+										className="w-full"
+									>
+										{isConnected ? "Disconnect" : "Connect"}
+									</Button>
+								)}
 							</CardFooter>
 						</Card>
 					);

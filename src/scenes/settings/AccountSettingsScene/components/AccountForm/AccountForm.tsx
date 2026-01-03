@@ -22,19 +22,9 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { formatGender } from "@/lib/formatters/formatGender";
-import { baseUserSchema, GenderTypes, type User } from "@/schemas";
+import { GenderTypes, type UpdateUser, updateUserSchema } from "@/schemas";
 
-type AccountFormData = Pick<
-	User,
-	| "firstName"
-	| "lastName"
-	| "nickname"
-	| "phone"
-	| "gender"
-	| "dateOfBirth"
-	| "heightInCm"
-	| "weightInKg"
->;
+type AccountFormData = UpdateUser;
 
 interface AccountFormProps {
 	user: AccountFormData;
@@ -46,8 +36,9 @@ export function AccountForm({
 	onSubmit: handleSubmit,
 }: AccountFormProps) {
 	const form = useForm<AccountFormData>({
-		resolver: zodResolver(baseUserSchema.omit({ roles: true })),
+		resolver: zodResolver(updateUserSchema),
 		defaultValues: {
+			id: user.id,
 			firstName: user.firstName ?? "",
 			lastName: user.lastName ?? "",
 			nickname: user.nickname ?? "",

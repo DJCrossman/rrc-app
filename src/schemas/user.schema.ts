@@ -29,12 +29,17 @@ export const userSchema = baseUserSchema.extend({
 	id: z.number(),
 	// OAuth integration fields
 	concept2Connected: z.boolean().default(false),
-	concept2UserId: z.string().optional(),
+	concept2UserId: z.number().optional(),
 	stravaConnected: z.boolean().default(false),
 	stravaAthleteId: z.string().optional(),
 });
 
+export const updateUserSchema = baseUserSchema.omit({ roles: true }).extend({
+	id: userSchema.shape.id,
+});
+
 export type User = z.infer<typeof userSchema>;
+export type UpdateUser = z.infer<typeof updateUserSchema>;
 export type UserRole = User["roles"][number];
 
 export const usersSchema = z.array(userSchema);
