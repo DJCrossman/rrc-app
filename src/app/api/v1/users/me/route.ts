@@ -3,6 +3,11 @@ import { NextResponse } from "next/server";
 import type { User } from "@/schemas/user.schema";
 import { getConcept2User } from "../../concept2/users/actions";
 import { getAccessToken, isTokenExpired } from "../../concept2/utils";
+import { getStravaAthlete } from "../../strava/athlete/actions";
+import {
+	getAccessToken as getStravaAccessToken,
+	isTokenExpired as isStravaTokenExpired,
+} from "../../strava/utils";
 import { getUserById } from "../actions";
 
 export async function GET(request: Request) {
@@ -15,7 +20,8 @@ export async function GET(request: Request) {
 		}
 
 		const concept2Values = await getConcept2Values(request);
-		Object.assign(user, concept2Values);
+		const stravaValues = await getStravaValues(request);
+		Object.assign(user, concept2Values, stravaValues);
 
 		return NextResponse.json(user);
 	} catch (error) {
@@ -75,6 +81,58 @@ const getConcept2Values = async (
 		return {
 			concept2Connected: false,
 			concept2UserId: undefined,
+		};
+	}
+};
+
+const getStravaValues = async (
+	request: Request,
+): Promise<Pick<User, "stravaConnected" | "stravaAthleteId">> => {
+	try {
+		const cookieStore = await cookies();
+		const tokenExpired = await isStravaTokenExpired({ cookieStore });
+		if (tokenExpired) {
+			const refreshResponse = await fetch(
+				new URL("/api/v1/strava/refresh", request.url),
+				{
+					method: "POST",
+				},
+			);
+
+			if (!refreshResponse.ok) {
+				return {
+					stravaConnected: false,
+					stravaAthleteId: undefined,
+				};
+			}
+		}
+
+		const accessToken = await getStravaAccessToken({ cookieStore });
+		if (!accessToken) {
+			return {
+				stravaConnected: false,
+				stravaAthleteId: undefined,
+			};
+		}
+
+		const stravaAthleteResponse = await getStravaAthlete({ accessToken });
+
+		if (stravaAthleteResponse.status === "rejected") {
+			return {
+				stravaConnected: false,
+				stravaAthleteId: undefined,
+			};
+		}
+
+		return {
+			stravaConnected: true,
+			stravaAthleteId: stravaAthleteResponse.value.id.toString(),
+		};
+	} catch (error) {
+		console.error("Strava values retrieval error:", error);
+		return {
+			stravaConnected: false,
+			stravaAthleteId: undefined,
 		};
 	}
 };

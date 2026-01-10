@@ -28,7 +28,7 @@ export type IntegrationApplication = {
 	id: "concept2" | "strava";
 	name: string;
 	description: string;
-	authUrl?: string;
+	authUrl: string;
 };
 
 const checkIfConnected = ({

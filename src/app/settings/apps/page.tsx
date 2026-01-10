@@ -16,6 +16,7 @@ const IntegrationApplications: IntegrationApplication[] = [
 		name: "Strava",
 		description:
 			"Connect your Strava account to sync activities and training data",
+		authUrl: "/api/v1/strava/authorize",
 	},
 ];
 
