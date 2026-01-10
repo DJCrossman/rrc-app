@@ -1,9 +1,6 @@
 import z from "zod";
-import {
-	Concept2Error,
-	type Concept2Result,
-	concept2ResultSchema,
-} from "../types";
+import { type Concept2Activity, concept2ActivitySchema } from "@/schemas";
+import { Concept2Error } from "../types";
 import { getConcept2Config } from "../utils";
 
 const commandSchema = z.object({
@@ -28,7 +25,7 @@ const commandSchema = z.object({
 type Concept2ResultsParams = z.infer<typeof commandSchema>;
 
 const responseSchema = z.object({
-	data: z.array(concept2ResultSchema),
+	data: z.array(concept2ActivitySchema),
 	meta: z.object({
 		pagination: z.object({
 			total: z.number(),
@@ -44,7 +41,9 @@ const responseSchema = z.object({
 export const getConcept2Results = async ({
 	accessToken,
 	searchParams,
-}: Concept2ResultsParams): Promise<PromiseSettledResult<Concept2Result[]>> => {
+}: Concept2ResultsParams): Promise<
+	PromiseSettledResult<Concept2Activity[]>
+> => {
 	const config = getConcept2Config();
 
 	const resultsUrl = new URL(`${config.baseUrl}/api/users/me/results`);

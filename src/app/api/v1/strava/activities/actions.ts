@@ -1,11 +1,8 @@
 import { DateTime } from "luxon";
 import { cookies } from "next/headers";
 import { z } from "zod";
-import {
-	type StravaActivity,
-	StravaError,
-	stravaActivitySchema,
-} from "../types";
+import { type StravaActivity, stravaActivitySchema } from "@/schemas";
+import { StravaError } from "../types";
 import { ensureValidToken, getStravaConfig } from "../utils";
 
 const commandSchema = z.object({

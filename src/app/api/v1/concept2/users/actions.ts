@@ -1,5 +1,6 @@
 import z from "zod";
-import { Concept2Error, type Concept2User, concept2UserSchema } from "../types";
+import { type Concept2User, concept2UserSchema } from "@/schemas";
+import { Concept2Error } from "../types";
 import { getConcept2Config } from "../utils";
 
 const commandSchema = z.object({

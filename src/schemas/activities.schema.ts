@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { athleteSchema } from "./athlete.schema";
 import { boatSchema } from "./boat.schema";
+import { concept2ActivitySchema } from "./concept2Activity.schema";
 import { ergSchema } from "./erg.schema.";
+import { stravaActivitySchema } from "./stravaActivity.schema";
+import { workoutSchema } from "./workouts.schema";
 
 const activityCoreSchema = z.object({
 	id: z.number(),
@@ -16,18 +19,20 @@ const activityCoreSchema = z.object({
 const waterActivityDBSchema = activityCoreSchema.extend({
 	athleteId: z.number(),
 	boatId: z.number(),
-	ergId: z.null(),
 	workoutId: z.number().nullable(),
 	stravaId: z.number().nullable(),
+	stravaData: stravaActivitySchema.nullable(),
 	type: z.literal("water"),
 });
 
 const ergActivityDBSchema = activityCoreSchema.extend({
 	athleteId: z.number(),
-	boatId: z.null(),
 	ergId: z.number(),
 	workoutId: z.number().nullable(),
 	stravaId: z.number().nullable(),
+	stravaData: stravaActivitySchema.nullable(),
+	conceptTwoId: z.number().nullable(),
+	conceptTwoData: concept2ActivitySchema.nullable(),
 	type: z.literal("erg"),
 });
 
@@ -49,7 +54,7 @@ const waterActivitySchema = activityCoreSchema.extend({
 	athlete: athleteSchema,
 	boat: boatSchema,
 	erg: z.null(),
-	workout: z.object({}).nullable(),
+	workout: workoutSchema.nullable(),
 	isStrava: z.boolean(),
 	type: z.literal("water"),
 });
@@ -58,7 +63,7 @@ const ergActivitySchema = activityCoreSchema.extend({
 	athlete: athleteSchema,
 	boat: z.null(),
 	erg: ergSchema,
-	workout: z.object({}).nullable(),
+	workout: workoutSchema.nullable(),
 	isStrava: z.boolean(),
 	type: z.literal("erg"),
 });

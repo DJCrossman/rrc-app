@@ -1,6 +1,7 @@
 import { jwtVerify, SignJWT } from "jose";
 import type { cookies } from "next/headers";
-import type { StravaAthlete, StravaTokenData } from "./types";
+import type { StravaUser } from "@/schemas";
+import type { StravaTokenData } from "./types";
 
 const STRAVA_TOKEN_COOKIE = "strava_access_token";
 const STRAVA_REFRESH_COOKIE = "strava_refresh_token";
@@ -91,7 +92,7 @@ export async function saveAthlete({
 	athlete,
 	cookieStore,
 }: {
-	athlete: StravaAthlete;
+	athlete: StravaUser;
 	cookieStore: Awaited<ReturnType<typeof cookies>>;
 }) {
 	const config = getStravaConfig();
@@ -116,7 +117,7 @@ export async function getAthlete({
 	cookieStore,
 }: {
 	cookieStore: Awaited<ReturnType<typeof cookies>>;
-}): Promise<StravaAthlete | null> {
+}): Promise<StravaUser | null> {
 	const jwt = cookieStore.get(STRAVA_ATHLETE_COOKIE)?.value;
 	if (!jwt) return null;
 
@@ -125,7 +126,7 @@ export async function getAthlete({
 		const secret = new TextEncoder().encode(config.jwtSecret);
 
 		const { payload } = await jwtVerify(jwt, secret);
-		return payload.athlete as StravaAthlete;
+		return payload.athlete as StravaUser;
 	} catch (error) {
 		console.error("Failed to verify athlete JWT:", error);
 		return null;

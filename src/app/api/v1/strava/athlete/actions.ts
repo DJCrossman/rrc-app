@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { z } from "zod";
-import { type StravaAthlete, StravaError, stravaAthleteSchema } from "../types";
+import { type StravaUser, stravaUserSchema } from "@/schemas";
+import { StravaError } from "../types";
 import {
 	ensureValidToken,
 	getAthlete,
@@ -15,7 +16,7 @@ type StravaAthleteParams = z.infer<typeof commandSchema>;
 
 export const getStravaAthlete = async (
 	params: StravaAthleteParams = {},
-): Promise<PromiseSettledResult<StravaAthlete>> => {
+): Promise<PromiseSettledResult<StravaUser>> => {
 	try {
 		const config = getStravaConfig();
 		const cookieStore = await cookies();
@@ -83,7 +84,7 @@ export const getStravaAthlete = async (
 
 		const athleteData = await athleteResponse.json();
 
-		const parsedAthlete = await stravaAthleteSchema.safeParseAsync(athleteData);
+		const parsedAthlete = await stravaUserSchema.safeParseAsync(athleteData);
 
 		if (!parsedAthlete.success) {
 			console.error("Failed to parse athlete:", parsedAthlete.error);
