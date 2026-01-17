@@ -1,6 +1,6 @@
-import type { IProps } from "../../scenes/dashboard/DashboardScene/components/AnalyticMetricCards/AnalyticMetricCards";
-
-export const formatPeriod = (period: IProps["period"]) => {
+export const formatPeriod = (
+	period: "three_months" | "thirty_days" | "seven_days",
+) => {
 	switch (period) {
 		case "three_months":
 			return "3 months";

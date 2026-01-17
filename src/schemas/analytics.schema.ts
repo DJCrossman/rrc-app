@@ -7,9 +7,17 @@ const analyticsMetric = z.object({
 
 export const analyticMetricsSchema = z.object({
 	totalMeters: analyticsMetric,
-	totalWorkouts: analyticsMetric,
-	totalPoints: analyticsMetric,
-	attendance: analyticsMetric,
+	totalActivities: analyticsMetric,
+	totalDuration: analyticsMetric,
+	activeStreak: z.object({
+		currentStreak: z.number(),
+		weekDays: z.array(
+			z.object({
+				date: z.string(),
+				hasActivity: z.boolean(),
+			}),
+		),
+	}),
 });
 
 export type AnalyticMetrics = z.infer<typeof analyticMetricsSchema>;

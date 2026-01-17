@@ -1,8 +1,12 @@
 import {
-	IconMinus,
-	IconTrendingDown,
-	IconTrendingUp,
-} from "@tabler/icons-react";
+	Activity,
+	Clock,
+	Flame,
+	Navigation,
+	TrendingDown,
+	TrendingUp,
+} from "lucide-react";
+import { DateTime } from "luxon";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -13,20 +17,65 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { formatMeters, formatPercent, formatPeriod } from "@/lib/formatters";
+import { formatDuration, formatMeters, formatPercent } from "@/lib/formatters";
+import { cn } from "@/lib/utils";
 import type { AnalyticMetrics } from "@/schemas";
 
 export interface IProps {
 	data: AnalyticMetrics;
-	period: "three_months" | "thirty_days" | "seven_days";
 }
 
-export function AnalyticMetricCards({ data, period }: IProps) {
+export function AnalyticMetricCards({ data }: IProps) {
 	return (
-		<div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+		<div className="grid grid-cols-2 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs dark:*:data-[slot=card]:bg-card lg:px-6 @xl/main:grid-cols-4">
+			<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
+				<CardHeader>
+					<CardDescription>Active Streak</CardDescription>
+					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+						{data.activeStreak.currentStreak}{" "}
+						{data.activeStreak.currentStreak === 1 ? "day" : "days"}
+					</CardTitle>
+					<CardAction>
+						<div className="flex items-center gap-1.5">
+							<Flame className="size-4 text-red-400" />
+						</div>
+					</CardAction>
+				</CardHeader>
+				<CardFooter className="flex-col items-start gap-2 text-sm">
+					<div className="grid grid-cols-7 gap-1.5 w-full">
+						{data.activeStreak.weekDays.map((day) => {
+							const date = DateTime.fromISO(day.date);
+							return (
+								<div
+									key={day.date}
+									className="flex flex-col items-center gap-1"
+								>
+									<div className="text-xs text-muted-foreground font-medium">
+										{date.toFormat("ccc")}
+									</div>
+									<div
+										className={cn(
+											"size-4 rounded-sm flex items-center justify-center text-[10px] font-semibold",
+											day.hasActivity
+												? "bg-red-400/20 text-red-600 dark:text-red-400"
+												: "bg-muted text-muted-foreground",
+										)}
+									>
+										{day.hasActivity ? (
+											<Flame className="size-3" />
+										) : (
+											<span>{date.day}</span>
+										)}
+									</div>
+								</div>
+							);
+						})}
+					</div>
+				</CardFooter>
+			</Card>
 			<Card className="@container/card">
 				<CardHeader>
-					<CardDescription>Total Meters</CardDescription>
+					<CardDescription>Total Distance</CardDescription>
 					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
 						{formatMeters(data.totalMeters.amount)}
 					</CardTitle>
@@ -35,54 +84,44 @@ export function AnalyticMetricCards({ data, period }: IProps) {
 					</CardAction>
 				</CardHeader>
 				<CardFooter className="flex-col items-start gap-1.5 text-sm">
-					<div className="line-clamp-1 flex gap-2 font-medium">
-						<TrendingMetersText change={data.totalMeters.change} />
-					</div>
-					<div className="text-muted-foreground">
-						Meters for the last {formatPeriod(period)}
+					<div className="text-muted-foreground flex items-center gap-1.5">
+						<Navigation className="size-4" />
+						<span>This week</span>
 					</div>
 				</CardFooter>
 			</Card>
-			<Card className="@container/card">
+			<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
 				<CardHeader>
-					<CardDescription>Total Workouts</CardDescription>
+					<CardDescription>Total Activities</CardDescription>
 					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-						{data.totalWorkouts.amount}
+						{data.totalActivities.amount}
 					</CardTitle>
 					<CardAction>
-						<TrendingBadge change={data.totalWorkouts.change} />
+						<TrendingBadge change={data.totalActivities.change} />
 					</CardAction>
 				</CardHeader>
 				<CardFooter className="flex-col items-start gap-1.5 text-sm">
-					<TrendingWorkoutText change={data.totalWorkouts.change} />
+					<div className="text-muted-foreground flex items-center gap-1.5">
+						<Activity className="size-4" />
+						<span>This week</span>
+					</div>
 				</CardFooter>
 			</Card>
-			<Card className="@container/card">
+			<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
 				<CardHeader>
-					<CardDescription>Challenge Points</CardDescription>
+					<CardDescription>Total Duration</CardDescription>
 					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-						{data.totalPoints.amount}
+						{formatDuration(data.totalDuration.amount)}
 					</CardTitle>
 					<CardAction>
-						<TrendingBadge change={data.totalPoints.change} />
+						<TrendingBadge change={data.totalDuration.change} />
 					</CardAction>
 				</CardHeader>
 				<CardFooter className="flex-col items-start gap-1.5 text-sm">
-					<TrendingPointsText change={data.totalPoints.change} />
-				</CardFooter>
-			</Card>
-			<Card className="@container/card">
-				<CardHeader>
-					<CardDescription>Attendance Rate</CardDescription>
-					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-						{formatPercent(data.attendance.amount)}
-					</CardTitle>
-					<CardAction>
-						<TrendingBadge change={data.attendance.change} />
-					</CardAction>
-				</CardHeader>
-				<CardFooter className="flex-col items-start gap-1.5 text-sm">
-					<TrendingAttendanceText change={data.attendance.change} />
+					<div className="text-muted-foreground flex items-center gap-1.5">
+						<Clock className="size-4" />
+						<span>This week</span>
+					</div>
 				</CardFooter>
 			</Card>
 		</div>
@@ -93,7 +132,7 @@ const TrendingBadge = ({ change }: { change: number }) => {
 	if (change > 0) {
 		return (
 			<Badge variant="outline">
-				<IconTrendingUp />
+				<TrendingUp className="size-3.5" />
 				{formatPercent(change)}
 			</Badge>
 		);
@@ -101,143 +140,10 @@ const TrendingBadge = ({ change }: { change: number }) => {
 	if (change < 0) {
 		return (
 			<Badge variant="outline">
-				<IconTrendingDown />
+				<TrendingDown className="size-3.5" />
 				{formatPercent(change)}
 			</Badge>
 		);
 	}
 	return <Badge variant="outline">{formatPercent(change)}</Badge>;
-};
-
-const TrendingIcon = ({ change }: { change: number }) => {
-	if (change > 0) {
-		return <IconTrendingUp className="size-4" />;
-	}
-	if (change < 0) {
-		return <IconTrendingDown className="size-4" />;
-	}
-	return <IconMinus className="size-4" />;
-};
-
-const TrendingMetersText = ({ change }: { change: number }) => {
-	if (change > 0) {
-		return (
-			<>
-				Trending up this month <TrendingIcon change={change} />
-			</>
-		);
-	}
-	if (change < 0) {
-		return (
-			<>
-				Trending down this month <TrendingIcon change={change} />
-			</>
-		);
-	}
-	return (
-		<>
-			No change this month <TrendingIcon change={change} />
-		</>
-	);
-};
-
-const TrendingWorkoutText = ({ change }: { change: number }) => {
-	if (change > 0) {
-		return (
-			<>
-				<div className="line-clamp-1 flex gap-2 font-medium">
-					Up {formatPercent(change)} this period{" "}
-					<IconTrendingDown className="size-4" />
-				</div>
-				<div className="text-muted-foreground">Great work out there!</div>
-			</>
-		);
-	}
-	if (change < 0) {
-		return (
-			<>
-				<div className="line-clamp-1 flex gap-2 font-medium">
-					Down{" "}
-					{new Intl.NumberFormat("en-US", {
-						style: "percent",
-						maximumFractionDigits: 1,
-					}).format(Math.abs(change))}{" "}
-					this period <IconTrendingDown className="size-4" />
-				</div>
-				<div className="text-muted-foreground">Attendance needs attention</div>
-			</>
-		);
-	}
-	return (
-		<>
-			<div className="line-clamp-1 flex gap-2 font-medium">
-				No change this period <IconMinus className="size-4" />
-			</div>
-			<div className="text-muted-foreground">Attendance is steady</div>
-		</>
-	);
-};
-
-const TrendingPointsText = ({ change }: { change: number }) => {
-	if (change > 0) {
-		return (
-			<>
-				<div className="line-clamp-1 flex gap-2 font-medium">
-					Strong athlete dedication <IconTrendingUp className="size-4" />
-				</div>
-				<div className="text-muted-foreground">Performance exceed targets</div>
-			</>
-		);
-	}
-	if (change < 0) {
-		return (
-			<>
-				<div className="line-clamp-1 flex gap-2 font-medium">
-					Keep working hard out there <IconTrendingDown className="size-4" />
-				</div>
-				<div className="text-muted-foreground">
-					Performance could use improvement
-				</div>
-			</>
-		);
-	}
-	return (
-		<>
-			<div className="line-clamp-1 flex gap-2 font-medium">
-				No change this period <IconMinus className="size-4" />
-			</div>
-			<div className="text-muted-foreground">Performance is steady</div>
-		</>
-	);
-};
-
-const TrendingAttendanceText = ({ change }: { change: number }) => {
-	if (change > 0) {
-		return (
-			<>
-				<div className="line-clamp-1 flex gap-2 font-medium">
-					Steady performance increase <IconTrendingUp className="size-4" />
-				</div>
-				<div className="text-muted-foreground">Meets growth projections</div>
-			</>
-		);
-	}
-	if (change < 0) {
-		return (
-			<>
-				<div className="line-clamp-1 flex gap-2 font-medium">
-					Steady performance decrease <IconTrendingDown className="size-4" />
-				</div>
-				<div className="text-muted-foreground">Below growth projections</div>
-			</>
-		);
-	}
-	return (
-		<>
-			<div className="line-clamp-1 flex gap-2 font-medium">
-				No change this period <IconMinus className="size-4" />
-			</div>
-			<div className="text-muted-foreground">Attendance is steady</div>
-		</>
-	);
 };
