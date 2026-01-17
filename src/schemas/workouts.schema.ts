@@ -6,6 +6,7 @@ export const workoutCoreSchema = z.object({
 	workoutType: z.enum(["distance", "time", "other"]),
 	elaspedTime: z.number().optional(),
 	distance: z.number().optional(),
+	intervalCount: z.number().default(1),
 });
 
 export type CreateWorkout = z.infer<typeof workoutCoreSchema>;

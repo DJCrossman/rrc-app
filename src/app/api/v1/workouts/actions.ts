@@ -2,6 +2,7 @@
 import { parseImage } from "@/lib/ai/parseImage";
 import { PARSE_WORKOUT_SCREENSHOT_PROMPT } from "@/lib/ai/prompts/parse-workout-screenshot.prompt";
 import { parseDuration } from "@/lib/parsers/parseDuration";
+import { parseIntervals } from "@/lib/parsers/parseIntervals";
 import {
 	type CreateWorkout,
 	type Workout,
@@ -104,16 +105,31 @@ const parseWorkoutJsonResponse = async (response: string) => {
 				"description" in item && typeof item.description === "string"
 					? item.description.replace(/\\n/g, "\n")
 					: "";
-			let duration: number | undefined =
-				"duration" in item && typeof item.duration === "number"
-					? item.duration
+			const workoutType: string =
+				"workoutType" in item && typeof item.workoutType === "string"
+					? item.workoutType
+					: "other";
+			let elaspedTime: number | undefined =
+				"elaspedTime" in item && typeof item.elaspedTime === "number"
+					? item.elaspedTime
 					: undefined;
-			if (duration === undefined) {
-				duration = parseDuration(
+			if (elaspedTime === undefined) {
+				elaspedTime = parseDuration(
 					"description" in item && typeof item.description === "string"
 						? item.description.replace(/\\n/g, "\n")
 						: "",
 				);
+			}
+			const distance: number | undefined =
+				"distance" in item && typeof item.distance === "number"
+					? item.distance
+					: undefined;
+			let intervalCount: number | undefined =
+				"intervalCount" in item && typeof item.intervalCount === "number"
+					? item.intervalCount
+					: undefined;
+			if (intervalCount === undefined) {
+				intervalCount = parseIntervals(description);
 			}
 			return Promise.resolve(
 				workoutCoreSchema.parse({
@@ -122,7 +138,10 @@ const parseWorkoutJsonResponse = async (response: string) => {
 						"startDate" in item && typeof item.startDate === "string"
 							? item.startDate
 							: "",
-					duration,
+					workoutType,
+					elaspedTime,
+					distance,
+					intervalCount,
 				}),
 			);
 		}),
