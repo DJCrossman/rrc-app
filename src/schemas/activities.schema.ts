@@ -4,13 +4,14 @@ import { boatSchema } from "./boat.schema";
 import { concept2ActivitySchema } from "./concept2Activity.schema";
 import { ergSchema } from "./erg.schema.";
 import { stravaActivitySchema } from "./stravaActivity.schema";
-import { workoutSchema } from "./workouts.schema";
+import { workoutCoreSchema, workoutSchema } from "./workouts.schema";
 
 const activityCoreSchema = z.object({
 	id: z.number(),
 	name: z.string(),
 	startDate: z.string(),
 	timezone: z.string(),
+	workoutType: workoutCoreSchema.shape.workoutType,
 	elaspedTime: z.number(),
 	distance: z.number(),
 });

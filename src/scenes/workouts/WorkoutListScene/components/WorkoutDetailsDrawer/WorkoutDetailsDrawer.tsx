@@ -118,13 +118,13 @@ export const WorkoutDetailsDrawer = ({
 										{startDate?.toLocaleString(DateTime.DATE_MED) || "N/A"}
 									</p>
 								</div>
-								{workout.duration && (
+								{workout.elaspedTime && (
 									<div>
 										<strong className="text-sm text-muted-foreground">
 											Duration
 										</strong>
 										<p className="text-base">
-											{formatDuration(workout.duration)}
+											{formatDuration(workout.elaspedTime)}
 										</p>
 									</div>
 								)}

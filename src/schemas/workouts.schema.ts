@@ -3,7 +3,9 @@ import { z } from "zod";
 export const workoutCoreSchema = z.object({
 	description: z.string(),
 	startDate: z.string(),
-	duration: z.number().optional(),
+	workoutType: z.enum(["distance", "time", "other"]),
+	elaspedTime: z.number().optional(),
+	distance: z.number().optional(),
 });
 
 export type CreateWorkout = z.infer<typeof workoutCoreSchema>;

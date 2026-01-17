@@ -39,11 +39,11 @@ export function WorkoutTable({
 				)
 				.map((workout) => ({
 					...workout,
-					timeFrame: workout.duration
+					timeFrame: workout.elaspedTime
 						? Interval.fromDateTimes(
 								DateTime.fromISO(workout.startDate),
 								DateTime.fromISO(workout.startDate).plus({
-									milliseconds: workout.duration,
+									milliseconds: workout.elaspedTime,
 								}),
 							).toLocaleString(DateTime.TIME_SIMPLE)
 						: "N/A",
@@ -60,11 +60,11 @@ export function WorkoutTable({
 				)
 				.map((workout) => ({
 					...workout,
-					timeFrame: workout.duration
+					timeFrame: workout.elaspedTime
 						? Interval.fromDateTimes(
 								DateTime.fromISO(workout.startDate),
 								DateTime.fromISO(workout.startDate).plus({
-									milliseconds: workout.duration,
+									milliseconds: workout.elaspedTime,
 								}),
 							).toLocaleString(DateTime.TIME_SIMPLE)
 						: "N/A",
