@@ -19,6 +19,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { type CreateWorkout, workoutCoreSchema } from "@/schemas";
 
+interface WorkoutFormData {
+	workouts: Array<
+		Omit<CreateWorkout, "intervalCount"> & { intervalCount?: number }
+	>;
+}
+
 interface WorkoutFormProps {
 	defaultValues?: { workouts: Partial<CreateWorkout>[] };
 	onSubmit: SubmitHandler<{ workouts: CreateWorkout[] }>;
@@ -39,16 +45,21 @@ export function WorkoutForm({
 	const [isUploading, setIsUploading] = useState(false);
 	const [uploadError, setUploadError] = useState<string | null>(null);
 
-	const form = useForm<{ workouts: CreateWorkout[] }>({
+	const form = useForm<WorkoutFormData>({
 		resolver: zodResolver(z.object({ workouts: z.array(workoutCoreSchema) })),
 		defaultValues: defaultValues || {
-			workouts: [{ description: "", startDate: undefined }],
+			workouts: [{ description: "", startDate: undefined, intervalCount: 1 }],
 		},
 	});
 
 	return (
 		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+			<form
+				onSubmit={form.handleSubmit((data) =>
+					onSubmit({ workouts: data.workouts as CreateWorkout[] }),
+				)}
+				className="space-y-8"
+			>
 				{!isCreatingManually && onUploadWorkoutScreenshot && (
 					<div className="space-y-2">
 						<FormLabel>Upload Calendar Screenshot</FormLabel>

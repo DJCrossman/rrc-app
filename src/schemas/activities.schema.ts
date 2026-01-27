@@ -78,3 +78,47 @@ export type Activity = z.infer<typeof activitySchema>;
 
 export const activitiesSchema = z.array(activitySchema);
 export type Activities = z.infer<typeof activitiesSchema>;
+
+const createWaterActivitySchema = z.object({
+	name: z.string(),
+	startDate: z.string(),
+	timezone: z.string(),
+	workoutType: workoutCoreSchema.shape.workoutType,
+	elapsedTime: z.number(),
+	distance: z.number(),
+	athleteId: z.number(),
+	boatId: z.number(),
+	workoutId: z.number().nullable(),
+	type: z.literal("water"),
+});
+
+const createErgActivitySchema = z.object({
+	name: z.string(),
+	startDate: z.string(),
+	timezone: z.string(),
+	workoutType: workoutCoreSchema.shape.workoutType,
+	elapsedTime: z.number(),
+	distance: z.number(),
+	athleteId: z.number(),
+	ergId: z.number(),
+	workoutId: z.number().nullable(),
+	type: z.literal("erg"),
+});
+
+export const createActivitySchema = z.discriminatedUnion("type", [
+	createWaterActivitySchema,
+	createErgActivitySchema,
+]);
+
+export type CreateActivity = z.infer<typeof createActivitySchema>;
+
+export const updateActivitySchema = z.discriminatedUnion("type", [
+	createWaterActivitySchema.extend({
+		id: z.number(),
+	}),
+	createErgActivitySchema.extend({
+		id: z.number(),
+	}),
+]);
+
+export type UpdateActivity = z.infer<typeof updateActivitySchema>;

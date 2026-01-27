@@ -1,10 +1,16 @@
-import { IconBrandStrava } from "@tabler/icons-react";
+import {
+	IconBrandStrava,
+	IconSailboat2,
+	IconTreadmill,
+} from "@tabler/icons-react";
 import {
 	type ColumnDef,
 	flexRender,
 	getCoreRowModel,
 	useReactTable,
 } from "@tanstack/react-table";
+import { DateTime } from "luxon";
+import Link from "next/link";
 import {
 	Table,
 	TableBody,
@@ -13,18 +19,46 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { formatDuration } from "@/lib/formatters/formatDuration";
+import { formatMeters } from "@/lib/formatters/formatMeters";
+import { routes } from "@/lib/routes";
 import type { Activities, Activity } from "@/schemas";
 
 const columns: ColumnDef<Activity>[] = [
 	{
+		accessorKey: "type",
+		header: "",
+		cell: ({ row }) =>
+			row.original.type === "water" ? (
+				<IconSailboat2 className="h-4 w-4" />
+			) : (
+				<IconTreadmill className="h-4 w-4" />
+			),
+	},
+	{
 		accessorKey: "startDate",
 		header: "Date",
-		cell: ({ row }) => new Date(row.original.startDate).toLocaleDateString(),
+		cell: ({ row }) => {
+			const date = DateTime.fromISO(row.original.startDate);
+			return date.toISODate();
+		},
 	},
 	{
 		accessorKey: "name",
-		header: "Name",
-		cell: ({ row }) => row.original.name,
+		header: "Workout",
+		cell: ({ row }) => {
+			if (row.original.workout) {
+				return (
+					<Link
+						href={routes.workouts.view({ id: row.original.workout.id })}
+						className="hover:underline"
+					>
+						{row.original.name}
+					</Link>
+				);
+			}
+			return row.original.name;
+		},
 	},
 	{
 		accessorKey: "athlete.name",
@@ -42,9 +76,14 @@ const columns: ColumnDef<Activity>[] = [
 		cell: ({ row }) => (row.original.isStrava ? <IconBrandStrava /> : null),
 	},
 	{
-		accessorKey: "distance",
-		header: "Meters",
-		cell: ({ row }) => row.original.distance.toLocaleString(),
+		accessorKey: "score",
+		header: "Score",
+		cell: ({ row }) => {
+			if (row.original.workoutType === "distance") {
+				return formatDuration(row.original.elaspedTime);
+			}
+			return formatMeters(row.original.distance);
+		},
 	},
 ];
 

@@ -13,7 +13,7 @@
 		"workoutType": "time",
 		"startDate": "2018-02-16T14:52:54Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 1573,
+		"elaspedTime": 4200000,
 		"distance": 8046.72,
 		"type": "water"
 	},
@@ -31,7 +31,7 @@
 		"workoutType": "time",
 		"startDate": "2018-02-16T14:52:54Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 1573,
+		"elaspedTime": 4800000,
 		"distance": 8046.72,
 		"type": "water"
 	},
@@ -49,7 +49,7 @@
 		"workoutType": "distance",
 		"startDate": "2018-02-16T14:52:54Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 1573,
+		"elaspedTime": 2070000,
 		"distance": 9000,
 		"type": "erg"
 	},
@@ -67,7 +67,7 @@
 		"workoutType": "other",
 		"startDate": "2023-10-01T06:30:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 3600,
+		"elaspedTime": 2400000,
 		"distance": 10000,
 		"type": "water"
 	},
@@ -85,7 +85,7 @@
 		"workoutType": "other",
 		"startDate": "2023-10-02T18:00:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 4200,
+		"elaspedTime": 3000000,
 		"distance": 12000,
 		"type": "water"
 	},
@@ -103,7 +103,7 @@
 		"workoutType": "distance",
 		"startDate": "2023-10-03T07:00:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 420,
+		"elaspedTime": 432000,
 		"distance": 2000,
 		"type": "erg"
 	},
@@ -121,7 +121,7 @@
 		"workoutType": "other",
 		"startDate": "2023-10-04T06:45:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 2700,
+		"elaspedTime": 1680000,
 		"distance": 7000,
 		"type": "water"
 	},
@@ -139,7 +139,7 @@
 		"workoutType": "time",
 		"startDate": "2023-10-05T05:30:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 1800,
+		"elaspedTime": 1800000,
 		"distance": 7500,
 		"type": "erg"
 	},
@@ -157,7 +157,7 @@
 		"workoutType": "other",
 		"startDate": "2023-10-06T08:00:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 4800,
+		"elaspedTime": 3360000,
 		"distance": 14000,
 		"type": "water"
 	},
@@ -175,7 +175,7 @@
 		"workoutType": "distance",
 		"startDate": "2023-10-07T07:15:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 1200,
+		"elaspedTime": 1150000,
 		"distance": 5000,
 		"type": "erg"
 	},
@@ -193,7 +193,7 @@
 		"workoutType": "other",
 		"startDate": "2023-10-08T06:00:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 4500,
+		"elaspedTime": 3120000,
 		"distance": 13000,
 		"type": "water"
 	},
@@ -211,7 +211,7 @@
 		"workoutType": "distance",
 		"startDate": "2023-10-09T06:30:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 1800,
+		"elaspedTime": 1200000,
 		"distance": 4000,
 		"type": "erg"
 	},
@@ -229,7 +229,7 @@
 		"workoutType": "distance",
 		"startDate": "2023-10-10T18:00:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 1440,
+		"elaspedTime": 1320000,
 		"distance": 6000,
 		"type": "erg"
 	},
@@ -247,7 +247,7 @@
 		"workoutType": "distance",
 		"startDate": "2023-10-11T07:00:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 2100,
+		"elaspedTime": 1680000,
 		"distance": 6000,
 		"type": "erg"
 	},
@@ -265,7 +265,7 @@
 		"workoutType": "distance",
 		"startDate": "2023-10-12T06:45:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 2400,
+		"elaspedTime": 2400000,
 		"distance": 10000,
 		"type": "erg"
 	},
@@ -283,7 +283,7 @@
 		"workoutType": "other",
 		"startDate": "2023-10-13T05:30:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 5400,
+		"elaspedTime": 3600000,
 		"distance": 15000,
 		"type": "water"
 	},
@@ -301,7 +301,7 @@
 		"workoutType": "other",
 		"startDate": "2023-10-14T08:00:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 4800,
+		"elaspedTime": 3360000,
 		"distance": 14000,
 		"type": "water"
 	},
@@ -319,7 +319,7 @@
 		"workoutType": "other",
 		"startDate": "2023-10-15T07:15:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 1800,
+		"elaspedTime": 1080000,
 		"distance": 3500,
 		"type": "erg"
 	},
@@ -337,7 +337,7 @@
 		"workoutType": "other",
 		"startDate": "2023-10-16T06:00:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 4500,
+		"elaspedTime": 3120000,
 		"distance": 13000,
 		"type": "water"
 	},
@@ -355,7 +355,7 @@
 		"workoutType": "distance",
 		"startDate": "2023-10-17T06:30:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 5100,
+		"elaspedTime": 5063000,
 		"distance": 21097,
 		"type": "erg"
 	},
@@ -373,7 +373,7 @@
 		"workoutType": "other",
 		"startDate": "2023-10-18T18:00:00Z",
 		"timezone": "America/Regina",
-		"elaspedTime": 4200,
+		"elaspedTime": 2880000,
 		"distance": 12000,
 		"type": "water"
 	}

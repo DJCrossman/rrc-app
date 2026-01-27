@@ -19,6 +19,11 @@ export const routes = {
 		create: () => "/ergs?action=create",
 		view: (id: number) => `/ergs?ergId=${id}`,
 	},
+	activities: {
+		list: () => "/activities",
+		create: () => "/activities?action=create",
+		view: (id: number) => `/activities?activityId=${id}`,
+	},
 	workouts: {
 		list: ({ week }: { week?: DateTime<true> } = {}) => {
 			const params = new URLSearchParams();

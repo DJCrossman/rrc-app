@@ -1,6 +1,7 @@
 "use client";
 
 import {
+	IconActivity,
 	IconDashboard,
 	IconFolder,
 	IconSailboat2,
@@ -75,6 +76,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							title: "Athletes",
 							url: routes.athletes.list(),
 							icon: IconUsers,
+						},
+						{
+							title: "Activities",
+							url: routes.activities.list(),
+							icon: IconActivity,
 						},
 						{
 							title: "Training Plan",
