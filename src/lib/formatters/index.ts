@@ -6,4 +6,5 @@ export * from "./formatPeriod";
 export * from "./formatProgram";
 export * from "./formatRole";
 export * from "./formatSeatSetup";
+export * from "./formatSplit";
 export * from "./formatWeightRange";

@@ -8,6 +8,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
 import type { Activities, Athlete, Athletes, CreateAthlete } from "@/schemas";
+import type { AthleteStats } from "@/schemas/athlete.schema";
 import {
 	AthleteCreateDrawer,
 	AthleteDetailsDrawer,
@@ -18,6 +19,7 @@ interface IProps {
 	data: Athletes;
 	selectedAthlete: Athlete | null;
 	activities?: Activities;
+	athleteStats: AthleteStats | null;
 	isCreateDrawerOpen: boolean;
 	onCreateAthlete: (data: CreateAthlete) => Promise<void> | void;
 	onUpdateAthlete: (data: Athlete) => Promise<void> | void;
@@ -27,6 +29,7 @@ export const AthleteListScene = ({
 	data,
 	selectedAthlete,
 	activities = [],
+	athleteStats,
 	isCreateDrawerOpen,
 	onCreateAthlete,
 	onUpdateAthlete,
@@ -65,6 +68,7 @@ export const AthleteListScene = ({
 				isOpen={!!selectedAthlete}
 				athlete={selectedAthlete}
 				activities={activities}
+				athleteStats={athleteStats}
 				onSubmit={onUpdateAthlete}
 				onClose={() => router.push(routes.athletes.list())}
 			/>

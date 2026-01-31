@@ -17,12 +17,15 @@ import {
 import { formatProgram, formatRole } from "@/lib/formatters";
 import { formatGender } from "@/lib/formatters/formatGender";
 import type { Activities, Athlete, CreateAthlete } from "@/schemas";
+import type { AthleteStats } from "@/schemas/athlete.schema";
 import { AthleteForm } from "../AthleteForm/AthleteForm";
+import { StatCard } from "./StatCard";
 
 interface AthleteDetailsDrawerProps {
 	isOpen: boolean;
 	athlete: Athlete | null;
 	activities: Activities;
+	athleteStats: AthleteStats | null;
 	onClose: () => void;
 	onSubmit: (data: Athlete) => Promise<void> | void;
 }
@@ -31,6 +34,7 @@ export const AthleteDetailsDrawer = ({
 	isOpen,
 	athlete,
 	activities,
+	athleteStats,
 	onClose,
 	onSubmit,
 }: AthleteDetailsDrawerProps) => {
@@ -146,6 +150,34 @@ export const AthleteDetailsDrawer = ({
 													DateTime.DATE_FULL,
 												)}
 									</div>
+								</div>
+							</div>
+
+							{/* Indoors Stats Section */}
+							<div className="space-y-4">
+								<h2 className="text-xl font-semibold">Indoors Stats</h2>
+								<div className="grid grid-cols-2 gap-4">
+									{/* Last 2K */}
+									<StatCard
+										title="Last 2K"
+										stat={athleteStats?.lastTwoKmRaceDuration ?? null}
+										distance={2000}
+									/>
+									<StatCard
+										title="Best 2K"
+										stat={athleteStats?.bestTwoKmRaceDuration ?? null}
+										distance={2000}
+									/>
+									<StatCard
+										title="Last 6K"
+										stat={athleteStats?.lastSixKmRaceDuration ?? null}
+										distance={6000}
+									/>
+									<StatCard
+										title="Best 6K"
+										stat={athleteStats?.bestSixKmRaceDuration ?? null}
+										distance={6000}
+									/>
 								</div>
 							</div>
 

@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
 	createAthlete,
 	getAthleteById,
+	getAthleteStats,
 	updateAthlete,
 } from "@/app/api/v1/athletes/actions";
 import { routes } from "@/lib/routes";
@@ -27,12 +28,14 @@ export default async function AthletesPage({
 		? await getActivities({ athleteId })
 		: { data: [] };
 	const selectedAthlete = await getAthleteById(athleteId);
+	const athleteStats = athleteId ? await getAthleteStats(athleteId) : null;
 
 	return (
 		<AthleteListScene
 			data={data}
 			selectedAthlete={selectedAthlete}
 			activities={activities}
+			athleteStats={athleteStats}
 			isCreateDrawerOpen={action === "create"}
 			onCreateAthlete={async (athlete: CreateAthlete) => {
 				"use server";

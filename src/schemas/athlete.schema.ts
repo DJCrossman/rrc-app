@@ -31,3 +31,26 @@ export type Athlete = z.infer<typeof athleteSchema>;
 export const athletesSchema = z.array(athleteSchema);
 
 export type Athletes = z.infer<typeof athletesSchema>;
+
+export interface AthleteStats {
+	lastTwoKmRaceDuration: {
+		duration: number;
+		date: string;
+		activityId: number;
+	} | null;
+	bestTwoKmRaceDuration: {
+		duration: number;
+		date: string;
+		activityId: number;
+	} | null;
+	lastSixKmRaceDuration: {
+		duration: number;
+		date: string;
+		activityId: number;
+	} | null;
+	bestSixKmRaceDuration: {
+		duration: number;
+		date: string;
+		activityId: number;
+	} | null;
+}
