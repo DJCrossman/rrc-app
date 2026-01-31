@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { PhoneInput } from "@/components/phone-input";
 import { Button } from "@/components/ui/button";
@@ -171,7 +172,7 @@ export function AthleteForm({
 				<div className="flex justify-between gap-4">
 					{typeof cancelLinkOrAction === "string" && (
 						<Button variant="outline" asChild>
-							<a href={cancelLinkOrAction}>Cancel</a>
+							<Link href={cancelLinkOrAction}>Cancel</Link>
 						</Button>
 					)}
 					{typeof cancelLinkOrAction === "function" && (

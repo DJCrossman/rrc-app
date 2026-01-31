@@ -37,7 +37,7 @@ export function SiteHeader({ breadcrumbs }: SiteHeaderProps) {
 									<Fragment key={index}>
 										<BreadcrumbSeparator />
 										<BreadcrumbItem>
-											<BreadcrumbLink href={breadcrumb.href}>
+											<BreadcrumbLink href={(breadcrumb.href ?? "#") as string}>
 												{breadcrumb.label}
 											</BreadcrumbLink>
 										</BreadcrumbItem>

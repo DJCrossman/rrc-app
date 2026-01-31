@@ -13,6 +13,7 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
@@ -49,7 +50,7 @@ const columns: ColumnDef<Boat>[] = [
 		accessorKey: "name",
 		header: () => <div className="lg:w-100">Name</div>,
 		cell: ({ row }) => (
-			<a href={routes.boats.view(row.original.id)}>{row.original.name}</a>
+			<Link href={routes.boats.view(row.original.id)}>{row.original.name}</Link>
 		),
 		enableHiding: false,
 		enableSorting: true,
@@ -165,10 +166,10 @@ export function BoatTable({ data }: IBoatTableProps) {
 
 				<div className="flex items-center gap-2">
 					<Button asChild variant="outline" size="sm">
-						<a href={routes.boats.create()}>
+						<Link href={routes.boats.create()}>
 							<IconPlus />
 							<span className="hidden lg:inline">Add Boat</span>
-						</a>
+						</Link>
 					</Button>
 				</div>
 			</div>

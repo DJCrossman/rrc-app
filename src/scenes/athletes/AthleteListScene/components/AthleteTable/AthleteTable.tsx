@@ -19,6 +19,7 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import { DateTime } from "luxon";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -50,7 +51,9 @@ const columns: ColumnDef<Athlete>[] = [
 		accessorKey: "name",
 		header: () => <div className="lg:w-100">Name</div>,
 		cell: ({ row }) => (
-			<a href={routes.athletes.view(row.original.id)}>{row.original.name}</a>
+			<Link href={routes.athletes.view(row.original.id)}>
+				{row.original.name}
+			</Link>
 		),
 		enableHiding: false,
 		enableSorting: true,
@@ -208,10 +211,10 @@ export function AthleteTable({ data }: IAthleteTableProps) {
 
 				<div className="flex items-center gap-2">
 					<Button asChild variant="outline" size="sm">
-						<a href={routes.athletes.create()}>
+						<Link href={routes.athletes.create()}>
 							<IconPlus />
 							<span className="hidden lg:inline">Add Athlete</span>
-						</a>
+						</Link>
 					</Button>
 				</div>
 			</div>

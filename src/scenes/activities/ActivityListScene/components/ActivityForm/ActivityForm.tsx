@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DateTime } from "luxon";
+import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -545,7 +546,7 @@ export function ActivityForm({
 				<div className="flex justify-between gap-4">
 					{typeof cancelLinkOrAction === "string" && (
 						<Button variant="outline" asChild>
-							<a href={cancelLinkOrAction}>Cancel</a>
+							<Link href={cancelLinkOrAction}>Cancel</Link>
 						</Button>
 					)}
 					{typeof cancelLinkOrAction === "function" && (

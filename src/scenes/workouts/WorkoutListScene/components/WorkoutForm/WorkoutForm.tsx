@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { Fragment, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import z from "zod";
@@ -204,7 +205,7 @@ export function WorkoutForm({
 				<div className="flex justify-between gap-4">
 					{typeof cancelLinkOrAction === "string" && (
 						<Button variant="outline" asChild>
-							<a href={cancelLinkOrAction}>Cancel</a>
+							<Link href={cancelLinkOrAction}>Cancel</Link>
 						</Button>
 					)}
 					{typeof cancelLinkOrAction === "function" && (

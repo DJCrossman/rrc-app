@@ -83,9 +83,9 @@ const columns: ColumnDef<Activity>[] = [
 				);
 			}
 			return (
-				<a href={routes.activities.view(row.original.id)}>
+				<Link href={routes.activities.view(row.original.id)}>
 					{row.original.name}
-				</a>
+				</Link>
 			);
 		},
 		enableHiding: false,
@@ -232,10 +232,10 @@ export function ActivityTable({ data }: ActivityTableProps) {
 
 				<div className="flex items-center gap-2">
 					<Button asChild variant="outline" size="sm">
-						<a href={routes.activities.create()}>
+						<Link href={routes.activities.create()}>
 							<IconPlus />
 							<span className="hidden lg:inline">Add Activity</span>
-						</a>
+						</Link>
 					</Button>
 				</div>
 			</div>

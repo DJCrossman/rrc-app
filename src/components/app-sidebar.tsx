@@ -9,6 +9,7 @@ import {
 	IconUsers,
 } from "@tabler/icons-react";
 import Image from "next/image";
+import Link from "next/link";
 import type * as React from "react";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -36,7 +37,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							asChild
 							className="data-[slot=sidebar-menu-button]:p-1.5!"
 						>
-							<a
+							<Link
 								href={envVars.NEXT_PUBLIC_HOME_URL}
 								className="flex items-center gap-2 font-medium"
 							>
@@ -49,7 +50,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								<span className="text-base font-semibold">
 									Regina Rowing Club
 								</span>
-							</a>
+							</Link>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
