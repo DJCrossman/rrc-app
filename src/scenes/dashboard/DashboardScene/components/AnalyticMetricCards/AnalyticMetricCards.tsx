@@ -12,10 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import {
 	Card,
 	CardAction,
+	CardContent,
 	CardDescription,
 	CardFooter,
 	CardHeader,
-	CardTitle,
 } from "@/components/ui/card";
 import { formatDuration, formatMeters, formatPercent } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
@@ -31,16 +31,16 @@ export function AnalyticMetricCards({ data }: IProps) {
 			<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
 				<CardHeader>
 					<CardDescription>Active Streak</CardDescription>
-					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-						{data.activeStreak.currentStreak}{" "}
-						{data.activeStreak.currentStreak === 1 ? "day" : "days"}
-					</CardTitle>
 					<CardAction>
 						<div className="flex items-center gap-1.5">
 							<Flame className="size-4 text-red-400" />
 						</div>
 					</CardAction>
 				</CardHeader>
+				<CardContent className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+					{data.activeStreak.currentStreak}{" "}
+					{data.activeStreak.currentStreak === 1 ? "day" : "days"}
+				</CardContent>
 				<CardFooter className="flex-col items-start gap-2 text-sm">
 					<div className="grid grid-cols-7 gap-1.5 w-full">
 						{data.activeStreak.weekDays.map((day) => {
@@ -76,13 +76,13 @@ export function AnalyticMetricCards({ data }: IProps) {
 			<Card className="@container/card">
 				<CardHeader>
 					<CardDescription>Total Distance</CardDescription>
-					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-						{formatMeters(data.totalMeters.amount)}
-					</CardTitle>
 					<CardAction>
 						<TrendingBadge change={data.totalMeters.change} />
 					</CardAction>
 				</CardHeader>
+				<CardContent className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+					{formatMeters(data.totalMeters.amount)}
+				</CardContent>
 				<CardFooter className="flex-col items-start gap-1.5 text-sm">
 					<div className="text-muted-foreground flex items-center gap-1.5">
 						<Navigation className="size-4" />
@@ -93,13 +93,13 @@ export function AnalyticMetricCards({ data }: IProps) {
 			<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
 				<CardHeader>
 					<CardDescription>Total Activities</CardDescription>
-					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-						{data.totalActivities.amount}
-					</CardTitle>
 					<CardAction>
 						<TrendingBadge change={data.totalActivities.change} />
 					</CardAction>
 				</CardHeader>
+				<CardContent className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+					{data.totalActivities.amount}
+				</CardContent>
 				<CardFooter className="flex-col items-start gap-1.5 text-sm">
 					<div className="text-muted-foreground flex items-center gap-1.5">
 						<Activity className="size-4" />
@@ -110,13 +110,13 @@ export function AnalyticMetricCards({ data }: IProps) {
 			<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
 				<CardHeader>
 					<CardDescription>Total Duration</CardDescription>
-					<CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-						{formatDuration(data.totalDuration.amount)}
-					</CardTitle>
 					<CardAction>
 						<TrendingBadge change={data.totalDuration.change} />
 					</CardAction>
 				</CardHeader>
+				<CardContent className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+					{formatDuration(data.totalDuration.amount)}
+				</CardContent>
 				<CardFooter className="flex-col items-start gap-1.5 text-sm">
 					<div className="text-muted-foreground flex items-center gap-1.5">
 						<Clock className="size-4" />
