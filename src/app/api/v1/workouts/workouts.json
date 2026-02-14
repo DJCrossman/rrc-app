@@ -1,159 +1,179 @@
 [
 	{
 		"id": 1,
-		"description": "60' C6; 3x3km w/4' rest (1.5km @ R18, 1km @ R20, 500m @ R22)",
-		"startDate": "2026-01-13T00:00:00.000Z",
+		"description": "60' C5; 3x3km w/4' rest (1.5km @ R18, 1km @ R20, 500m @ R22)",
+		"startDate": "2026-02-16T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 3600000,
-		"intervalCount": 3
+		"intervalCount": 3,
+		"intensityCategory": "C5"
 	},
 	{
 		"id": 2,
 		"description": "70' C6; 60' SS w/10 stroke burst every 10'",
-		"startDate": "2026-01-14T00:00:00.000Z",
+		"startDate": "2026-02-17T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 7800000,
-		"intervalCount": 1
+		"intervalCount": 1,
+		"intensityCategory": "C6"
 	},
 	{
 		"id": 3,
-		"description": "70' C6 SS; 80' 8 x 2.5' steps R20-28 w/5' AR (up 2 beats every 30\")",
-		"startDate": "2026-01-15T00:00:00.000Z",
+		"description": "70' C3 SS; 80' 8 x 2.5' steps R20-28 w/5' AR (up 2 beats every 30\")",
+		"startDate": "2026-02-18T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 9000000,
-		"intervalCount": 8
+		"intervalCount": 8,
+		"intensityCategory": "C3"
 	},
 	{
 		"id": 4,
 		"description": "70' C6; 60' Steady State w/ 10 stroke burst every 10'",
-		"startDate": "2026-01-16T12:00:00.000Z",
+		"startDate": "2026-02-19T12:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 7800000,
-		"intervalCount": 1
+		"intervalCount": 1,
+		"intensityCategory": "C6"
 	},
 	{
 		"id": 5,
-		"description": "70' Steady State with starts; 80' Steady State w/ 60' of 12 hard strokes every 5' (build over 2, go for 10)",
-		"startDate": "2026-01-17T00:00:00.000Z",
+		"description": "70' C4; Steady State w/ 60' of 12 hard strokes every 5' (build over 2, go for 10)",
+		"startDate": "2026-02-20T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 9000000,
-		"intervalCount": 1
+		"intervalCount": 1,
+		"intensityCategory": "C4"
 	},
 	{
 		"id": 6,
-		"description": "20' warm up; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
-		"startDate": "2026-01-18T00:00:00.000Z",
+		"description": "20' warm up C2; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
+		"startDate": "2026-02-21T00:00:00.000Z",
 		"workoutType": "other",
-		"intervalCount": 2
+		"intervalCount": 2,
+		"intensityCategory": "C2"
 	},
 	{
 		"id": 7,
-		"description": "60' C6; 80' 3 x 3k w/4' rest (1.5km @ R18, 1km @ R20, 500m @ R22)",
-		"startDate": "2026-01-20T00:00:00.000Z",
+		"description": "60' C5; 80' 3 x 3k w/4' rest (1.5km @ R18, 1km @ R20, 500m @ R22)",
+		"startDate": "2026-02-23T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 8400000,
-		"intervalCount": 3
+		"intervalCount": 3,
+		"intensityCategory": "C5"
 	},
 	{
 		"id": 8,
 		"description": "80' C6; 60' SS w/10 stroke burst every 10'",
-		"startDate": "2026-01-21T00:00:00.000Z",
+		"startDate": "2026-02-24T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 8400000,
-		"intervalCount": 1
+		"intervalCount": 1,
+		"intensityCategory": "C6"
 	},
 	{
 		"id": 9,
-		"description": "70' C6 SS; 8 x 2.5' steps R20-28 w/5' AR (up 2 beats every 30\")",
-		"startDate": "2026-01-22T00:00:00.000Z",
+		"description": "70' C3 SS; 8 x 2.5' steps R20-28 w/5' AR (up 2 beats every 30\")",
+		"startDate": "2026-02-25T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 7500000,
-		"intervalCount": 8
+		"intervalCount": 8,
+		"intensityCategory": "C3"
 	},
 	{
 		"id": 10,
 		"description": "80' C6; 60' Steady State w/ 10 stroke burst every 10'",
-		"startDate": "2026-01-23T00:00:00.000Z",
+		"startDate": "2026-02-26T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 8400000,
-		"intervalCount": 1
+		"intervalCount": 1,
+		"intensityCategory": "C6"
 	},
 	{
 		"id": 11,
-		"description": "70' Steady State with starts; 80' Steady State w/ 60' of 12 hard strokes every 5' (build over 2, go for 10)",
-		"startDate": "2026-01-24T00:00:00.000Z",
+		"description": "70' C4; Steady State w/ 60' of 12 hard strokes every 5' (build over 2, go for 10)",
+		"startDate": "2026-02-27T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 9000000,
-		"intervalCount": 1
+		"intervalCount": 1,
+		"intensityCategory": "C4"
 	},
 	{
 		"id": 12,
-		"description": "20' warm up; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
-		"startDate": "2026-01-25T00:00:00.000Z",
+		"description": "20' warm up C2; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
+		"startDate": "2026-02-28T00:00:00.000Z",
 		"workoutType": "other",
-		"intervalCount": 2
+		"intervalCount": 2,
+		"intensityCategory": "C2"
 	},
 	{
 		"id": 13,
-		"description": "60' C6; 3x3km w/4 rest (1.5km @ R20, 1km @ R22, 500m @ R24)",
-		"startDate": "2026-01-27T00:00:00.000Z",
+		"description": "60' C5; 3x3km w/4 rest (1.5km @ R20, 1km @ R22, 500m @ R24)",
+		"startDate": "2026-03-02T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 3600000,
-		"intervalCount": 3
+		"intervalCount": 3,
+		"intensityCategory": "C5"
 	},
 	{
 		"id": 14,
 		"description": "90' C6; 60' SS w/10 stroke burst every 10'",
-		"startDate": "2026-01-28T00:00:00.000Z",
+		"startDate": "2026-03-03T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 9000000,
-		"intervalCount": 1
+		"intervalCount": 1,
+		"intensityCategory": "C6"
 	},
 	{
 		"id": 15,
-		"description": "70' C6 SS; 80' 7 x 2.5' steps R22-30 w/5' AR (up 2 beats every 30\")",
-		"startDate": "2026-01-29T00:00:00.000Z",
+		"description": "70' C3 SS; 80' 7 x 2.5' steps R22-30 w/5' AR (up 2 beats every 30\")",
+		"startDate": "2026-03-04T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 7100000,
-		"intervalCount": 7
+		"intervalCount": 7,
+		"intensityCategory": "C3"
 	},
 	{
 		"id": 16,
 		"description": "90' C6; 60' Steady State w/ 10 stroke burst every 10'",
-		"startDate": "2026-01-30T00:00:00.000Z",
+		"startDate": "2026-03-05T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 9000000,
-		"intervalCount": 1
+		"intervalCount": 1,
+		"intensityCategory": "C6"
 	},
 	{
 		"id": 17,
-		"description": "70' Steady State with starts; 80' Steady State w/ 60' of 10 hard strokes every 3' (build for 2 & go for 8)",
-		"startDate": "2026-01-31T00:00:00.000Z",
+		"description": "70' C4; Steady State w/ 60' of 10 hard strokes every 3' (build for 2 & go for 8)",
+		"startDate": "2026-03-06T00:00:00.000Z",
 		"workoutType": "time",
 		"elaspedTime": 9000000,
-		"intervalCount": 1
+		"intervalCount": 1,
+		"intensityCategory": "C4"
 	},
 	{
 		"id": 18,
-		"description": "20' warm up; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
-		"startDate": "2026-02-01T00:00:00.000Z",
+		"description": "20' warm up C2; 2x2km @ R20 w/3' rest; 1km @ R24 w/paddle back; 500m @ R28 w/paddle back; 250m @ R32",
+		"startDate": "2026-03-07T00:00:00.000Z",
 		"workoutType": "other",
-		"intervalCount": 2
+		"intervalCount": 2,
+		"intensityCategory": "C2"
 	},
 	{
 		"id": 19,
-		"description": "2000m time trial @ max rate",
-		"startDate": "2026-02-03T00:00:00.000Z",
+		"description": "2000m time trial @ max rate C1",
+		"startDate": "2026-03-09T00:00:00.000Z",
 		"workoutType": "distance",
 		"distance": 2000,
-		"intervalCount": 1
+		"intervalCount": 1,
+		"intensityCategory": "C1"
 	},
 	{
 		"id": 20,
-		"description": "Warm up 1000m; 2x2000m @ R24 w/5' rest; cool down 1000m",
-		"startDate": "2026-02-05T00:00:00.000Z",
+		"description": "Warm up 1000m; 2x2000m @ R24 w/5' rest C2; cool down 1000m",
+		"startDate": "2026-03-11T00:00:00.000Z",
 		"workoutType": "distance",
 		"distance": 6000,
-		"intervalCount": 2
+		"intervalCount": 2,
+		"intensityCategory": "C2"
 	}
 ]

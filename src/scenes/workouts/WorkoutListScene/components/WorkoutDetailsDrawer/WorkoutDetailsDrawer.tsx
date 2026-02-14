@@ -3,6 +3,7 @@
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
@@ -12,8 +13,10 @@ import {
 	DrawerTitle,
 } from "@/components/ui/drawer";
 import { formatDuration } from "@/lib/formatters";
+import { cn } from "@/lib/utils";
 import type { CreateWorkout, Workout } from "@/schemas";
 import { getWorkoutBreakdown } from "../../utils/getWorkoutBreakdown";
+import { intensityColorMap } from "../../utils/intensityColorMap";
 import { WorkoutForm } from "../WorkoutForm/WorkoutForm";
 
 interface WorkoutDetailsDrawerProps {
@@ -62,8 +65,16 @@ export const WorkoutDetailsDrawer = ({
 		>
 			<DrawerContent>
 				<DrawerHeader className="flex flex-row items-center justify-between border-b">
-					<div>
+					<div className="flex items-center gap-3">
 						<DrawerTitle>{title}</DrawerTitle>
+						<Badge
+							className={cn(
+								"border-transparent",
+								intensityColorMap[workout.intensityCategory],
+							)}
+						>
+							{workout.intensityCategory}
+						</Badge>
 					</div>
 					<div className="flex items-center gap-2">
 						<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
@@ -106,7 +117,9 @@ export const WorkoutDetailsDrawer = ({
 									</strong>
 									<p className="text-base">
 										{descriptionLines.map((line) => (
-											<div key={line}>{line}</div>
+											<span className="d-block" key={line}>
+												{line}
+											</span>
 										))}
 									</p>
 								</div>

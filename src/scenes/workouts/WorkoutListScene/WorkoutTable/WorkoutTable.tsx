@@ -2,11 +2,13 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DateTime, Interval } from "luxon";
+import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import type { Workout, Workouts } from "@/schemas/workouts.schema";
 import { getWorkoutBreakdown } from "../utils/getWorkoutBreakdown";
+import { intensityColorMap } from "../utils/intensityColorMap";
 
 interface WorkoutTableProps {
 	data: Workouts;
@@ -154,10 +156,18 @@ const WorkoutItem = <T extends Workout>({
 	currentWeek: DateTime;
 }) => {
 	return (
-		<Card className="my-2 p-0">
+		<Card className="my-2 p-0 relative">
+			<Badge
+				className={cn(
+					"absolute top-2 right-2 border-transparent",
+					intensityColorMap[workout.intensityCategory],
+				)}
+			>
+				{workout.intensityCategory}
+			</Badge>
 			<a
 				href={routes.workouts.view({ id: workout.id, week: currentWeek })}
-				className="h-full w-full p-2"
+				className="h-full w-full p-2 pr-14 block"
 			>
 				<span className={cn("block", "font-semibold")}>{workout.title}</span>
 				{workout.descriptionLines.map((line) => (

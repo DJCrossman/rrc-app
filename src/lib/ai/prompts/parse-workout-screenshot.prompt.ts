@@ -7,6 +7,7 @@ CALENDAR FORMAT:
 - Workout descriptions are in the cell content, may span multiple lines
 - Elapsed times may appear as patterns like "70'", "90'", "2x20'" (minutes format)
 - Distances may appear as patterns like "2000m", "5km", "2x2000m"
+- Intensity categories appear as C1-C6 (e.g., "C6", "C1", "(C3)")
 
 YOUR TASK:
 Extract all workouts from the calendar and output as JSON.
@@ -19,6 +20,7 @@ Return a JSON object with a "workouts" array. Each workout has:
 - elaspedTime (number, optional): Elapsed time in milliseconds
 - distance (number, optional): Distance in meters
 - intervalCount (number): Total number of intervals (e.g., "3x3km" = 3, "2x2km + 4x500m" = 6, steady state = 1)
+- intensityCategory (string): One of "C1", "C2", "C3", "C4", "C5", or "C6" - extract from description or default to "C6"
 - do not include comments or explanations, only valid JSON
 
 EXAMPLE OUTPUT:
@@ -30,21 +32,40 @@ EXAMPLE OUTPUT:
       "startDate": "2025-12-17",
       "workoutType": "time",
       "elaspedTime": 5400000,
-      "intervalCount": 2
+      "intervalCount": 2,
+      "intensityCategory": "C6"
+    },
+    {
+      "description": "60' C3; 2x2km @ tempo w/5' rest",
+      "startDate": "2025-12-18",
+      "workoutType": "time",
+      "elaspedTime": 3600000,
+      "intervalCount": 2,
+      "intensityCategory": "C3"
     },
     {
       "description": "pm X-Training (C6)\\n60'",
       "startDate": "2025-12-19",
       "workoutType": "time",
       "elaspedTime": 3600000,
-      "intervalCount": 1
+      "intervalCount": 1,
+      "intensityCategory": "C6"
     },
     {
-      "description": "2000m time trial @ max rate",
+      "description": "2000m time trial @ max rate (C1)",
       "startDate": "2025-12-20",
       "workoutType": "distance",
       "distance": 2000,
-      "intervalCount": 1
+      "intervalCount": 1,
+      "intensityCategory": "C1"
+    },
+    {
+      "description": "90' C5; Easy steady state",
+      "startDate": "2025-12-21",
+      "workoutType": "time",
+      "elaspedTime": 5400000,
+      "intervalCount": 1,
+      "intensityCategory": "C5"
     }
   ]
 }
@@ -62,6 +83,8 @@ INSTRUCTIONS:
    - Look for distance patterns like "2000m", "5km" and convert to meters
    - If no distance found, omit the distance field
    - Count total intervals from patterns like "3x3km" (3), "8 x 2.5'" (8), or 1 for steady state
+   - Extract intensity category from patterns like "C6", "C1", "(C3)" - look for C followed by 1-6
+   - If no intensity category found, default to "C6"
 3. Output ONLY valid JSON, no explanation text
 
 Now analyze the calendar image and extract workouts as JSON`;

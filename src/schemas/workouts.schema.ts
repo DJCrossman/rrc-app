@@ -1,5 +1,9 @@
 import { z } from "zod";
 
+const intensityCategorySchema = z.enum(["C1", "C2", "C3", "C4", "C5", "C6"]);
+
+export type IntensityCategory = z.infer<typeof intensityCategorySchema>;
+
 export const workoutCoreSchema = z.object({
 	description: z.string(),
 	startDate: z.string(),
@@ -7,6 +11,7 @@ export const workoutCoreSchema = z.object({
 	elaspedTime: z.number().optional(),
 	distance: z.number().optional(),
 	intervalCount: z.number().default(1),
+	intensityCategory: intensityCategorySchema,
 });
 
 export type CreateWorkout = z.infer<typeof workoutCoreSchema>;
