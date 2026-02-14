@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type React from "react";
+import { FeedbackButton } from "@/components/feedback-button";
 import { AuthenticatedLayout, ReactQueryProvider } from "@/components/layouts";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
@@ -34,6 +35,7 @@ export default function RootLayout({
 					<AuthenticatedLayout>
 						{children}
 						<Toaster />
+						<FeedbackButton />
 					</AuthenticatedLayout>
 				</ReactQueryProvider>
 			</body>
