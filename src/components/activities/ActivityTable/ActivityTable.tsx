@@ -65,11 +65,12 @@ const columns: ColumnDef<Activity>[] = [
 		header: "Athlete",
 		cell: ({ row }) => row.original.athlete.name,
 	},
-	{
-		accessorKey: "boat.name",
-		header: "Boat",
-		cell: ({ row }) => row.original.boat?.name || "Concept2 ERG",
-	},
+	// TODO: Re-enable Boats and ERGs navigation
+	// {
+	// 	accessorKey: "boat.name",
+	// 	header: "Boat",
+	// 	cell: ({ row }) => row.original.boat?.name || "Concept2 ERG",
+	// },
 	{
 		accessorKey: "isStrava",
 		header: "",

@@ -97,12 +97,12 @@ const columns: ColumnDef<Activity>[] = [
 		cell: ({ row }) => row.original.athlete.name,
 		enableSorting: true,
 	},
-	{
-		accessorKey: "boat.name",
-		header: "Boat/ERG",
-		cell: ({ row }) =>
-			row.original.boat?.name || row.original.erg?.name || "N/A",
-	},
+	// {
+	// 	accessorKey: "boat.name",
+	// 	header: "Boat/ERG",
+	// 	cell: ({ row }) =>
+	// 		row.original.boat?.name || row.original.erg?.name || "N/A",
+	// },
 	{
 		accessorKey: "score",
 		header: "Score",
