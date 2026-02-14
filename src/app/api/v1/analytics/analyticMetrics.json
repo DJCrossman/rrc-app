@@ -12,15 +12,15 @@
 		"change": 0.1
 	},
 	"activeStreak": {
-		"currentStreak": 3,
+		"currentStreak": 5,
 		"weekDays": [
-			{ "date": "2026-01-13", "hasActivity": false },
-			{ "date": "2026-01-14", "hasActivity": true },
-			{ "date": "2026-01-15", "hasActivity": true },
-			{ "date": "2026-01-16", "hasActivity": true },
-			{ "date": "2026-01-17", "hasActivity": false },
-			{ "date": "2026-01-18", "hasActivity": false },
-			{ "date": "2026-01-19", "hasActivity": false }
+			{ "date": "2026-02-08", "hasActivity": false },
+			{ "date": "2026-02-09", "hasActivity": true },
+			{ "date": "2026-02-10", "hasActivity": false },
+			{ "date": "2026-02-11", "hasActivity": true },
+			{ "date": "2026-02-12", "hasActivity": true },
+			{ "date": "2026-02-13", "hasActivity": true },
+			{ "date": "2026-02-14", "hasActivity": true }
 		]
 	}
 }

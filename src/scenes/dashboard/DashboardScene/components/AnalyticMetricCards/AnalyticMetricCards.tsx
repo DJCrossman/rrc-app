@@ -39,7 +39,7 @@ export function AnalyticMetricCards({ data }: IProps) {
 				</CardHeader>
 				<CardContent className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
 					{data.activeStreak.currentStreak}{" "}
-					{data.activeStreak.currentStreak === 1 ? "day" : "days"}
+					{data.activeStreak.currentStreak === 1 ? "week" : "weeks"}
 				</CardContent>
 				<CardFooter className="flex-col items-start gap-2 text-sm">
 					<div className="grid grid-cols-7 gap-1.5 w-full">
