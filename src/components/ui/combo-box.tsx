@@ -38,15 +38,23 @@ export function Combobox(props: ComboBoxProps<string>) {
     onValueChange,
   } = props;
   const [open, setOpen] = React.useState(false);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+
+  const contentRef = React.useCallback((node: HTMLDivElement | null) => {
+    if (node && triggerRef.current) {
+      node.style.width = `${triggerRef.current.offsetWidth}px`;
+    }
+  }, []);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          ref={triggerRef}
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[100%] justify-between"
+          className="w-full justify-between"
         >
           {value
             ? values.find((framework) => framework.value === value)?.label
@@ -54,7 +62,10 @@ export function Combobox(props: ComboBoxProps<string>) {
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[100%] p-0">
+      <PopoverContent 
+        ref={contentRef}
+        className="p-0"
+      >
         <Command>
           <CommandInput
             placeholder={searchPlaceholder || 'Search items...'}
