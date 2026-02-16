@@ -4,83 +4,115 @@
 		"name": "Sarah ",
 		"programType": "masters",
 		"meters": 18000,
-		"points": 5
+		"points": 5,
+		"twoK": 445000,
+		"sixK": 1410000,
+		"streak": 7
 	},
 	{
 		"id": 2,
 		"name": "Ivy",
 		"programType": "masters",
 		"meters": 29000,
-		"points": 24
+		"points": 24,
+		"twoK": 420000,
+		"sixK": 1350000,
+		"streak": 15
 	},
 	{
 		"id": 3,
 		"name": "Gabe",
 		"programType": "masters",
 		"meters": 10000,
-		"points": 13
+		"points": 13,
+		"sixK": 1380000,
+		"streak": 0
 	},
 	{
 		"id": 4,
 		"name": "Mike",
 		"programType": "masters",
 		"meters": 27000,
-		"points": 23
+		"points": 23,
+		"twoK": 398000,
+		"sixK": 1275000,
+		"streak": 22
 	},
 	{
 		"id": 5,
 		"name": "David ",
 		"programType": "masters",
 		"meters": 2000,
-		"points": 16
+		"points": 16,
+		"twoK": 435000,
+		"streak": 3
 	},
 	{
 		"id": 6,
 		"name": "Michelle ",
 		"programType": "masters",
 		"meters": 20000,
-		"points": 8
+		"points": 8,
+		"twoK": 468000,
+		"sixK": 1485000,
+		"streak": 12
 	},
 	{
 		"id": 7,
 		"name": "Angie ",
 		"programType": "masters",
 		"meters": 19000,
-		"points": 21
+		"points": 21,
+		"twoK": 452000,
+		"sixK": 1425000,
+		"streak": 0
 	},
 	{
 		"id": 8,
 		"name": "Ainsley ",
 		"programType": "juniors",
 		"meters": 25000,
-		"points": 26
+		"points": 26,
+		"twoK": 408000,
+		"sixK": 1320000,
+		"streak": 18
 	},
 	{
 		"id": 9,
 		"name": "Brenda ",
 		"programType": "juniors",
 		"meters": 7000,
-		"points": 23
+		"points": 23,
+		"twoK": 475000,
+		"streak": 5
 	},
 	{
 		"id": 10,
 		"name": "Nykole",
 		"programType": "juniors",
 		"meters": 30000,
-		"points": 28
+		"points": 28,
+		"twoK": 395000,
+		"sixK": 1260000,
+		"streak": 28
 	},
 	{
 		"id": 11,
 		"name": "Jinger ",
 		"programType": "juniors",
 		"meters": 9000,
-		"points": 31
+		"points": 31,
+		"twoK": 425000,
+		"sixK": 1365000,
+		"streak": 0
 	},
 	{
 		"id": 12,
 		"name": "Nolan",
 		"programType": "juniors",
 		"meters": 12000,
-		"points": 0
+		"points": 0,
+		"sixK": 1440000,
+		"streak": 9
 	}
 ]

@@ -18,6 +18,9 @@ export const leaderboardSchema = z.array(
 		.extend({
 			meters: z.number(),
 			points: z.number(),
+			twoK: z.number().optional(),
+			sixK: z.number().optional(),
+			streak: z.number(),
 		}),
 );
 

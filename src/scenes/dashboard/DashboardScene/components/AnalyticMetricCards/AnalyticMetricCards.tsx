@@ -63,8 +63,11 @@ export function AnalyticMetricCards({ data }: IProps) {
 									key={day.date}
 									className="flex flex-col items-center gap-1"
 								>
-									<div className="text-xs text-muted-foreground font-medium">
+									<div className="text-xs text-muted-foreground font-medium d-none sm:block">
 										{date.toFormat("ccc")}
+									</div>
+									<div className="text-xs text-muted-foreground font-medium d-block sm:hidden">
+										{date.toFormat("ccccc")}
 									</div>
 									<div
 										className={cn(

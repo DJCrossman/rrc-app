@@ -21,8 +21,8 @@ import {
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
+import { FlameIcon, SnowflakeIcon } from "lucide-react";
 import { useMemo, useState } from "react";
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -41,7 +41,17 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { formatMeters, formatProgram } from "@/lib/formatters";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+	formatCompactDuration,
+	formatCompactSplit,
+	formatMeters,
+	formatProgram,
+} from "@/lib/formatters";
 import type { Leaderboard } from "@/schemas/leaderboard.schema";
 
 const columns: ColumnDef<Leaderboard[number]>[] = [
@@ -69,9 +79,63 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
 		cell: ({ row }) => formatMeters(row.original.meters),
 		enableSorting: true,
 	},
+	// TODO: Add back later
+	// {
+	// 	accessorKey: "points",
+	// 	header: () => <div className="w-full">Points</div>,
+	// 	enableSorting: true,
+	// },
 	{
-		accessorKey: "points",
-		header: () => <div className="w-full">Points</div>,
+		accessorKey: "twoK",
+		header: "2K",
+		cell: ({ row }) => {
+			const value = row.original.twoK;
+			if (!value) return "-";
+			return (
+				<Tooltip>
+					<TooltipTrigger className="cursor-help">
+						{formatCompactDuration(value)}
+					</TooltipTrigger>
+					<TooltipContent>{formatCompactSplit(value, 2000)}</TooltipContent>
+				</Tooltip>
+			);
+		},
+		enableSorting: true,
+	},
+	{
+		accessorKey: "sixK",
+		header: "6K",
+		cell: ({ row }) => {
+			const value = row.original.sixK;
+			if (!value) return "-";
+			return (
+				<Tooltip>
+					<TooltipTrigger className="cursor-help">
+						{formatCompactDuration(value)}
+					</TooltipTrigger>
+					<TooltipContent>{formatCompactSplit(value, 6000)}</TooltipContent>
+				</Tooltip>
+			);
+		},
+		enableSorting: true,
+	},
+	{
+		accessorKey: "streak",
+		header: "Streak",
+		cell: ({ row }) => {
+			if (row.original.streak === 0) {
+				return (
+					<span className="text-blue-600 dark:text-blue-400">
+						0 <SnowflakeIcon className="inline" size={14} />
+					</span>
+				);
+			}
+			return (
+				<span className="text-red-600 dark:text-red-400">
+					{row.original.streak} <FlameIcon className="inline" size={14} />
+				</span>
+			);
+		},
 		enableSorting: true,
 	},
 ];
@@ -85,7 +149,9 @@ export function LeaderboardTable({ data }: ILeaderboardTableProps) {
 	const [filterBy, setFilterBy] = useState<{
 		program?: Leaderboard[number]["programType"] | "all";
 	}>({ program: "all" });
-	const [sorting, setSorting] = useState<SortingState>([]);
+	const [sorting, setSorting] = useState<SortingState>([
+		{ id: "meters", desc: true },
+	]);
 	const [pagination, setPagination] = useState({
 		pageIndex: 0,
 		pageSize: 10,
