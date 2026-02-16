@@ -80,7 +80,6 @@ export const ActivityDetailsDrawer = ({
 				<div className="flex-1 overflow-y-auto p-6 space-y-6">
 					{isEditing && (
 						<ActivityForm
-							athlete={activity.athlete}
 							boats={boats}
 							ergs={ergs}
 							workouts={workouts}

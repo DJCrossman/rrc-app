@@ -53,7 +53,9 @@ export const ActivityCreateDrawer = ({
 			</DrawerHeader>
 			<div className="flex-1 overflow-y-auto p-6">
 				<ActivityForm
-					athlete={currentAthlete}
+					defaultValues={{
+						athleteId: currentAthlete.id,
+					}}
 					boats={boats}
 					ergs={ergs}
 					workouts={workouts}
