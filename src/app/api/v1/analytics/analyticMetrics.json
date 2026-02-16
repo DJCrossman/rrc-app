@@ -22,5 +22,11 @@
 			{ "date": "2026-02-13", "hasActivity": true },
 			{ "date": "2026-02-14", "hasActivity": true }
 		]
+	},
+	"lastTwoKm": {
+		"duration": 420000,
+		"date": "2026-01-31",
+		"activityId": 42,
+		"change": -0.025
 	}
 }

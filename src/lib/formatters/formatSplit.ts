@@ -13,3 +13,15 @@ export const formatSplit = (
 
 	return `${minutes.toString().padStart(2, "0")}:${secondsFormatted}/500m`;
 };
+
+export const formatCompactSplit = (
+	durationMs: number,
+	distanceMeters: number,
+): string => {
+	const splitMs = (durationMs / distanceMeters) * 500;
+	const totalSeconds = splitMs / 1000;
+	const minutes = Math.floor(totalSeconds / 60);
+	const seconds = totalSeconds % 60;
+	const secondsFormatted = seconds.toFixed(1).padStart(4, "0");
+	return `${minutes}:${secondsFormatted}`;
+};

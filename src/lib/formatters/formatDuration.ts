@@ -29,3 +29,11 @@ export const formatDurationWithMillis = (durationInMs: number): string => {
 
 	return `${minutes.toString().padStart(2, "0")}:${secondsFormatted}`;
 };
+
+export const formatCompactDuration = (durationInMs: number): string => {
+	const totalSeconds = durationInMs / 1000;
+	const minutes = Math.floor(totalSeconds / 60);
+	const seconds = totalSeconds % 60;
+	const secondsFormatted = seconds.toFixed(1).padStart(4, "0");
+	return `${minutes.toString().padStart(2, "0")}:${secondsFormatted}`;
+};

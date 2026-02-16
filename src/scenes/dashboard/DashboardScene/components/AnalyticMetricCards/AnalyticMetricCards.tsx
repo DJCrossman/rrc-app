@@ -5,8 +5,10 @@ import {
 	Navigation,
 	TrendingDown,
 	TrendingUp,
+	Watch,
 } from "lucide-react";
 import { DateTime } from "luxon";
+import { useMemo } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,7 +19,13 @@ import {
 	CardFooter,
 	CardHeader,
 } from "@/components/ui/card";
-import { formatDuration, formatMeters, formatPercent } from "@/lib/formatters";
+import {
+	formatCompactDuration,
+	formatCompactSplit,
+	formatDuration,
+	formatMeters,
+	formatPercent,
+} from "@/lib/formatters";
 import { cn } from "@/lib/utils";
 import type { AnalyticMetrics } from "@/schemas";
 
@@ -26,6 +34,11 @@ export interface IProps {
 }
 
 export function AnalyticMetricCards({ data }: IProps) {
+	const isIndoorSeason = useMemo(() => {
+		const month = DateTime.now().month;
+		return month >= 10 || month <= 4;
+	}, []);
+
 	return (
 		<div className="grid grid-cols-2 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs dark:*:data-[slot=card]:bg-card lg:px-6 @xl/main:grid-cols-4">
 			<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
@@ -90,23 +103,52 @@ export function AnalyticMetricCards({ data }: IProps) {
 					</div>
 				</CardFooter>
 			</Card>
-			<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
-				<CardHeader>
-					<CardDescription>Total Activities</CardDescription>
-					<CardAction>
-						<TrendingBadge change={data.totalActivities.change} />
-					</CardAction>
-				</CardHeader>
-				<CardContent className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-					{data.totalActivities.amount}
-				</CardContent>
-				<CardFooter className="flex-col items-start gap-1.5 text-sm">
-					<div className="text-muted-foreground flex items-center gap-1.5">
-						<Activity className="size-4" />
-						<span>This week</span>
-					</div>
-				</CardFooter>
-			</Card>
+			{isIndoorSeason && data.lastTwoKm && (
+				<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
+					<CardHeader>
+						<CardDescription>Last 2K</CardDescription>
+						<CardAction>
+							<TrendingBadge change={data.lastTwoKm.change} />
+						</CardAction>
+					</CardHeader>
+					<CardContent className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+						<div className="text-muted-foreground font-mono">
+							{formatCompactSplit(data.lastTwoKm.duration, 2000)}
+							<span className="text-xs"> /500m</span>
+						</div>
+						<div className="text-sm font-mono font-bold">
+							{formatCompactDuration(data.lastTwoKm.duration)}
+						</div>
+					</CardContent>
+					<CardFooter className="flex-col items-start gap-1.5 text-sm">
+						<div className="text-muted-foreground flex items-center gap-1.5">
+							<Watch className="size-4" />
+							<span>
+								{DateTime.fromISO(data.lastTwoKm.date).toFormat("MMM d, yyyy")}
+							</span>
+						</div>
+					</CardFooter>
+				</Card>
+			)}
+			{!(isIndoorSeason && data.lastTwoKm) && (
+				<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
+					<CardHeader>
+						<CardDescription>Total Activities</CardDescription>
+						<CardAction>
+							<TrendingBadge change={data.totalActivities.change} />
+						</CardAction>
+					</CardHeader>
+					<CardContent className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+						{data.totalActivities.amount}
+					</CardContent>
+					<CardFooter className="flex-col items-start gap-1.5 text-sm">
+						<div className="text-muted-foreground flex items-center gap-1.5">
+							<Activity className="size-4" />
+							<span>This week</span>
+						</div>
+					</CardFooter>
+				</Card>
+			)}
 			<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
 				<CardHeader>
 					<CardDescription>Total Duration</CardDescription>
