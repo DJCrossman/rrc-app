@@ -63,6 +63,16 @@ export async function getAthleteById(id?: number): Promise<Athlete | null> {
 	return athlete ?? null;
 }
 
+export async function getAthleteByUserId(userId: number): Promise<Athlete> {
+	const athlete = athletesParsed.find((athlete) => athlete.userId === userId);
+
+	if (!athlete) {
+		throw new Error("Athlete not found");
+	}
+
+	return athlete;
+}
+
 export const createAthlete = async (data: CreateAthlete): Promise<Athlete> => {
 	const name = data?.roles.includes("admin")
 		? [

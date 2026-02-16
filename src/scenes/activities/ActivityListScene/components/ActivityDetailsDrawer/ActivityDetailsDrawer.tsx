@@ -16,7 +16,6 @@ import { formatDuration } from "@/lib/formatters/formatDuration";
 import { formatMeters } from "@/lib/formatters/formatMeters";
 import type {
 	Activity,
-	Athletes,
 	Boats,
 	CreateActivity,
 	Ergs,
@@ -28,7 +27,6 @@ import { ActivityForm } from "../ActivityForm/ActivityForm";
 interface ActivityDetailsDrawerProps {
 	isOpen: boolean;
 	activity: Activity | null;
-	athletes: Athletes;
 	boats: Boats;
 	ergs: Ergs;
 	workouts: Workouts;
@@ -42,7 +40,6 @@ interface ActivityDetailsDrawerProps {
 export const ActivityDetailsDrawer = ({
 	isOpen,
 	activity,
-	athletes,
 	boats,
 	ergs,
 	workouts,
@@ -83,7 +80,7 @@ export const ActivityDetailsDrawer = ({
 				<div className="flex-1 overflow-y-auto p-6 space-y-6">
 					{isEditing && (
 						<ActivityForm
-							athletes={athletes}
+							athlete={activity.athlete}
 							boats={boats}
 							ergs={ergs}
 							workouts={workouts}

@@ -6,7 +6,6 @@ import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Combobox } from "@/components/ui/combo-box";
 import { DateInput } from "@/components/ui/date-input";
 import {
 	Form,
@@ -26,7 +25,6 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
-	type Athletes,
 	type Boats,
 	type CreateActivity,
 	createActivitySchema,
@@ -35,7 +33,6 @@ import {
 } from "@/schemas";
 
 interface ActivityFormProps {
-	athletes: Athletes;
 	boats: Boats;
 	ergs: Ergs;
 	workouts: Workouts;
@@ -48,7 +45,6 @@ interface ActivityFormProps {
 }
 
 export function ActivityForm({
-	athletes,
 	boats,
 	ergs,
 	workouts,
@@ -207,7 +203,9 @@ export function ActivityForm({
 							<p className="text-sm text-destructive">{uploadError}</p>
 						)}
 						<p className="text-sm text-muted-foreground">
-							Upload an ERG screenshot to auto-fill activity details or{" "}
+							Upload an ERG screenshot to auto-fill activity details
+							{/* TODO: Add manual creation later or maybe never */}
+							{/* or{" "}
 							<Button
 								variant="link"
 								type="button"
@@ -215,7 +213,7 @@ export function ActivityForm({
 								onClick={() => setIsCreatingManually(true)}
 							>
 								create manually
-							</Button>
+							</Button> */}
 							.
 						</p>
 					</div>
@@ -276,65 +274,6 @@ export function ActivityForm({
 								<FormItem>
 									<FormLabel>Workout (Optional)</FormLabel>
 									<FormControl>
-										<Combobox
-											value={field.value?.toString() || ""}
-											values={[
-												{ value: "", label: "No workout" },
-												...upcomingWorkouts.map((workout) => ({
-													value: workout.id.toString(),
-													label: `${DateTime.fromISO(workout.startDate).toLocaleString(DateTime.DATE_MED)} - ${workout.description}`,
-												})),
-											]}
-											onValueChange={(value) => {
-												if (!value) {
-													// Clear workout selection
-													field.onChange(null);
-													return;
-												}
-
-												const workoutId = Number(value);
-												const workout = upcomingWorkouts.find(
-													(w) => w.id === workoutId,
-												);
-
-												if (!workout) return;
-
-												field.onChange(workoutId);
-												form.setValue("name", workout.description);
-												form.setValue("workoutType", workout.workoutType);
-												form.setValue("startDate", workout.startDate);
-
-												if (
-													workout.workoutType === "distance" &&
-													workout.distance
-												) {
-													form.setValue("distance", workout.distance);
-												}
-												if (
-													workout.workoutType === "time" &&
-													workout.elaspedTime
-												) {
-													form.setValue("elapsedTime", workout.elaspedTime);
-												}
-											}}
-											searchPlaceholder="Search workouts..."
-											selectPlaceholder="Select a workout"
-											emptyText="No upcoming workouts found."
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						{/* Athlete Selection */}
-						<FormField
-							control={form.control}
-							name="athleteId"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Athlete</FormLabel>
-									<FormControl>
 										<Select
 											onValueChange={(value) =>
 												field.onChange(parseInt(value, 10))
@@ -342,15 +281,15 @@ export function ActivityForm({
 											value={field.value?.toString()}
 										>
 											<SelectTrigger>
-												<SelectValue placeholder="Select Athlete" />
+												<SelectValue placeholder="Select Workout" />
 											</SelectTrigger>
 											<SelectContent>
-												{athletes.map((athlete) => (
+												{upcomingWorkouts.map((workout) => (
 													<SelectItem
-														key={athlete.id}
-														value={athlete.id.toString()}
+														key={workout.id}
+														value={workout.id.toString()}
 													>
-														{athlete.name}
+														{workout.description}
 													</SelectItem>
 												))}
 											</SelectContent>
@@ -437,7 +376,15 @@ export function ActivityForm({
 								<FormItem>
 									<FormLabel>Start Date</FormLabel>
 									<FormControl>
-										<DateInput {...field} />
+										<DateInput
+											{...field}
+											value={
+												field.value
+													? (DateTime.fromISO(field.value).toISODate() ??
+														undefined)
+													: undefined
+											}
+										/>
 									</FormControl>
 									<FormMessage />
 								</FormItem>

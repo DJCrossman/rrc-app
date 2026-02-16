@@ -4,9 +4,12 @@ import users from "./users.json";
 
 const usersParsed = usersSchema.parse(users);
 
-export async function getUserById(id: number): Promise<User | null> {
+export async function getUserById(id: number): Promise<User> {
 	const user = usersParsed.find((user) => user.id === id);
-	return user ?? null;
+	if (!user) {
+		throw new Error("User not found");
+	}
+	return user;
 }
 
 export async function updateUserProfile(data: UpdateUser): Promise<User> {

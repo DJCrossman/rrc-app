@@ -10,7 +10,7 @@ import { routes } from "@/lib/routes";
 import type {
 	Activities,
 	Activity,
-	Athletes,
+	Athlete,
 	Boats,
 	CreateActivity,
 	Ergs,
@@ -26,7 +26,7 @@ import {
 interface ActivityListSceneProps {
 	data: Activities;
 	selectedActivity: Activity | null;
-	athletes: Athletes;
+	currentAthlete: Athlete;
 	boats: Boats;
 	ergs: Ergs;
 	workouts: Workouts;
@@ -38,7 +38,7 @@ interface ActivityListSceneProps {
 export const ActivityListScene = ({
 	data,
 	selectedActivity,
-	athletes,
+	currentAthlete,
 	boats,
 	ergs,
 	workouts,
@@ -77,20 +77,21 @@ export const ActivityListScene = ({
 					</div>
 				</div>
 			</SidebarInset>
-			<ActivityCreateDrawer
-				isOpen={isCreateDrawerOpen}
-				athletes={athletes}
-				boats={boats}
-				ergs={ergs}
-				workouts={workouts}
-				onSubmit={onCreateActivity}
-				onUploadActivityScreenshot={handleUploadActivityScreenshot}
-				onClose={() => router.push(routes.activities.list())}
-			/>
+			{!!currentAthlete && (
+				<ActivityCreateDrawer
+					isOpen={isCreateDrawerOpen}
+					currentAthlete={currentAthlete}
+					boats={boats}
+					ergs={ergs}
+					workouts={workouts}
+					onSubmit={onCreateActivity}
+					onUploadActivityScreenshot={handleUploadActivityScreenshot}
+					onClose={() => router.push(routes.activities.list())}
+				/>
+			)}
 			<ActivityDetailsDrawer
 				isOpen={!!selectedActivity}
 				activity={selectedActivity}
-				athletes={athletes}
 				boats={boats}
 				ergs={ergs}
 				workouts={workouts}

@@ -9,18 +9,12 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
-import type {
-	Athletes,
-	Boats,
-	CreateActivity,
-	Ergs,
-	Workouts,
-} from "@/schemas";
+import type { Athlete, Boats, CreateActivity, Ergs, Workouts } from "@/schemas";
 import { ActivityForm } from "../ActivityForm/ActivityForm";
 
 interface ActivityCreateDrawerProps {
 	isOpen: boolean;
-	athletes: Athletes;
+	currentAthlete: Athlete;
 	boats: Boats;
 	ergs: Ergs;
 	workouts: Workouts;
@@ -33,7 +27,7 @@ interface ActivityCreateDrawerProps {
 
 export const ActivityCreateDrawer = ({
 	isOpen,
-	athletes,
+	currentAthlete,
 	boats,
 	ergs,
 	workouts,
@@ -59,7 +53,7 @@ export const ActivityCreateDrawer = ({
 			</DrawerHeader>
 			<div className="flex-1 overflow-y-auto p-6">
 				<ActivityForm
-					athletes={athletes}
+					athlete={currentAthlete}
 					boats={boats}
 					ergs={ergs}
 					workouts={workouts}
