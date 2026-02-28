@@ -86,10 +86,10 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
 	// 	enableSorting: true,
 	// },
 	{
-		accessorKey: "twoK",
-		header: "2K",
+		accessorKey: "bestTwoKm",
+		header: "Best 2K",
 		cell: ({ row }) => {
-			const value = row.original.twoK;
+			const value = row.original.bestTwoKm;
 			if (!value) return "-";
 			return (
 				<Tooltip>
@@ -103,10 +103,10 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
 		enableSorting: true,
 	},
 	{
-		accessorKey: "sixK",
-		header: "6K",
+		accessorKey: "bestSixKm",
+		header: "Best 6K",
 		cell: ({ row }) => {
-			const value = row.original.sixK;
+			const value = row.original.bestSixKm;
 			if (!value) return "-";
 			return (
 				<Tooltip>
