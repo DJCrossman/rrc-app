@@ -89,7 +89,7 @@ export const ActivityDetailsDrawer = ({
 								startDate: activity.startDate,
 								timezone: activity.timezone,
 								workoutType: activity.workoutType,
-								elapsedTime: activity.elaspedTime,
+								elapsedTime: activity.elapsedTime,
 								distance: activity.distance,
 								athleteId: activity.athlete.id,
 								boatId: activity.boat?.id,
@@ -151,7 +151,7 @@ export const ActivityDetailsDrawer = ({
 									<strong>Distance:</strong> {formatMeters(activity.distance)}
 								</div>
 								<div>
-									<strong>Time:</strong> {formatDuration(activity.elaspedTime)}
+									<strong>Time:</strong> {formatDuration(activity.elapsedTime)}
 								</div>
 								<div>
 									<strong>Workout Type:</strong>{" "}

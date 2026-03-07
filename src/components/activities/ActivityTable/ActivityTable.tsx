@@ -81,7 +81,7 @@ const columns: ColumnDef<Activity>[] = [
 		header: "Score",
 		cell: ({ row }) => {
 			if (row.original.workoutType === "distance") {
-				return formatDuration(row.original.elaspedTime);
+				return formatDuration(row.original.elapsedTime);
 			}
 			return formatMeters(row.original.distance);
 		},

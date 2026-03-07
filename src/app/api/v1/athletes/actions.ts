@@ -126,7 +126,7 @@ export const getAthleteStats = async (
 		// Check if it's a single piece matching the target distance exactly
 		if (activity.distance === targetDistance) {
 			return {
-				duration: activity.elaspedTime,
+				duration: activity.elapsedTime,
 				date: activity.startDate,
 				activityId: activity.id,
 			};

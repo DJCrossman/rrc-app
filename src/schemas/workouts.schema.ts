@@ -4,14 +4,25 @@ const intensityCategorySchema = z.enum(["C1", "C2", "C3", "C4", "C5", "C6"]);
 
 export type IntensityCategory = z.infer<typeof intensityCategorySchema>;
 
+const workoutFragmentSchema = z.object({
+	rate: z.number().optional(),
+	elapsedTime: z.number().optional(),
+	distance: z.number().optional(),
+	relativeTo: z.enum(["2K", "6K"]),
+	relativeSplit: z.number(),
+});
+
+export type WorkoutFragment = z.infer<typeof workoutFragmentSchema>;
+
 export const workoutCoreSchema = z.object({
 	description: z.string(),
 	startDate: z.string(),
 	workoutType: z.enum(["distance", "time", "other"]),
-	elaspedTime: z.number().optional(),
+	elapsedTime: z.number().optional(),
 	distance: z.number().optional(),
 	intervalCount: z.number().default(1),
 	intensityCategory: intensityCategorySchema,
+	fragments: z.array(workoutFragmentSchema).optional(),
 });
 
 export type CreateWorkout = z.infer<typeof workoutCoreSchema>;

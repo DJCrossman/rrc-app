@@ -12,7 +12,7 @@ const activityCoreSchema = z.object({
 	startDate: z.string(),
 	timezone: z.string(),
 	workoutType: workoutCoreSchema.shape.workoutType,
-	elaspedTime: z.number(),
+	elapsedTime: z.number(),
 	distance: z.number(),
 });
 

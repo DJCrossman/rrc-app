@@ -73,7 +73,7 @@ export const getActivities = async ({
 				type: "water",
 				startDate: activity.startDate,
 				timezone: activity.timezone,
-				elaspedTime: activity.elaspedTime,
+				elapsedTime: activity.elapsedTime,
 				distance: activity.distance,
 			});
 		} else {
@@ -93,7 +93,7 @@ export const getActivities = async ({
 				type: "erg",
 				startDate: activity.startDate,
 				timezone: activity.timezone,
-				elaspedTime: activity.elaspedTime,
+				elapsedTime: activity.elapsedTime,
 				distance: activity.distance,
 			});
 		}
@@ -154,7 +154,7 @@ export async function getActivityById(id?: number): Promise<Activity | null> {
 			type: "water",
 			startDate: activityDB.startDate,
 			timezone: activityDB.timezone,
-			elaspedTime: activityDB.elaspedTime,
+			elapsedTime: activityDB.elapsedTime,
 			distance: activityDB.distance,
 		});
 	} else {
@@ -173,7 +173,7 @@ export async function getActivityById(id?: number): Promise<Activity | null> {
 			type: "erg",
 			startDate: activityDB.startDate,
 			timezone: activityDB.timezone,
-			elaspedTime: activityDB.elaspedTime,
+			elapsedTime: activityDB.elapsedTime,
 			distance: activityDB.distance,
 		});
 	}
@@ -189,7 +189,7 @@ export const createActivity = async (
 		startDate: data.startDate,
 		timezone: data.timezone,
 		workoutType: data.workoutType,
-		elaspedTime: data.elapsedTime,
+		elapsedTime: data.elapsedTime,
 		distance: data.distance,
 		athleteId: data.athleteId,
 		workoutId: data.workoutId,
@@ -230,7 +230,7 @@ export const updateActivity = async (
 		startDate: data.startDate,
 		timezone: data.timezone,
 		workoutType: data.workoutType,
-		elaspedTime: data.elapsedTime,
+		elapsedTime: data.elapsedTime,
 		distance: data.distance,
 		athleteId: data.athleteId,
 		workoutId: data.workoutId || null,

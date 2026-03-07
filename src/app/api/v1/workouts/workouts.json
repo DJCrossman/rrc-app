@@ -4,16 +4,36 @@
 		"description": "60' C5; 3x3km w/4' rest (1.5km @ R18, 1km @ R20, 500m @ R22)",
 		"startDate": "2026-02-16T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 3600000,
+		"elapsedTime": 3600000,
 		"intervalCount": 3,
-		"intensityCategory": "C5"
+		"intensityCategory": "C5",
+		"fragments": [
+			{
+				"rate": 18,
+				"elapsedTime": 360000,
+				"relativeTo": "2K",
+				"relativeSplit": 25000
+			},
+			{
+				"rate": 20,
+				"elapsedTime": 240000,
+				"relativeTo": "2K",
+				"relativeSplit": 20000
+			},
+			{
+				"rate": 22,
+				"elapsedTime": 120000,
+				"relativeTo": "2K",
+				"relativeSplit": 15000
+			}
+		]
 	},
 	{
 		"id": 2,
 		"description": "70' C6; 60' SS w/10 stroke burst every 10'",
 		"startDate": "2026-02-17T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 7800000,
+		"elapsedTime": 7800000,
 		"intervalCount": 1,
 		"intensityCategory": "C6"
 	},
@@ -22,7 +42,7 @@
 		"description": "70' C3 SS; 80' 8 x 2.5' steps R20-28 w/5' AR (up 2 beats every 30\")",
 		"startDate": "2026-02-18T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 9000000,
+		"elapsedTime": 9000000,
 		"intervalCount": 8,
 		"intensityCategory": "C3"
 	},
@@ -31,7 +51,7 @@
 		"description": "70' C6; 60' Steady State w/ 10 stroke burst every 10'",
 		"startDate": "2026-02-19T12:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 7800000,
+		"elapsedTime": 7800000,
 		"intervalCount": 1,
 		"intensityCategory": "C6"
 	},
@@ -40,7 +60,7 @@
 		"description": "70' C4; Steady State w/ 60' of 12 hard strokes every 5' (build over 2, go for 10)",
 		"startDate": "2026-02-20T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 9000000,
+		"elapsedTime": 9000000,
 		"intervalCount": 1,
 		"intensityCategory": "C4"
 	},
@@ -57,7 +77,7 @@
 		"description": "60' C5; 80' 3 x 3k w/4' rest (1.5km @ R18, 1km @ R20, 500m @ R22)",
 		"startDate": "2026-02-23T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 8400000,
+		"elapsedTime": 8400000,
 		"intervalCount": 3,
 		"intensityCategory": "C5"
 	},
@@ -66,7 +86,7 @@
 		"description": "80' C6; 60' SS w/10 stroke burst every 10'",
 		"startDate": "2026-02-24T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 8400000,
+		"elapsedTime": 8400000,
 		"intervalCount": 1,
 		"intensityCategory": "C6"
 	},
@@ -75,7 +95,7 @@
 		"description": "70' C3 SS; 8 x 2.5' steps R20-28 w/5' AR (up 2 beats every 30\")",
 		"startDate": "2026-02-25T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 7500000,
+		"elapsedTime": 7500000,
 		"intervalCount": 8,
 		"intensityCategory": "C3"
 	},
@@ -84,7 +104,7 @@
 		"description": "80' C6; 60' Steady State w/ 10 stroke burst every 10'",
 		"startDate": "2026-02-26T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 8400000,
+		"elapsedTime": 8400000,
 		"intervalCount": 1,
 		"intensityCategory": "C6"
 	},
@@ -93,7 +113,7 @@
 		"description": "70' C4; Steady State w/ 60' of 12 hard strokes every 5' (build over 2, go for 10)",
 		"startDate": "2026-02-27T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 9000000,
+		"elapsedTime": 9000000,
 		"intervalCount": 1,
 		"intensityCategory": "C4"
 	},
@@ -110,7 +130,7 @@
 		"description": "60' C5; 3x3km w/4 rest (1.5km @ R20, 1km @ R22, 500m @ R24)",
 		"startDate": "2026-03-02T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 3600000,
+		"elapsedTime": 3600000,
 		"intervalCount": 3,
 		"intensityCategory": "C5"
 	},
@@ -119,7 +139,7 @@
 		"description": "90' C6; 60' SS w/10 stroke burst every 10'",
 		"startDate": "2026-03-03T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 9000000,
+		"elapsedTime": 9000000,
 		"intervalCount": 1,
 		"intensityCategory": "C6"
 	},
@@ -128,7 +148,7 @@
 		"description": "70' C3 SS; 80' 7 x 2.5' steps R22-30 w/5' AR (up 2 beats every 30\")",
 		"startDate": "2026-03-04T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 7100000,
+		"elapsedTime": 7100000,
 		"intervalCount": 7,
 		"intensityCategory": "C3"
 	},
@@ -137,7 +157,7 @@
 		"description": "90' C6; 60' Steady State w/ 10 stroke burst every 10'",
 		"startDate": "2026-03-05T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 9000000,
+		"elapsedTime": 9000000,
 		"intervalCount": 1,
 		"intensityCategory": "C6"
 	},
@@ -146,7 +166,7 @@
 		"description": "70' C4; Steady State w/ 60' of 10 hard strokes every 3' (build for 2 & go for 8)",
 		"startDate": "2026-03-06T00:00:00.000Z",
 		"workoutType": "time",
-		"elaspedTime": 9000000,
+		"elapsedTime": 9000000,
 		"intervalCount": 1,
 		"intensityCategory": "C4"
 	},

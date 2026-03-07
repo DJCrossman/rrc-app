@@ -2,6 +2,7 @@
 import { parseImage } from "@/lib/ai/parseImage";
 import { PARSE_WORKOUT_SCREENSHOT_PROMPT } from "@/lib/ai/prompts/parse-workout-screenshot.prompt";
 import { parseDuration } from "@/lib/parsers/parseDuration";
+import { parseIntensity } from "@/lib/parsers/parseIntensity";
 import { parseIntervals } from "@/lib/parsers/parseIntervals";
 import {
 	type CreateWorkout,
@@ -109,12 +110,12 @@ const parseWorkoutJsonResponse = async (response: string) => {
 				"workoutType" in item && typeof item.workoutType === "string"
 					? item.workoutType
 					: "other";
-			let elaspedTime: number | undefined =
-				"elaspedTime" in item && typeof item.elaspedTime === "number"
-					? item.elaspedTime
+			let elapsedTime: number | undefined =
+				"elapsedTime" in item && typeof item.elapsedTime === "number"
+					? item.elapsedTime
 					: undefined;
-			if (elaspedTime === undefined) {
-				elaspedTime = parseDuration(
+			if (elapsedTime === undefined) {
+				elapsedTime = parseDuration(
 					"description" in item && typeof item.description === "string"
 						? item.description.replace(/\\n/g, "\n")
 						: "",
@@ -131,6 +132,18 @@ const parseWorkoutJsonResponse = async (response: string) => {
 			if (intervalCount === undefined) {
 				intervalCount = parseIntervals(description);
 			}
+			let intensityCategory: string | undefined =
+				"intensityCategory" in item &&
+				typeof item.intensityCategory === "string"
+					? item.intensityCategory
+					: undefined;
+			if (intensityCategory === undefined) {
+				intensityCategory = parseIntensity(description);
+			}
+			const fragments =
+				"fragments" in item && Array.isArray(item.fragments)
+					? item.fragments
+					: undefined;
 			return Promise.resolve(
 				workoutCoreSchema.parse({
 					description,
@@ -139,9 +152,11 @@ const parseWorkoutJsonResponse = async (response: string) => {
 							? item.startDate
 							: "",
 					workoutType,
-					elaspedTime,
+					elapsedTime,
 					distance,
 					intervalCount,
+					intensityCategory,
+					fragments,
 				}),
 			);
 		}),
