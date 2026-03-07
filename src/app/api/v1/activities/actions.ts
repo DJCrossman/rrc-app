@@ -291,6 +291,11 @@ export const uploadErgActivityScreenshot = async ({
 			jsonData = codeBlockMatch[1];
 		}
 
+		// Strip inline and block comments that break JSON.parse
+		jsonData = jsonData
+			.replace(/\/\/.*$/gm, "")
+			.replace(/\/\*[\s\S]*?\*\//g, "");
+
 		let parsedData: unknown;
 		try {
 			parsedData = JSON.parse(jsonData);
