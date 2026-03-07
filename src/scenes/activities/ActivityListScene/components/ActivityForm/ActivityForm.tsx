@@ -1,11 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircleIcon } from "lucide-react";
+import { AlertCircleIcon, MaximizeIcon, XIcon } from "lucide-react";
 import { DateTime } from "luxon";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormLabel } from "@/components/ui/form";
@@ -34,6 +35,8 @@ interface ActivityFormProps {
 	onSubmit: SubmitHandler<CreateActivity>;
 	onUploadErgActivityScreenshot?: UploadErgActivityScreenshot;
 	onCancel?: (() => void) | string;
+	isImageFullscreen: boolean;
+	setIsImageFullscreen: (isFullscreen: boolean) => void;
 }
 
 export function ActivityForm({
@@ -41,6 +44,8 @@ export function ActivityForm({
 	onSubmit,
 	onUploadErgActivityScreenshot,
 	onCancel: cancelLinkOrAction,
+	isImageFullscreen,
+	setIsImageFullscreen,
 }: ActivityFormProps) {
 	const isAIEnabled = !!onUploadErgActivityScreenshot;
 	const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -68,6 +73,17 @@ export function ActivityForm({
 			...defaultValues,
 		},
 	});
+
+	useEffect(() => {
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape" && isImageFullscreen) {
+				setIsImageFullscreen(false);
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [isImageFullscreen, setIsImageFullscreen]);
 
 	const handleUpload = useCallback(
 		async (file: File) => {
@@ -123,7 +139,7 @@ export function ActivityForm({
 							details below.
 						</p>
 						<p className="mt-3">
-							<CancelButton cancelLinkOrAction={cancelLinkOrAction} />
+							<CancelButton onCancel={cancelLinkOrAction} />
 						</p>
 					</div>
 				</div>
@@ -209,7 +225,7 @@ export function ActivityForm({
 									</span>
 								)}
 							</FormLabel>
-							<div className="relative aspect-video w-full max-w-md overflow-hidden rounded-lg border">
+							<div className="relative aspect-video w-full max-w-md overflow-hidden rounded-lg border group">
 								<Image
 									src={URL.createObjectURL(uploadedFile)}
 									alt="ERG activity screenshot"
@@ -217,6 +233,15 @@ export function ActivityForm({
 									unoptimized
 									className="object-contain"
 								/>
+								<Button
+									type="button"
+									variant="secondary"
+									size="icon"
+									className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+									onClick={() => setIsImageFullscreen(true)}
+								>
+									<MaximizeIcon className="h-4 w-4" />
+								</Button>
 							</div>
 						</div>
 
@@ -266,6 +291,14 @@ export function ActivityForm({
 					<Button type="submit">Save</Button>
 				</fieldset>
 			</form>
+
+			{/* Fullscreen Image Overlay */}
+			{isImageFullscreen && uploadedFile && (
+				<FullscreenImageOverlay
+					file={uploadedFile}
+					onClose={() => setIsImageFullscreen(false)}
+				/>
+			)}
 		</Form>
 	);
 }
@@ -293,5 +326,59 @@ const CancelButton = ({
 		>
 			Cancel
 		</Button>
+	);
+};
+
+const FullscreenImageOverlay = ({
+	file,
+	onClose,
+}: {
+	file: File;
+	onClose: () => void;
+}) => {
+	const ref = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (ref.current && !ref.current.contains(event.target as Node)) {
+				onClose();
+			}
+		};
+
+		window.addEventListener("mousedown", handleClickOutside);
+		return () => {
+			window.removeEventListener("mousedown", handleClickOutside);
+		};
+	}, [onClose]);
+
+	if (typeof document === "undefined") return null;
+
+	return createPortal(
+		<div
+			ref={ref}
+			className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+		>
+			<div className="relative w-full h-full">
+				<Image
+					src={URL.createObjectURL(file)}
+					alt="ERG activity screenshot (fullscreen)"
+					fill
+					unoptimized
+					className="object-contain"
+				/>
+			</div>
+			<div className="absolute top-4 right-4">
+				<Button
+					type="button"
+					variant="secondary"
+					size="icon"
+					onClick={onClose}
+					aria-label="Close fullscreen"
+				>
+					<XIcon className="h-4 w-4" />
+				</Button>
+			</div>
+		</div>,
+		document.body,
 	);
 };

@@ -49,6 +49,7 @@ export const ActivityDetailsDrawer = ({
 	onUploadErgActivityScreenshot,
 }: ActivityDetailsDrawerProps) => {
 	const [isEditing, setIsEditing] = useState(false);
+	const [isImageFullscreen, setIsImageFullscreen] = useState(false);
 
 	if (!activity) {
 		return null;
@@ -64,6 +65,7 @@ export const ActivityDetailsDrawer = ({
 			open={isOpen}
 			onOpenChange={(open) => !open && handleClose()}
 			direction="right"
+			dismissible={!isImageFullscreen}
 		>
 			<DrawerContent>
 				<DrawerHeader className="flex flex-row items-center justify-between border-b">
@@ -103,6 +105,8 @@ export const ActivityDetailsDrawer = ({
 								setIsEditing(false);
 							}}
 							onUploadErgActivityScreenshot={onUploadErgActivityScreenshot}
+							isImageFullscreen={isImageFullscreen}
+							setIsImageFullscreen={setIsImageFullscreen}
 						/>
 					)}
 					{!isEditing && (
