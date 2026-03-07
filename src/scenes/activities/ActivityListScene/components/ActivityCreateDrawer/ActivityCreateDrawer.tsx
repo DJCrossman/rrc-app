@@ -10,7 +10,10 @@ import {
 	DrawerTitle,
 } from "@/components/ui/drawer";
 import type { Athlete, Boats, CreateActivity, Ergs, Workouts } from "@/schemas";
-import { ActivityForm } from "../ActivityForm/ActivityForm";
+import {
+	ActivityForm,
+	type UploadErgActivityScreenshot,
+} from "../ActivityForm/ActivityForm";
 
 interface ActivityCreateDrawerProps {
 	isOpen: boolean;
@@ -19,9 +22,7 @@ interface ActivityCreateDrawerProps {
 	ergs: Ergs;
 	workouts: Workouts;
 	onSubmit: (data: CreateActivity) => Promise<void> | void;
-	onUploadActivityScreenshot?: (
-		file: File,
-	) => Promise<{ success: boolean; data?: CreateActivity }>;
+	onUploadErgActivityScreenshot?: UploadErgActivityScreenshot;
 	onClose: () => void;
 }
 
@@ -31,7 +32,7 @@ export const ActivityCreateDrawer = ({
 	boats,
 	ergs,
 	workouts,
-	onUploadActivityScreenshot,
+	onUploadErgActivityScreenshot,
 	onClose,
 	onSubmit,
 }: ActivityCreateDrawerProps) => (
@@ -64,7 +65,7 @@ export const ActivityCreateDrawer = ({
 						onClose();
 					}}
 					onCancel={onClose}
-					onUploadActivityScreenshot={onUploadActivityScreenshot}
+					onUploadErgActivityScreenshot={onUploadErgActivityScreenshot}
 				/>
 			</div>
 		</DrawerContent>

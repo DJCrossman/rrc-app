@@ -22,7 +22,10 @@ import type {
 	UpdateActivity,
 	Workouts,
 } from "@/schemas";
-import { ActivityForm } from "../ActivityForm/ActivityForm";
+import {
+	ActivityForm,
+	type UploadErgActivityScreenshot,
+} from "../ActivityForm/ActivityForm";
 
 interface ActivityDetailsDrawerProps {
 	isOpen: boolean;
@@ -32,9 +35,7 @@ interface ActivityDetailsDrawerProps {
 	workouts: Workouts;
 	onClose: () => void;
 	onSubmit: (data: UpdateActivity) => Promise<void> | void;
-	onUploadActivityScreenshot?: (
-		file: File,
-	) => Promise<{ success: boolean; data?: CreateActivity }>;
+	onUploadErgActivityScreenshot?: UploadErgActivityScreenshot;
 }
 
 export const ActivityDetailsDrawer = ({
@@ -45,7 +46,7 @@ export const ActivityDetailsDrawer = ({
 	workouts,
 	onClose,
 	onSubmit,
-	onUploadActivityScreenshot,
+	onUploadErgActivityScreenshot,
 }: ActivityDetailsDrawerProps) => {
 	const [isEditing, setIsEditing] = useState(false);
 
@@ -101,7 +102,7 @@ export const ActivityDetailsDrawer = ({
 								await onSubmit({ id: activity.id, ...data });
 								setIsEditing(false);
 							}}
-							onUploadActivityScreenshot={onUploadActivityScreenshot}
+							onUploadErgActivityScreenshot={onUploadErgActivityScreenshot}
 						/>
 					)}
 					{!isEditing && (

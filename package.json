@@ -3,7 +3,8 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "next dev --turbopack",
+		"dev": "bun run scripts/dev.ts",
+		"dev:next": "next dev --turbopack",
 		"build": "next build",
 		"start": "next start",
 		"lint": "biome check . --diagnostic-level=warn --verbose",
@@ -11,7 +12,9 @@
 		"lint:fix": "biome check . --write --diagnostic-level=warn --unsafe",
 		"test": "vitest run",
 		"test:ui": "vitest --ui",
-		"test:watch": "vitest"
+		"test:watch": "vitest",
+		"setup:ollama": "bun run scripts/setup-ollama.ts",
+		"start:ollama": "bun run scripts/start-ollama.ts"
 	},
 	"dependencies": {
 		"@dnd-kit/core": "^6.3.1",

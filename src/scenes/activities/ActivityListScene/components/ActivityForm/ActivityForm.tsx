@@ -1,29 +1,17 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircleIcon } from "lucide-react";
 import { DateTime } from "luxon";
+import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { DateInput } from "@/components/ui/date-input";
-import {
-	Form,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-	FormMessage,
-} from "@/components/ui/form";
+import { Form, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { formatDuration } from "@/lib/formatters";
+import { cn } from "@/lib/utils";
 import {
 	type Boats,
 	type CreateActivity,
@@ -32,43 +20,41 @@ import {
 	type Workouts,
 } from "@/schemas";
 
+export type UploadErgActivityScreenshot = (
+	params: {
+		file: File;
+	} & Pick<Extract<CreateActivity, { type: "erg" }>, "athleteId" | "ergId">,
+) => Promise<{ success: boolean; data?: CreateActivity }>;
+
 interface ActivityFormProps {
 	boats: Boats;
 	ergs: Ergs;
 	workouts: Workouts;
 	defaultValues?: Partial<CreateActivity>;
 	onSubmit: SubmitHandler<CreateActivity>;
-	onUploadActivityScreenshot?: (
-		file: File,
-	) => Promise<{ success: boolean; data?: CreateActivity }>;
+	onUploadErgActivityScreenshot?: UploadErgActivityScreenshot;
 	onCancel?: (() => void) | string;
 }
 
 export function ActivityForm({
-	boats,
-	ergs,
-	workouts,
 	defaultValues,
 	onSubmit,
-	onUploadActivityScreenshot,
+	onUploadErgActivityScreenshot,
 	onCancel: cancelLinkOrAction,
 }: ActivityFormProps) {
-	const isAIEnabled = !!onUploadActivityScreenshot;
-	const [isCreatingManually, setIsCreatingManually] = useState(!isAIEnabled);
+	const isAIEnabled = !!onUploadErgActivityScreenshot;
+	const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [uploadError, setUploadError] = useState<string | null>(null);
 
-	// Determine default activity type based on current month
-	const defaultActivityType = useMemo(() => {
-		const currentMonth = DateTime.now().month;
-		// May (5) to September (9) is water season
-		return currentMonth >= 5 && currentMonth <= 9 ? "water" : "erg";
-	}, []);
-
+	const currentMonth = DateTime.now().month;
 	const form = useForm<CreateActivity>({
 		resolver: zodResolver(createActivitySchema),
-		defaultValues: defaultValues || {
-			type: defaultActivityType as "water" | "erg",
+		defaultValues: {
+			type:
+				currentMonth >= 5 && currentMonth <= 9
+					? ("water" as const)
+					: ("erg" as const),
 			name: "",
 			startDate: DateTime.now().toISO(),
 			timezone: DateTime.now().zoneName,
@@ -79,75 +65,78 @@ export function ActivityForm({
 			boatId: undefined,
 			ergId: undefined,
 			workoutId: null,
+			...defaultValues,
 		},
 	});
 
-	const activityType = form.watch("type");
-	const selectedWorkoutId = form.watch("workoutId");
-	const workoutType = form.watch("workoutType");
+	const handleUpload = useCallback(
+		async (file: File) => {
+			if (!onUploadErgActivityScreenshot) return;
+			setIsUploading(true);
+			setUploadError(null);
+			try {
+				// Get current form values for IDs
+				const currentAthleteId = form.getValues("athleteId");
 
-	// Filter workouts to only show upcoming ones (from start of today)
-	const upcomingWorkouts = useMemo(() => {
-		const startOfToday = DateTime.now().startOf("day");
-		return workouts.filter((workout) => {
-			const workoutDate = DateTime.fromISO(workout.startDate);
-			return workoutDate >= startOfToday;
-		});
-	}, [workouts]);
+				// Validate that required IDs are selected
+				if (!currentAthleteId) {
+					setUploadError("Please select an athlete first");
+					return;
+				}
 
-	// Get selected workout details
-	const selectedWorkout = useMemo(() => {
-		if (!selectedWorkoutId) return null;
-		return workouts.find((w) => w.id === selectedWorkoutId);
-	}, [selectedWorkoutId, workouts]);
+				const result = await onUploadErgActivityScreenshot({
+					file,
+					athleteId: currentAthleteId,
+				});
 
-	const intervalCount = selectedWorkout?.intervalCount || 1;
-	const [intervalTimeValues, setIntervalTimeValues] = useState<string[]>(
-		Array(intervalCount).fill(""),
+				if (result.success && result.data) {
+					// Populate form with parsed data
+					form.reset(result.data);
+				} else {
+					setUploadError("Failed to parse screenshot");
+				}
+			} catch (error) {
+				console.error("Upload error:", error);
+				setUploadError(
+					error instanceof Error ? error.message : "Failed to parse screenshot",
+				);
+			} finally {
+				setIsUploading(false);
+			}
+		},
+		[onUploadErgActivityScreenshot, form],
 	);
-	const [intervalDistanceValues, setIntervalDistanceValues] = useState<
-		number[]
-	>(Array(intervalCount).fill(0));
 
-	// Convert h:mm:ss to milliseconds
-	const timeToMs = useCallback((timeStr: string): number => {
-		const parts = timeStr.split(":");
-		if (parts.length === 3) {
-			const hours = parseInt(parts[0], 10) || 0;
-			const minutes = parseInt(parts[1], 10) || 0;
-			const seconds = parseInt(parts[2], 10) || 0;
-			return (hours * 3600 + minutes * 60 + seconds) * 1000;
-		}
-		return 0;
-	}, []);
-
-	// Convert milliseconds to h:mm:ss
-	const msToTime = (ms: number): string => {
-		const totalSeconds = Math.floor(ms / 1000);
-		const hours = Math.floor(totalSeconds / 3600);
-		const minutes = Math.floor((totalSeconds % 3600) / 60);
-		const seconds = totalSeconds % 60;
-		return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-	};
-
-	// Calculate sum of intervals
-	const intervalSum = useMemo(() => {
-		if (workoutType === "distance") {
-			// Sum durations (convert to ms first)
-			return intervalTimeValues.reduce((sum, val) => {
-				return sum + timeToMs(val);
-			}, 0);
-		}
-		// Sum distances
-		return intervalDistanceValues.reduce((sum, val) => sum + val, 0);
-	}, [intervalTimeValues, intervalDistanceValues, workoutType, timeToMs]);
+	if (!isAIEnabled || form.watch("type") !== "erg") {
+		return (
+			<div className="p-4 rounded">
+				<div className="mb-4 flex items-start gap-3">
+					<div className="mt-1 rounded-lg bg-muted p-2">
+						<AlertCircleIcon className="h-5 w-5 text-muted-foreground" />
+					</div>
+					<div>
+						<h2 className="font-semibold text-foreground">
+							Screenshot Parsing Unavailable
+						</h2>
+						<p className="text-sm text-muted-foreground mt-1">
+							This feature is coming soon. Please manually enter your activity
+							details below.
+						</p>
+						<p className="mt-3">
+							<CancelButton cancelLinkOrAction={cancelLinkOrAction} />
+						</p>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-				{!isCreatingManually && onUploadActivityScreenshot && (
-					<div className="space-y-2">
-						<FormLabel>Upload ERG Screenshot</FormLabel>
+				<fieldset className="space-y-2" disabled={isUploading || !isAIEnabled}>
+					<FormLabel>Upload ERG Screenshot</FormLabel>
+					{!uploadedFile && (
 						<div className="flex items-center gap-2">
 							<Input
 								type="file"
@@ -155,6 +144,7 @@ export function ActivityForm({
 								onChange={async (
 									event: React.ChangeEvent<HTMLInputElement>,
 								) => {
+									if (!onUploadErgActivityScreenshot) return;
 									const file = event.target.files?.[0];
 									if (!file) return;
 
@@ -164,31 +154,10 @@ export function ActivityForm({
 										return;
 									}
 
-									setIsUploading(true);
-									setUploadError(null);
-
-									try {
-										const result = await onUploadActivityScreenshot(file);
-
-										if (result.success && result.data) {
-											// Populate form with parsed data
-											form.reset(result.data);
-											setIsCreatingManually(true);
-										} else {
-											setUploadError("Failed to parse screenshot");
-										}
-									} catch (error) {
-										console.error("Upload error:", error);
-										setUploadError(
-											error instanceof Error
-												? error.message
-												: "Failed to parse screenshot",
-										);
-									} finally {
-										setIsUploading(false);
-										// Clear the file input
-										event.target.value = "";
-									}
+									setUploadedFile(file);
+									await handleUpload(file);
+									// Clear the file input
+									event.target.value = "";
 								}}
 								disabled={isUploading}
 								className="flex-1"
@@ -199,317 +168,130 @@ export function ActivityForm({
 								</span>
 							)}
 						</div>
-						{uploadError && (
-							<p className="text-sm text-destructive">{uploadError}</p>
-						)}
-						<p className="text-sm text-muted-foreground">
-							Upload an ERG screenshot to auto-fill activity details
-							{/* TODO: Add manual creation later or maybe never */}
-							{/* or{" "}
-							<Button
-								variant="link"
-								type="button"
-								className="p-0"
-								onClick={() => setIsCreatingManually(true)}
-							>
-								create manually
-							</Button> */}
-							.
-						</p>
-					</div>
-				)}
-				{!!isCreatingManually && (
-					<>
-						{isAIEnabled && (
-							<p className="text-sm text-muted-foreground">
+					)}
+					{uploadError && (
+						<p className="text-sm text-destructive">{uploadError}</p>
+					)}
+					<p className="text-sm text-muted-foreground">
+						Upload an ERG screenshot to auto-fill activity details.{" "}
+						{/* Retry button */}
+						{uploadedFile && !isUploading && (
+							<>
 								<Button
 									variant="link"
-									type="button"
-									className="p-0 text-wrap max-w-full"
-									onClick={() => setIsCreatingManually(false)}
+									size="sm"
+									onClick={() => handleUpload(uploadedFile)}
 								>
-									Upload an ERG screenshot
-								</Button>{" "}
-								to auto-fill activity details or create manually.
-							</p>
-						)}
-
-						{/* Activity Type Selection */}
-						<FormField
-							control={form.control}
-							name="type"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Activity Type</FormLabel>
-									<FormControl>
-										<ToggleGroup
-											type="single"
-											value={field.value}
-											onValueChange={(value) => {
-												if (value) {
-													field.onChange(value);
-													// Reset boat/erg selection when switching type
-													if (workoutType === "distance") {
-														form.setValue("elapsedTime", intervalSum);
-													} else {
-														form.setValue("distance", intervalSum);
-													}
-												}
-											}}
-										>
-											<ToggleGroupItem value="water">Water</ToggleGroupItem>
-											<ToggleGroupItem value="erg">ERG</ToggleGroupItem>
-										</ToggleGroup>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						{/* Workout Selection */}
-						<FormField
-							control={form.control}
-							name="workoutId"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Workout (Optional)</FormLabel>
-									<FormControl>
-										<Select
-											onValueChange={(value) =>
-												field.onChange(parseInt(value, 10))
-											}
-											value={field.value?.toString()}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder="Select Workout" />
-											</SelectTrigger>
-											<SelectContent>
-												{upcomingWorkouts.map((workout) => (
-													<SelectItem
-														key={workout.id}
-														value={workout.id.toString()}
-													>
-														{workout.description}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						{/* Boat Selection (Water only) */}
-						{activityType === "water" && (
-							<FormField
-								control={form.control}
-								name="boatId"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Boat</FormLabel>
-										<FormControl>
-											<Select
-												onValueChange={(value) =>
-													field.onChange(parseInt(value, 10))
-												}
-												value={field.value?.toString()}
-											>
-												<SelectTrigger>
-													<SelectValue placeholder="Select Boat" />
-												</SelectTrigger>
-												<SelectContent>
-													{boats.map((boat) => (
-														<SelectItem
-															key={boat.id}
-															value={boat.id.toString()}
-														>
-															{boat.name}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						)}
-						{/* ERG Selection (ERG only) */}
-						{activityType === "erg" && (
-							<FormField
-								control={form.control}
-								name="ergId"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>ERG</FormLabel>
-										<FormControl>
-											<Select
-												onValueChange={(value) =>
-													field.onChange(parseInt(value, 10))
-												}
-												value={field.value?.toString()}
-											>
-												<SelectTrigger>
-													<SelectValue placeholder="Select ERG" />
-												</SelectTrigger>
-												<SelectContent>
-													{ergs.map((erg) => (
-														<SelectItem key={erg.id} value={erg.id.toString()}>
-															{erg.name}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						)}
-
-						{/* Start Date/Time */}
-						<FormField
-							control={form.control}
-							name="startDate"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Start Date</FormLabel>
-									<FormControl>
-										<DateInput
-											{...field}
-											value={
-												field.value
-													? (DateTime.fromISO(field.value).toISODate() ??
-														undefined)
-													: undefined
-											}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						{/* Interval Inputs */}
-						{selectedWorkout && (
-							<div className="space-y-4">
-								<FormLabel>
-									{workoutType === "distance"
-										? "Time per Interval"
-										: "Distance per Interval"}
-								</FormLabel>
-
-								{/* Show sum */}
-								<div className="p-3 bg-muted rounded-md">
-									<p className="text-sm font-medium">
-										Total:{" "}
-										{workoutType === "distance"
-											? msToTime(intervalSum)
-											: `${intervalSum.toLocaleString()}m`}
-									</p>
-								</div>
-
-								{/* Interval inputs */}
-								{Array.from({ length: intervalCount }).map((_, index) => (
-									<div key={`interval-${selectedWorkout?.id || 0}-${index}`}>
-										<FormLabel>Interval {index + 1}</FormLabel>
-										{workoutType === "distance" ? (
-											<Input
-												type="text"
-												placeholder="h:mm:ss"
-												value={intervalTimeValues[index] || ""}
-												onChange={(e) => {
-													const newValues = [...intervalTimeValues];
-													newValues[index] = e.target.value;
-													setIntervalTimeValues(newValues);
-												}}
-											/>
-										) : (
-											<Input
-												type="number"
-												placeholder="Distance in meters"
-												value={intervalDistanceValues[index] || ""}
-												onChange={(e) => {
-													const newValues = [...intervalDistanceValues];
-													newValues[index] = parseFloat(e.target.value) || 0;
-													setIntervalDistanceValues(newValues);
-												}}
-											/>
-										)}
-									</div>
-								))}
-							</div>
-						)}
-
-						{/* Manual distance/time input when no workout selected */}
-						{!selectedWorkout && (
-							<>
-								<FormField
-									control={form.control}
-									name="distance"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Distance (meters)</FormLabel>
-											<FormControl>
-												<Input
-													type="number"
-													placeholder="5000"
-													{...field}
-													onChange={(e) =>
-														field.onChange(parseFloat(e.target.value) || 0)
-													}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="elapsedTime"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Time (h:mm:ss)</FormLabel>
-											<FormControl>
-												<Input
-													type="text"
-													placeholder="0:20:00"
-													value={msToTime(field.value)}
-													onChange={(e) => {
-														const ms = timeToMs(e.target.value);
-														field.onChange(ms);
-													}}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
+									Parse Again
+								</Button>
+								<Button
+									variant="link"
+									size="sm"
+									onClick={() => {
+										setUploadedFile(null);
+										setUploadError(null);
+									}}
+								>
+									Remove Image
+								</Button>
 							</>
 						)}
-					</>
+					</p>
+				</fieldset>
+				{!!uploadedFile && (
+					<fieldset disabled={isUploading} className="space-y-4">
+						<div className="space-y-2">
+							<FormLabel>
+								Uploaded Image
+								{isUploading && (
+									<span className="text-sm text-muted-foreground">
+										Parsing...
+									</span>
+								)}
+							</FormLabel>
+							<div className="relative aspect-video w-full max-w-md overflow-hidden rounded-lg border">
+								<Image
+									src={URL.createObjectURL(uploadedFile)}
+									alt="ERG activity screenshot"
+									fill
+									unoptimized
+									className="object-contain"
+								/>
+							</div>
+						</div>
+
+						<div className="space-y-2">
+							<FormLabel>Parsed Data</FormLabel>
+							<div
+								className={cn(
+									"rounded-lg border p-4 space-y-2 bg-muted/50",
+									isUploading && "opacity-55",
+								)}
+							>
+								<div className="grid grid-cols-2 gap-2 text-sm">
+									<div className="font-medium">Description:</div>
+									<div>{form.watch("name") || "—"}</div>
+
+									<div className="font-medium">Distance:</div>
+									<div>
+										{form.watch("distance")
+											? `${form.watch("distance")}m`
+											: "—"}
+									</div>
+
+									<div className="font-medium">Elapsed Time:</div>
+									<div>
+										{form.watch("elapsedTime")
+											? formatDuration(form.watch("elapsedTime"))
+											: "—"}
+									</div>
+									<div className="font-medium">Start Date:</div>
+									<div>
+										{form.watch("startDate")
+											? DateTime.fromISO(
+													form.watch("startDate"),
+												).toLocaleString(DateTime.DATE_MED)
+											: "—"}
+									</div>
+								</div>
+							</div>
+						</div>
+					</fieldset>
 				)}
-				<div className="flex justify-between gap-4">
-					{typeof cancelLinkOrAction === "string" && (
-						<Button variant="outline" asChild>
-							<Link href={cancelLinkOrAction}>Cancel</Link>
-						</Button>
-					)}
-					{typeof cancelLinkOrAction === "function" && (
-						<Button
-							variant="outline"
-							type="button"
-							onClick={() => {
-								cancelLinkOrAction();
-							}}
-						>
-							Cancel
-						</Button>
-					)}
+				<fieldset
+					className="flex justify-between gap-4"
+					disabled={isUploading || !isAIEnabled}
+				>
+					<CancelButton onCancel={cancelLinkOrAction} />
 					<Button type="submit">Save</Button>
-				</div>
+				</fieldset>
 			</form>
 		</Form>
 	);
 }
+
+const CancelButton = ({
+	onCancel: cancelLinkOrAction,
+}: Pick<ActivityFormProps, "onCancel">) => {
+	if (!cancelLinkOrAction) return null;
+
+	if (typeof cancelLinkOrAction === "string") {
+		return (
+			<Button variant="outline" asChild>
+				<Link href={cancelLinkOrAction}>Cancel</Link>
+			</Button>
+		);
+	}
+
+	return (
+		<Button
+			variant="outline"
+			type="button"
+			onClick={() => {
+				cancelLinkOrAction();
+			}}
+		>
+			Cancel
+		</Button>
+	);
+};

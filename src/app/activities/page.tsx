@@ -5,11 +5,13 @@ import {
 	getActivities,
 	getActivityById,
 	updateActivity,
+	uploadErgActivityScreenshot,
 } from "@/app/api/v1/activities/actions";
 import { getAthleteByUserId } from "@/app/api/v1/athletes/actions";
 import { getBoats } from "@/app/api/v1/boats/actions";
 import { getErgs } from "@/app/api/v1/ergs/actions";
 import { getWorkouts } from "@/app/api/v1/workouts/actions";
+import { envVars } from "@/lib/env";
 import { routes } from "@/lib/routes";
 import { ActivityListScene } from "@/scenes/activities";
 import type { CreateActivity, UpdateActivity } from "@/schemas";
@@ -52,6 +54,14 @@ export default async function ActivitiesPage({
 				"use server";
 				await updateActivity(activity);
 			}}
+			onUploadErgActivityScreenshot={
+				envVars.NEXT_PUBLIC_AI_ENABLED
+					? async (params) => {
+							"use server";
+							return await uploadErgActivityScreenshot(params);
+						}
+					: undefined
+			}
 		/>
 	);
 }

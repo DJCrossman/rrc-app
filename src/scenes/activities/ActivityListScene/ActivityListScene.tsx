@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import type { ComponentProps } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
@@ -33,6 +34,13 @@ interface ActivityListSceneProps {
 	isCreateDrawerOpen: boolean;
 	onCreateActivity: (data: CreateActivity) => Promise<void> | void;
 	onUpdateActivity: (data: UpdateActivity) => Promise<void> | void;
+	onUploadErgActivityScreenshot?:
+		| ComponentProps<
+				typeof ActivityCreateDrawer
+		  >["onUploadErgActivityScreenshot"]
+		| ComponentProps<
+				typeof ActivityDetailsDrawer
+		  >["onUploadErgActivityScreenshot"];
 }
 
 export const ActivityListScene = ({
@@ -45,14 +53,9 @@ export const ActivityListScene = ({
 	isCreateDrawerOpen,
 	onCreateActivity,
 	onUpdateActivity,
+	onUploadErgActivityScreenshot,
 }: ActivityListSceneProps) => {
 	const router = useNavigate();
-
-	const handleUploadActivityScreenshot = async (file: File) => {
-		// Mock implementation - log to console as requested
-		console.log("Upload activity screenshot:", file.name, file);
-		return { success: false, data: undefined };
-	};
 
 	return (
 		<SidebarProvider
@@ -85,7 +88,7 @@ export const ActivityListScene = ({
 					ergs={ergs}
 					workouts={workouts}
 					onSubmit={onCreateActivity}
-					onUploadActivityScreenshot={handleUploadActivityScreenshot}
+					onUploadErgActivityScreenshot={onUploadErgActivityScreenshot}
 					onClose={() => router.push(routes.activities.list())}
 				/>
 			)}
@@ -96,7 +99,7 @@ export const ActivityListScene = ({
 				ergs={ergs}
 				workouts={workouts}
 				onSubmit={onUpdateActivity}
-				onUploadActivityScreenshot={handleUploadActivityScreenshot}
+				onUploadErgActivityScreenshot={onUploadErgActivityScreenshot}
 				onClose={() => router.push(routes.activities.list())}
 			/>
 		</SidebarProvider>

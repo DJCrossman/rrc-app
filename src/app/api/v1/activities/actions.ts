@@ -1,4 +1,7 @@
 "use server";
+import { DateTime } from "luxon";
+import { parseImage } from "@/lib/ai/parseImage";
+import { PARSE_CONCEPT2_SCREENSHOT_PROMPT } from "@/lib/ai/prompts";
 import {
 	type Activity,
 	activitiesDBSchema,
@@ -6,6 +9,7 @@ import {
 	activitySchema,
 	boatsSchema,
 	type CreateActivity,
+	createActivitySchema,
 	ergsSchema,
 	type UpdateActivity,
 	usersSchema,
@@ -258,4 +262,70 @@ export const deleteActivity = async (id: number): Promise<void> => {
 		throw new Error("Activity not found");
 	}
 	activitiesParsed.splice(activityIndex, 1);
+};
+
+export const uploadErgActivityScreenshot = async ({
+	file,
+	athleteId,
+	ergId,
+}: {
+	file: File;
+	athleteId: number;
+	ergId?: number;
+}): Promise<{ success: boolean; data?: CreateActivity }> => {
+	try {
+		// Convert file to base64
+		const arrayBuffer = await file.arrayBuffer();
+		const base64 = Buffer.from(arrayBuffer).toString("base64");
+
+		// Parse image with AI
+		const response = await parseImage({
+			imageBase64: base64,
+			prompt: PARSE_CONCEPT2_SCREENSHOT_PROMPT,
+		});
+
+		// Parse JSON response
+		let jsonData = response.trim();
+		const codeBlockMatch = jsonData.match(/```(?:json)?\n([\s\S]*?)\n```/);
+		if (codeBlockMatch) {
+			jsonData = codeBlockMatch[1];
+		}
+
+		let parsedData: unknown;
+		try {
+			parsedData = JSON.parse(jsonData);
+		} catch (error) {
+			console.error("Failed to parse JSON from AI response:", error);
+			console.error("Raw response:", response);
+			return { success: false };
+		}
+
+		if (!parsedData || typeof parsedData !== "object") {
+			console.error("Invalid parsed data:", parsedData);
+			return { success: false };
+		}
+
+		const activityData = {
+			...parsedData,
+			type: "erg",
+			timezone:
+				"timezone" in parsedData && typeof parsedData.timezone === "string"
+					? parsedData.timezone
+					: DateTime.now().zoneName,
+			athleteId,
+			ergId: ergId || undefined,
+			workoutId: null,
+		};
+
+		// Validate with schema
+		const validatedActivity = createActivitySchema.parse(activityData);
+
+		return { success: true, data: validatedActivity };
+	} catch (error) {
+		console.error("Error uploading activity screenshot:", error);
+		if (error instanceof Error) {
+			console.error("Error message:", error.message);
+		}
+		return { success: false };
+	}
 };

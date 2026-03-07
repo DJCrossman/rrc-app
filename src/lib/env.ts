@@ -10,7 +10,7 @@ export const envVars = z
 		C2_CLIENT_ID: z.string().optional(),
 		C2_CLIENT_SECRET: z.string().optional(),
 		OLLAMA_HOST: z.url().default("http://localhost:11434/api"),
-		OLLAMA_MODEL: z.string().default("qwen3-vl:235b"),
+		OLLAMA_MODEL: z.string().default("llava:13b"),
 		OLLAMA_API_KEY: z.string().optional(),
 	})
 	.parse(process.env);

@@ -36,6 +36,8 @@ export async function parseImage({
 				],
 			},
 		],
+		temperature: 0.1,
+		abortSignal: AbortSignal.timeout(120000), // 2 minute timeout (first load can be slow)
 	});
 
 	return result.text;

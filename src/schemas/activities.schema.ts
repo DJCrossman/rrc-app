@@ -28,7 +28,7 @@ const waterActivityDBSchema = activityCoreSchema.extend({
 
 const ergActivityDBSchema = activityCoreSchema.extend({
 	athleteId: z.number(),
-	ergId: z.number(),
+	ergId: z.number().optional(),
 	workoutId: z.number().nullable(),
 	stravaId: z.number().nullable(),
 	stravaData: stravaActivitySchema.nullable(),
@@ -100,7 +100,7 @@ const createErgActivitySchema = z.object({
 	elapsedTime: z.number(),
 	distance: z.number(),
 	athleteId: z.number(),
-	ergId: z.number(),
+	ergId: z.number().optional(),
 	workoutId: z.number().nullable(),
 	type: z.literal("erg"),
 });
