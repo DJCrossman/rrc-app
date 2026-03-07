@@ -1,6 +1,7 @@
 import { DateTime } from "luxon";
 import { RedirectType, redirect } from "next/navigation";
 import { z } from "zod";
+import { getAnalytics } from "@/app/api/v1/analytics/actions";
 import {
 	createWorkout,
 	getWorkoutById,
@@ -31,6 +32,7 @@ export default async function WorkoutsPage({
 
 	const { data } = await getWorkouts();
 	const selectedWorkout = workoutId ? await getWorkoutById(workoutId) : null;
+	const { analyticMetrics } = await getAnalytics();
 
 	return (
 		<WorkoutListScene
@@ -38,6 +40,7 @@ export default async function WorkoutsPage({
 			selectedWorkout={selectedWorkout}
 			currentWeekIsoDate={week}
 			isCreateDrawerOpen={action === "create"}
+			analyticMetrics={analyticMetrics}
 			onCreateWorkouts={async ({ workouts }: { workouts: CreateWorkout[] }) => {
 				"use server";
 				const week = DateTime.fromISO(workouts[0].startDate);

@@ -26,6 +26,14 @@ export const analyticMetricsSchema = z.object({
 			change: z.number(),
 		})
 		.nullable(),
+	lastSixKm: z
+		.object({
+			duration: z.number(),
+			date: z.string(),
+			activityId: z.number(),
+			change: z.number(),
+		})
+		.nullable(),
 });
 
 export type AnalyticMetrics = z.infer<typeof analyticMetricsSchema>;

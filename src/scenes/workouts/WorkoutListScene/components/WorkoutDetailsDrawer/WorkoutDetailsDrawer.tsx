@@ -12,11 +12,12 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
-import { formatDuration } from "@/lib/formatters";
+import { formatCompactSplit, formatDuration } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
-import type { CreateWorkout, Workout } from "@/schemas";
+import type { AnalyticMetrics, CreateWorkout, Workout } from "@/schemas";
 import { getWorkoutBreakdown } from "../../utils/getWorkoutBreakdown";
 import { intensityColorMap } from "../../utils/intensityColorMap";
+import { FragmentSplitDisplay } from "../FragmentSplitDisplay";
 import { WorkoutForm } from "../WorkoutForm/WorkoutForm";
 
 interface WorkoutDetailsDrawerProps {
@@ -24,6 +25,7 @@ interface WorkoutDetailsDrawerProps {
 	workout: Workout | null;
 	onClose: () => void;
 	onSubmit: (data: Workout) => Promise<void> | void;
+	analytics?: Pick<AnalyticMetrics, "lastTwoKm" | "lastSixKm">;
 }
 
 export const WorkoutDetailsDrawer = ({
@@ -31,6 +33,7 @@ export const WorkoutDetailsDrawer = ({
 	workout,
 	onClose,
 	onSubmit,
+	analytics,
 }: WorkoutDetailsDrawerProps) => {
 	const [isEditing, setIsEditing] = useState(false);
 
@@ -139,6 +142,49 @@ export const WorkoutDetailsDrawer = ({
 										<p className="text-base">
 											{formatDuration(workout.elapsedTime)}
 										</p>
+									</div>
+								)}
+								{workout.fragments && workout.fragments.length > 0 && (
+									<div>
+										<strong className="text-sm text-muted-foreground">
+											Target Splits
+										</strong>{" "}
+										<div className="mt-2 mb-3 flex gap-4 text-xs text-muted-foreground">
+											{analytics?.lastTwoKm && (
+												<div>
+													<span className="font-semibold">2K Baseline:</span>{" "}
+													<span className="font-mono">
+														{formatCompactSplit(
+															analytics.lastTwoKm.duration,
+															2000,
+														)}
+														/500m
+													</span>
+												</div>
+											)}
+											{analytics?.lastSixKm && (
+												<div>
+													<span className="font-semibold">6K Baseline:</span>{" "}
+													<span className="font-mono">
+														{formatCompactSplit(
+															analytics.lastSixKm.duration,
+															6000,
+														)}
+														/500m
+													</span>
+												</div>
+											)}
+										</div>{" "}
+										<div className="mt-2 space-y-3">
+											{workout.fragments.map((fragment, index) => (
+												<FragmentSplitDisplay
+													key={`${fragment.relativeTo}-${fragment.relativeSplit}-${index}`}
+													fragment={fragment}
+													lastTwoKm={analytics?.lastTwoKm}
+													lastSixKm={analytics?.lastSixKm}
+												/>
+											))}
+										</div>
 									</div>
 								)}
 							</div>

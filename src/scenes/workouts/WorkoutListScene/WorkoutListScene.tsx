@@ -12,7 +12,12 @@ import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
-import type { CreateWorkout, Workout, Workouts } from "@/schemas";
+import type {
+	AnalyticMetrics,
+	CreateWorkout,
+	Workout,
+	Workouts,
+} from "@/schemas";
 import { WorkoutCreateDrawer, WorkoutDetailsDrawer } from "./components";
 import { WorkoutTable } from "./WorkoutTable/WorkoutTable";
 
@@ -21,6 +26,7 @@ interface WorkoutListSceneProps {
 	currentWeekIsoDate: string;
 	selectedWorkout: Workout | null;
 	isCreateDrawerOpen: boolean;
+	analyticMetrics?: Pick<AnalyticMetrics, "lastTwoKm" | "lastSixKm">;
 	onCreateWorkouts: (data: {
 		workouts: CreateWorkout[];
 	}) => Promise<void> | void;
@@ -35,6 +41,7 @@ export const WorkoutListScene = ({
 	currentWeekIsoDate,
 	selectedWorkout,
 	isCreateDrawerOpen,
+	analyticMetrics,
 	onCreateWorkouts,
 	onUpdateWorkout,
 	onUploadWorkoutScreenshot,
@@ -104,6 +111,7 @@ export const WorkoutListScene = ({
 				workout={selectedWorkout}
 				onSubmit={onUpdateWorkout}
 				onClose={() => router.push(routes.workouts.list({ week: currentWeek }))}
+				analytics={analyticMetrics}
 			/>
 		</SidebarProvider>
 	);

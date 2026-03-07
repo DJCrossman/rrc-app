@@ -28,5 +28,11 @@
 		"date": "2026-01-31",
 		"activityId": 42,
 		"change": -0.025
+	},
+	"lastSixKm": {
+		"duration": 1380000,
+		"date": "2026-02-05",
+		"activityId": 45,
+		"change": -0.015
 	}
 }
