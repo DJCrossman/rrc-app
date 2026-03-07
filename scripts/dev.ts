@@ -4,7 +4,12 @@
  * Development script that runs Next.js dev server and Ollama in parallel
  */
 
+import type { Subprocess } from "bun";
 import { spawn } from "bun";
+
+let ollamaProcess: Subprocess | null = null;
+let nextDevProcess: Subprocess | null = null;
+let ollamaWasStartedByUs = false;
 
 async function checkOllamaRunning(): Promise<boolean> {
 	try {
@@ -15,6 +20,24 @@ async function checkOllamaRunning(): Promise<boolean> {
 	}
 }
 
+async function cleanup() {
+	console.log("\n🛑 Shutting down development servers...");
+
+	// Kill Next.js dev server
+	if (nextDevProcess && !nextDevProcess.killed) {
+		nextDevProcess.kill();
+		console.log("✓ Stopped Next.js dev server");
+	}
+
+	// Only kill Ollama if we started it
+	if (ollamaWasStartedByUs && ollamaProcess && !ollamaProcess.killed) {
+		ollamaProcess.kill();
+		console.log("✓ Stopped Ollama server");
+	}
+
+	process.exit(0);
+}
+
 async function startOllama() {
 	if (await checkOllamaRunning()) {
 		console.log("✓ Ollama already running");
@@ -22,7 +45,8 @@ async function startOllama() {
 	}
 
 	console.log("🚀 Starting Ollama server...");
-	spawn(["ollama", "serve"], {
+	ollamaWasStartedByUs = true;
+	ollamaProcess = spawn(["ollama", "serve"], {
 		stdout: "inherit",
 		stderr: "inherit",
 	});
@@ -36,18 +60,25 @@ async function startOllama() {
 }
 
 async function main() {
+	// Set up signal handlers for clean shutdown
+	process.on("SIGINT", cleanup);
+	process.on("SIGTERM", cleanup);
+
 	// Start Ollama first
 	await startOllama();
 
 	// Start Next.js dev server
 	console.log("🚀 Starting Next.js dev server...\n");
-	const nextDev = spawn(["next", "dev", "--turbopack"], {
+	nextDevProcess = spawn(["next", "dev", "--turbopack"], {
 		stdout: "inherit",
 		stderr: "inherit",
 	});
 
 	// Wait for Next.js process
-	await nextDev.exited;
+	await nextDevProcess.exited;
+
+	// If Next.js exits on its own, clean up
+	await cleanup();
 }
 
 main().catch((error) => {
