@@ -1,32 +1,10 @@
 "use client";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import type { SubmitHandler } from "react-hook-form";
-import { envVars } from "@/lib/env";
-import { LoginForm, OTPForm } from "./components";
-import { useLoginSteps } from "./hooks";
 
-interface LoginValue {
-	phoneNumber?: string;
-	pin?: string;
-}
+import { SignIn } from "@clerk/nextjs";
+import Image from "next/image";
+import { envVars } from "@/lib/env";
 
 export const LoginScene = () => {
-	const [values, setValues] = useState<LoginValue>({});
-	const { step, nextStep, previousStep } = useLoginSteps();
-	const router = useRouter();
-	const onSubmitPhone: SubmitHandler<
-		Pick<Required<LoginValue>, "phoneNumber">
-	> = ({ phoneNumber }) => {
-		setValues((prev) => ({ ...prev, phoneNumber }));
-		// TODO: send OTP
-		nextStep();
-	};
-	const onSubmitOtp: SubmitHandler<Pick<Required<LoginValue>, "pin">> = () => {
-		// TODO: validate OTP
-		router.push("/");
-	};
 	return (
 		<div className="grid min-h-svh lg:grid-cols-2">
 			<div className="flex flex-col gap-4 p-6 md:p-10">
@@ -45,17 +23,18 @@ export const LoginScene = () => {
 					</a>
 				</div>
 				<div className="flex flex-1 items-center justify-center">
-					<div className="w-full max-w-xs">
-						{step === "phone" && (
-							<LoginForm values={values} onSubmit={onSubmitPhone} />
-						)}
-						{step === "otp" && values.phoneNumber && (
-							<OTPForm
-								values={values}
-								onSubmit={onSubmitOtp}
-								onBack={() => previousStep()}
-							/>
-						)}
+					<div className="w-full max-w-md">
+						<SignIn
+							appearance={{
+								elements: {
+									rootBox: "w-full",
+									card: "w-full border border-border bg-background/95 shadow-none",
+								},
+							}}
+							routing="virtual"
+							forceRedirectUrl="/"
+							signUpUrl="/signup"
+						/>
 					</div>
 				</div>
 			</div>

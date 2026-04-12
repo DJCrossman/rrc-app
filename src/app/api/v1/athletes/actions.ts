@@ -1,5 +1,6 @@
 "use server";
 import { DateTime, Interval } from "luxon";
+import { requireAuth } from "@/lib/auth";
 import { activitiesDBSchema, usersSchema } from "@/schemas";
 import {
 	type Athlete,
@@ -53,12 +54,16 @@ const athletesParsed = athletesSchema.parse(
 );
 
 export const getAthletes = async () => {
+	await requireAuth();
+
 	return {
 		data: athletesParsed,
 	};
 };
 
 export async function getAthleteById(id?: number): Promise<Athlete | null> {
+	await requireAuth();
+
 	const athlete = athletesParsed.find((athlete) => athlete.id === id);
 	return athlete ?? null;
 }
@@ -74,6 +79,8 @@ export async function getAthleteByUserId(userId: number): Promise<Athlete> {
 }
 
 export const createAthlete = async (data: CreateAthlete): Promise<Athlete> => {
+	await requireAuth();
+
 	const name = data?.roles.includes("admin")
 		? [
 				data?.firstName,

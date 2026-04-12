@@ -1,6 +1,7 @@
 "use server";
 import { parseImage } from "@/lib/ai/parseImage";
 import { PARSE_WORKOUT_SCREENSHOT_PROMPT } from "@/lib/ai/prompts/parse-workout-screenshot.prompt";
+import { requireAuth } from "@/lib/auth";
 import { parseDuration } from "@/lib/parsers/parseDuration";
 import { parseIntensity } from "@/lib/parsers/parseIntensity";
 import { parseIntervals } from "@/lib/parsers/parseIntervals";
@@ -16,17 +17,23 @@ import workouts from "./workouts.json";
 const workoutsParsed = workoutsSchema.parse(workouts);
 
 export const getWorkouts = async () => {
+	await requireAuth();
+
 	return {
 		data: workoutsParsed,
 	};
 };
 
 export async function getWorkoutById(id: number): Promise<Workout | null> {
+	await requireAuth();
+
 	const workout = workoutsParsed.find((workout) => workout.id === id);
 	return workout ?? null;
 }
 
 export const createWorkout = async (data: CreateWorkout): Promise<Workout> => {
+	await requireAuth();
+
 	const workout = workoutSchema.parse({
 		id: workoutsParsed.length + 1,
 		...data,

@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { User } from "@/schemas/user.schema";
@@ -12,7 +13,15 @@ import { getUserById } from "../actions";
 
 export async function GET(request: Request) {
 	try {
-		// TODO: Replace with actual authentication logic
+		const { userId: clerkUserId } = await auth();
+
+		if (!clerkUserId) {
+			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+		}
+		console.log(clerkUserId);
+
+		// TODO: Map Clerk user ID to your database user ID
+		// For now, using a placeholder - you'll need to implement user mapping
 		const userId = 1;
 		const user = await getUserById(userId);
 		if (!user) {

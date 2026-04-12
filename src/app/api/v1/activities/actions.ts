@@ -2,6 +2,7 @@
 import { DateTime } from "luxon";
 import { parseImage } from "@/lib/ai/parseImage";
 import { PARSE_CONCEPT2_SCREENSHOT_PROMPT } from "@/lib/ai/prompts";
+import { requireAuth } from "@/lib/auth";
 import {
 	type Activity,
 	activitiesDBSchema,
@@ -54,6 +55,8 @@ export const getActivities = async ({
 	athleteId?: number;
 	ergId?: number;
 }) => {
+	await requireAuth();
+
 	const activities = activitiesParsed.map((activity) => {
 		const athlete =
 			athletesParsed.find((athlete) => athlete.id === activity.athleteId) ??
@@ -129,6 +132,8 @@ export const getActivities = async ({
 };
 
 export async function getActivityById(id?: number): Promise<Activity | null> {
+	await requireAuth();
+
 	if (!id) return null;
 
 	const activityDB = activitiesParsed.find((activity) => activity.id === id);
@@ -186,6 +191,8 @@ export async function getActivityById(id?: number): Promise<Activity | null> {
 export const createActivity = async (
 	data: CreateActivity,
 ): Promise<Activity> => {
+	await requireAuth();
+
 	// Create the DB entity
 	const activityDB = activityDBSchema.parse({
 		id: activitiesParsed.length + 1,
@@ -220,6 +227,8 @@ export const createActivity = async (
 export const updateActivity = async (
 	data: UpdateActivity,
 ): Promise<Activity> => {
+	await requireAuth();
+
 	const activityIndex = activitiesParsed.findIndex(
 		(activity) => activity.id === data.id,
 	);

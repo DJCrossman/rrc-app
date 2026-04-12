@@ -1,21 +1,28 @@
 "use server";
+import { requireAuth } from "@/lib/auth";
 import { type Boat, boatSchema, boatsSchema, type CreateBoat } from "@/schemas";
 import boats from "./boats.json";
 
 const boatsParsed = boatsSchema.parse(boats);
 
 export const getBoats = async () => {
+	await requireAuth();
+
 	return {
 		data: boatsParsed,
 	};
 };
 
 export async function getBoatById(id: number): Promise<Boat | null> {
+	await requireAuth();
+
 	const boat = boatsParsed.find((boat) => boat.id === id);
 	return boat ?? null;
 }
 
 export const createBoat = async (data: CreateBoat): Promise<Boat> => {
+	await requireAuth();
+
 	const boat = boatSchema.parse({
 		id: boatsParsed.length + 1,
 		...data,

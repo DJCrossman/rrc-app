@@ -1,21 +1,28 @@
 "use server";
+import { requireAuth } from "@/lib/auth";
 import { type CreateErg, type Erg, ergSchema, ergsSchema } from "@/schemas";
 import ergs from "./ergs.json";
 
 const ergsParsed = ergsSchema.parse(ergs);
 
 export const getErgs = async () => {
+	await requireAuth();
+
 	return {
 		data: ergsParsed,
 	};
 };
 
 export async function getErgById(id: number): Promise<Erg | null> {
+	await requireAuth();
+
 	const erg = ergsParsed.find((erg) => erg.id === id);
 	return erg ?? null;
 }
 
 export const createErg = async (data: CreateErg): Promise<Erg> => {
+	await requireAuth();
+
 	const erg = ergSchema.parse({
 		id: ergsParsed.length + 1,
 		...data,

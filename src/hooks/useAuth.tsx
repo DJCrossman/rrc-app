@@ -5,14 +5,38 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { generateQueryKey } from "@/lib/keygen";
 import type { User, UserRole } from "@/schemas";
 
-export const useAuth = () => {
+type AuthBase = {
+	error: Error | null;
+	isFetching: boolean;
+	currentRole: UserRole | null;
+	switchRole: (role: UserRole) => void;
+};
+
+export function useAuth(opts: {
+	ensureSignedIn: true;
+}): AuthBase & { user: User };
+export function useAuth(opts?: {
+	ensureSignedIn?: boolean;
+}): AuthBase & { user: User | null };
+export function useAuth({
+	ensureSignedIn = false,
+}: {
+	ensureSignedIn?: boolean;
+} = {}) {
 	const [currentRole, setCurrentRole] = useState<UserRole | null>(null);
 
 	const { data, error, isFetching } = useQuery({
 		queryKey: generateQueryKey({ type: "currentUser" }),
-		queryFn: async (): Promise<User> => {
+		enabled: ensureSignedIn,
+		queryFn: async (): Promise<User | null> => {
 			const response = await fetch("/api/v1/users/me");
 			const data = await response.json();
+			if (response.status === 401) {
+				if (ensureSignedIn) {
+					throw new Error("User is not signed in.");
+				}
+				return null;
+			}
 			if (!response.ok) {
 				throw new Error(data.message || "Failed to fetch user data");
 			}
@@ -23,7 +47,9 @@ export const useAuth = () => {
 	useEffect(() => {
 		if (data) {
 			setCurrentRole(data.roles[0] ?? null);
+			return;
 		}
+		setCurrentRole(null);
 	}, [data]);
 
 	const switchRole = (role: UserRole) => {
@@ -31,13 +57,13 @@ export const useAuth = () => {
 	};
 
 	return {
-		user: data,
+		user: data ?? null,
 		error,
 		isFetching,
 		currentRole,
 		switchRole,
 	};
-};
+}
 
 type CurrentUser = Omit<
 	ReturnType<typeof useAuth>,

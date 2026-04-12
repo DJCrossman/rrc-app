@@ -1,6 +1,7 @@
 [
 	{
 		"id": 1,
+		"clerkUserId": "user_3927dRaMVIwcVD1HWM09coDDd7f",
 		"firstName": "David",
 		"lastName": "Crossman",
 		"nickname": "Young Dave",
@@ -12,6 +13,7 @@
 	},
 	{
 		"id": 2,
+		"clerkUserId": "user_2ABCdef123456789XYZ01234567",
 		"firstName": "Ivy",
 		"lastName": "Smith",
 		"nickname": "Ivy",
@@ -23,6 +25,7 @@
 	},
 	{
 		"id": 3,
+		"clerkUserId": "user_3CDEfgh234567890ABC12345678",
 		"firstName": "Gabe",
 		"lastName": "Johnson",
 		"nickname": "Gabe",
@@ -34,6 +37,7 @@
 	},
 	{
 		"id": 4,
+		"clerkUserId": "user_4DEFghi345678901BCD23456789",
 		"firstName": "Mike",
 		"lastName": "Brown",
 		"nickname": "Mike",
@@ -45,6 +49,7 @@
 	},
 	{
 		"id": 5,
+		"clerkUserId": "user_5EFGhij456789012CDE34567890",
 		"firstName": "Sarah",
 		"lastName": "Davis",
 		"nickname": "Sarah",
@@ -56,6 +61,7 @@
 	},
 	{
 		"id": 6,
+		"clerkUserId": "user_6FGHijk567890123DEF45678901",
 		"firstName": "Michelle",
 		"lastName": "Wilson",
 		"nickname": "Michelle",
@@ -67,6 +73,7 @@
 	},
 	{
 		"id": 7,
+		"clerkUserId": "user_7GHIjkl678901234EFG56789012",
 		"firstName": "Angie",
 		"lastName": "Taylor",
 		"nickname": "Angie",
@@ -78,6 +85,7 @@
 	},
 	{
 		"id": 8,
+		"clerkUserId": "user_8HIJklm789012345FGH67890123",
 		"firstName": "Ainsley",
 		"lastName": "Anderson",
 		"nickname": "Ainsley",
@@ -89,6 +97,7 @@
 	},
 	{
 		"id": 9,
+		"clerkUserId": "user_9IJKlmn890123456GHI78901234",
 		"firstName": "Brenda",
 		"lastName": "Thomas",
 		"nickname": "Brenda",
@@ -100,6 +109,7 @@
 	},
 	{
 		"id": 10,
+		"clerkUserId": "user_10JKLmno901234567HIJ89012345",
 		"firstName": "Nykole",
 		"lastName": "Moore",
 		"nickname": "Nykole",
@@ -111,6 +121,7 @@
 	},
 	{
 		"id": 11,
+		"clerkUserId": "user_11KLMnop012345678IJK90123456",
 		"firstName": "Jinger",
 		"lastName": "White",
 		"nickname": "Jinger",
@@ -122,6 +133,7 @@
 	},
 	{
 		"id": 12,
+		"clerkUserId": "user_12LMNopq123456789JKL01234567",
 		"firstName": "Nolan",
 		"lastName": "Harris",
 		"nickname": "Nolan",
@@ -133,6 +145,7 @@
 	},
 	{
 		"id": 13,
+		"clerkUserId": "user_13MNOpqr234567890KLM12345678",
 		"firstName": "Bre",
 		"lastName": "Martin",
 		"nickname": "Bre",

@@ -12,5 +12,6 @@ export const envVars = z
 		OLLAMA_HOST: z.url().default("http://localhost:11434/api"),
 		OLLAMA_MODEL: z.string().default("llava:13b"),
 		OLLAMA_API_KEY: z.string().optional(),
+		SIGNUP_CODE: z.string().optional(),
 	})
 	.parse(process.env);
