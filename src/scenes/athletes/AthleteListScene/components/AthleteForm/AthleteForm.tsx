@@ -50,7 +50,6 @@ export function AthleteForm({
 			dateOfBirth: initialValues?.dateOfBirth ?? "",
 			dateJoined: initialValues?.dateJoined ?? "",
 			gender: initialValues?.gender ?? undefined,
-			roles: ["athlete"],
 		},
 	});
 

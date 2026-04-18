@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-export const membershipTypes = ["membership", "coach", "admin"] as const;
-
 export const ProgramType = ["masters", "juniors", "alumni"] as const;
 
 const programSchema = z.object({

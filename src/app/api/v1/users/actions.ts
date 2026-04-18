@@ -1,10 +1,10 @@
 "use server";
-import { type UpdateUser, type User, usersSchema } from "@/schemas";
-import users from "./users.json";
+import { type Athlete, athletesSchema, type UpdateAthlete } from "@/schemas";
+import athletes from "../athletes/athletes.json";
 
-const usersParsed = usersSchema.parse(users);
+const usersParsed = athletesSchema.parse(athletes);
 
-export async function getUserById(id: number): Promise<User> {
+export async function getUserById(id: number): Promise<Athlete> {
 	const user = usersParsed.find((user) => user.id === id);
 	if (!user) {
 		throw new Error("User not found");
@@ -12,7 +12,7 @@ export async function getUserById(id: number): Promise<User> {
 	return user;
 }
 
-export async function updateUserProfile(data: UpdateUser): Promise<User> {
+export async function updateUserProfile(data: UpdateAthlete): Promise<Athlete> {
 	const currentUser = await getUserById(data.id);
 
 	if (!currentUser) {

@@ -1,34 +1,30 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext } from "react";
 import { generateQueryKey } from "@/lib/keygen";
-import type { User, UserRole } from "@/schemas";
+import type { CurrentAthlete } from "@/schemas";
 
 type AuthBase = {
 	error: Error | null;
 	isFetching: boolean;
-	currentRole: UserRole | null;
-	switchRole: (role: UserRole) => void;
 };
 
 export function useAuth(opts: {
 	ensureSignedIn: true;
-}): AuthBase & { user: User };
+}): AuthBase & { user: CurrentAthlete };
 export function useAuth(opts?: {
 	ensureSignedIn?: boolean;
-}): AuthBase & { user: User | null };
+}): AuthBase & { user: CurrentAthlete | null };
 export function useAuth({
 	ensureSignedIn = false,
 }: {
 	ensureSignedIn?: boolean;
 } = {}) {
-	const [currentRole, setCurrentRole] = useState<UserRole | null>(null);
-
 	const { data, error, isFetching } = useQuery({
 		queryKey: generateQueryKey({ type: "currentUser" }),
 		enabled: ensureSignedIn,
-		queryFn: async (): Promise<User | null> => {
+		queryFn: async (): Promise<CurrentAthlete | null> => {
 			const response = await fetch("/api/v1/users/me");
 			const data = await response.json();
 			if (response.status === 401) {
@@ -44,24 +40,10 @@ export function useAuth({
 		},
 	});
 
-	useEffect(() => {
-		if (data) {
-			setCurrentRole(data.roles[0] ?? null);
-			return;
-		}
-		setCurrentRole(null);
-	}, [data]);
-
-	const switchRole = (role: UserRole) => {
-		setCurrentRole(role);
-	};
-
 	return {
 		user: data ?? null,
 		error,
 		isFetching,
-		currentRole,
-		switchRole,
 	};
 }
 

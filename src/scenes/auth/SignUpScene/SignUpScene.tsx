@@ -117,6 +117,10 @@ export const SignUpScene = () => {
 											card: "w-full border border-border bg-background/95 shadow-none",
 										},
 									}}
+									unsafeMetadata={{
+										defaultOrganizationId:
+											envVars.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID,
+									}}
 									routing="virtual"
 									redirectUrl="/"
 									signInUrl="/login"

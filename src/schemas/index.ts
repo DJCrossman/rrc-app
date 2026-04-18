@@ -10,5 +10,4 @@ export * from "./metersTimeSeries.schema";
 export * from "./phoneNumber.schema";
 export * from "./stravaActivity.schema";
 export * from "./stravaUser.schema";
-export * from "./user.schema";
 export * from "./workouts.schema";

@@ -97,7 +97,7 @@ export const ActivityDetailsDrawer = ({
 								athleteId: activity.athlete.id,
 								boatId: activity.boat?.id,
 								ergId: activity.erg?.id,
-								workoutId: activity.workout?.id || null,
+								workoutId: activity.workout?.id,
 							}}
 							onCancel={() => setIsEditing(false)}
 							onSubmit={async (data: CreateActivity) => {

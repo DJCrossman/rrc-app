@@ -5,21 +5,12 @@ export async function POST(request: Request) {
 	try {
 		const { code } = await request.json();
 
-		if (!code) {
-			return NextResponse.json(
-				{ error: "Signup code is required" },
-				{ status: 400 },
-			);
-		}
-
-		// Verify the code matches the stored UUID
-		const isValid = code === envVars.SIGNUP_CODE;
-
-		if (!isValid) {
+		// If no signup code is configured, allow any input
+		if (envVars.SIGNUP_CODE && code !== envVars.SIGNUP_CODE) {
 			return NextResponse.json(
 				{
 					error:
-						"Invalid signup code. Please reach out to the Regina Rowing Club for assistance.",
+						"Invalid signup code. Please reach out to your administrator for assistance.",
 				},
 				{ status: 403 },
 			);

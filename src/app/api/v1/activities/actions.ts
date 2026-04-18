@@ -8,41 +8,23 @@ import {
 	activitiesDBSchema,
 	activityDBSchema,
 	activitySchema,
+	athletesSchema,
 	boatsSchema,
 	type CreateActivity,
 	createActivitySchema,
 	ergsSchema,
 	type UpdateActivity,
-	usersSchema,
 } from "@/schemas";
-import {
-	athleteDBSchema,
-	athleteSchema,
-	athletesSchema,
-} from "@/schemas/athlete.schema";
 import { workoutsSchema } from "@/schemas/workouts.schema";
 import athletes from "../athletes/athletes.json";
 import boats from "../boats/boats.json";
 import ergs from "../ergs/ergs.json";
-import users from "../users/users.json";
 import workoutsData from "../workouts/workouts.json";
 import activities from "./activities.json";
 
-const usersParsed = usersSchema.parse(users);
 const activitiesParsed = activitiesDBSchema.parse(activities);
 const workoutsParsed = workoutsSchema.parse(workoutsData);
-const athletesParsed = athletesSchema.parse(
-	athletes.map((athlete) => {
-		const athleteEntity = athleteDBSchema.parse(athlete);
-		const user = usersParsed.find((user) => user.id === athleteEntity.userId);
-		return athleteSchema.parse({
-			...user,
-			...athlete,
-			userId: athleteEntity.userId,
-			name: user?.nickname || user?.firstName,
-		});
-	}),
-);
+const athletesParsed = athletesSchema.parse(athletes);
 const boatsParsed = boatsSchema.parse(boats);
 const ergsParsed = ergsSchema.parse(ergs);
 

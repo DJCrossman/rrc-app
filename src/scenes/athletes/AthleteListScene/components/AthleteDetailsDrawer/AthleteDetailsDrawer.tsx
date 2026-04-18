@@ -114,11 +114,13 @@ export const AthleteDetailsDrawer = ({
 									</div>
 									<div>
 										<strong>Roles:</strong>{" "}
-										{athlete.roles.map((role) => (
-											<Badge key={role} variant="outline" className="mr-2">
-												{formatRole(role)}
-											</Badge>
-										))}
+										<Badge
+											key={athlete.role}
+											variant="outline"
+											className="mr-2"
+										>
+											{formatRole(athlete.role)}
+										</Badge>
 									</div>
 									<div>
 										<strong>Age:</strong>{" "}

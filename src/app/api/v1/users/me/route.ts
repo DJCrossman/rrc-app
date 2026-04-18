@@ -1,7 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import type { User } from "@/schemas/user.schema";
+import type { CurrentAthlete } from "@/schemas/athlete.schema";
+import { getAthleteByUserId } from "../../athletes/actions";
 import { getConcept2User } from "../../concept2/users/actions";
 import { getAccessToken, isTokenExpired } from "../../concept2/utils";
 import { getStravaAthlete } from "../../strava/athlete/actions";
@@ -9,7 +10,6 @@ import {
 	getAccessToken as getStravaAccessToken,
 	isTokenExpired as isStravaTokenExpired,
 } from "../../strava/utils";
-import { getUserById } from "../actions";
 
 export async function GET(request: Request) {
 	try {
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 		// TODO: Map Clerk user ID to your database user ID
 		// For now, using a placeholder - you'll need to implement user mapping
 		const userId = 1;
-		const user = await getUserById(userId);
+		const user = await getAthleteByUserId(userId);
 		if (!user) {
 			throw new Error("User not found");
 		}
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 
 const getConcept2Values = async (
 	request: Request,
-): Promise<Pick<User, "concept2Connected" | "concept2UserId">> => {
+): Promise<Pick<CurrentAthlete, "concept2Connected" | "concept2UserId">> => {
 	try {
 		const cookieStore = await cookies();
 		const tokenExpired = await isTokenExpired({ cookieStore });
@@ -96,7 +96,7 @@ const getConcept2Values = async (
 
 const getStravaValues = async (
 	request: Request,
-): Promise<Pick<User, "stravaConnected" | "stravaAthleteId">> => {
+): Promise<Pick<CurrentAthlete, "stravaConnected" | "stravaAthleteId">> => {
 	try {
 		const cookieStore = await cookies();
 		const tokenExpired = await isStravaTokenExpired({ cookieStore });

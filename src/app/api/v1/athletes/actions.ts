@@ -1,7 +1,7 @@
 "use server";
 import { DateTime, Interval } from "luxon";
 import { requireAuth } from "@/lib/auth";
-import { activitiesDBSchema, usersSchema } from "@/schemas";
+import { activitiesDBSchema } from "@/schemas";
 import {
 	type Athlete,
 	type AthleteStats,
@@ -14,25 +14,23 @@ import { membershipsSchema } from "@/schemas/memberships.schema";
 import { getActivities } from "../activities/actions";
 import activitiesData from "../activities/activities.json";
 import memberships from "../memberships/memberships.json";
-import users from "../users/users.json";
 import athletes from "./athletes.json";
 
 const membershipsParsed = membershipsSchema.parse(memberships);
-const usersParsed = usersSchema.parse(users);
 const activitiesDBParsed = activitiesDBSchema.parse(activitiesData);
 const athletesParsed = athletesSchema.parse(
 	athletes.map((athlete) => {
 		const athleteEntity = athleteDBSchema.parse(athlete);
-		const user = usersParsed.find((user) => user.id === athleteEntity.userId);
-		const name = user?.roles.includes("admin")
-			? [
-					user?.firstName,
-					user?.nickname ? `(${user?.nickname})` : "",
-					user?.lastName,
-				]
-					.filter(Boolean)
-					.join(" ")
-			: user?.nickname || user?.firstName;
+		const name =
+			athleteEntity.role === "admin"
+				? [
+						athleteEntity.firstName,
+						athleteEntity.nickname ? `(${athleteEntity.nickname})` : "",
+						athleteEntity.lastName,
+					]
+						.filter(Boolean)
+						.join(" ")
+				: athleteEntity.nickname || athleteEntity.firstName;
 		const activeMembership = membershipsParsed.find(
 			(membership) =>
 				membership.athleteId === athleteEntity.id &&
@@ -43,9 +41,7 @@ const athletesParsed = athletesSchema.parse(
 		);
 		const programType = membershipsParsed[0]?.programType;
 		return athleteSchema.parse({
-			...user,
 			...athlete,
-			userId: athleteEntity.userId,
 			name,
 			activeMembership,
 			programType,
@@ -81,18 +77,10 @@ export async function getAthleteByUserId(userId: number): Promise<Athlete> {
 export const createAthlete = async (data: CreateAthlete): Promise<Athlete> => {
 	await requireAuth();
 
-	const name = data?.roles.includes("admin")
-		? [
-				data?.firstName,
-				data?.nickname ? `(${data?.nickname})` : "",
-				data?.lastName,
-			]
-				.filter(Boolean)
-				.join(" ")
-		: data?.nickname || data?.firstName;
+	const name = data?.nickname || data?.firstName;
 	const athlete = athleteSchema.parse({
 		id: athletesParsed.length + 1,
-		userId: usersParsed.length + 1,
+		userId: athletesParsed.length + 1,
 		name,
 		...data,
 	});
@@ -182,29 +170,29 @@ export const getAthleteStats = async (
 			? twoKmActivities.sort(
 					(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
 				)[0]
-			: null;
+			: undefined;
 
 	const bestTwoKmRaceDuration =
 		twoKmActivities.length > 0
 			? twoKmActivities.sort((a, b) => a.duration - b.duration)[0]
-			: null;
+			: undefined;
 
 	// Calculate stats for 6K (6000m)
 	const sixKmActivities = ergActivities
 		.map((activity) => getEffectiveDuration(activity, 6000))
-		.filter((stat): stat is NonNullable<typeof stat> => stat !== null);
+		.filter((stat): stat is NonNullable<typeof stat> => stat !== undefined);
 
 	const lastSixKmRaceDuration =
 		sixKmActivities.length > 0
 			? sixKmActivities.sort(
 					(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
 				)[0]
-			: null;
+			: undefined;
 
 	const bestSixKmRaceDuration =
 		sixKmActivities.length > 0
 			? sixKmActivities.sort((a, b) => a.duration - b.duration)[0]
-			: null;
+			: undefined;
 
 	return {
 		lastTwoKmRaceDuration,

@@ -9,11 +9,11 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useCurrentUser } from "@/hooks/useAuth";
-import type { UpdateUser } from "@/schemas";
+import type { UpdateAthlete } from "@/schemas";
 import { AccountForm } from "./components";
 
 interface IProps {
-	onUpdateProfile: (data: UpdateUser) => Promise<void>;
+	onUpdateProfile: (data: UpdateAthlete) => Promise<void>;
 }
 
 export const AccountSettingsScene = ({ onUpdateProfile }: IProps) => {

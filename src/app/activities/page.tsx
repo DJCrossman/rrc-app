@@ -15,7 +15,6 @@ import { envVars } from "@/lib/env";
 import { routes } from "@/lib/routes";
 import { ActivityListScene } from "@/scenes/activities";
 import type { CreateActivity, UpdateActivity } from "@/schemas";
-import { getUserById } from "../api/v1/users/actions";
 
 const querySchema = z.object({
 	activityId: z.coerce.number().optional(),
@@ -28,9 +27,8 @@ export default async function ActivitiesPage({
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
 	const { activityId, action } = querySchema.parse(await searchParams);
-	const user = await getUserById(1);
+	const currentAthlete = await getAthleteByUserId(1);
 	const { data: activities } = await getActivities({});
-	const currentAthlete = await getAthleteByUserId(user.id);
 	const { data: boats } = await getBoats();
 	const { data: ergs } = await getErgs();
 	const { data: workouts } = await getWorkouts();

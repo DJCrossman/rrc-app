@@ -69,7 +69,7 @@ export function ActivityForm({
 			athleteId: undefined,
 			boatId: undefined,
 			ergId: undefined,
-			workoutId: null,
+			workoutId: undefined,
 			...defaultValues,
 		},
 	});
