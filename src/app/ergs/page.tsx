@@ -1,6 +1,7 @@
 import { RedirectType, redirect } from "next/navigation";
 import { z } from "zod";
 import { getActivities } from "@/app/api/v1/activities/actions";
+import type { Erg } from "@/app/api/v1/ergs/actions";
 import {
 	createErg,
 	getErgById,
@@ -9,10 +10,10 @@ import {
 } from "@/app/api/v1/ergs/actions";
 import { routes } from "@/lib/routes";
 import { ErgListScene } from "@/scenes/ergs";
-import type { CreateErg, Erg } from "@/schemas";
+import type { CreateErg } from "@/schemas";
 
 const querySchema = z.object({
-	ergId: z.coerce.number().optional(),
+	ergId: z.string().optional(),
 	action: z.literal("create").optional(),
 });
 

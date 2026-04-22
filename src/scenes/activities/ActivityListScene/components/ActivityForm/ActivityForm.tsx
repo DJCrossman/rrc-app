@@ -8,18 +8,15 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { type SubmitHandler, useForm } from "react-hook-form";
+import type { Boats } from "@/app/api/v1/boats/actions";
+import type { Ergs } from "@/app/api/v1/ergs/actions";
+import type { Workouts } from "@/app/api/v1/workouts/actions";
 import { Button } from "@/components/ui/button";
 import { Form, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { formatDuration } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
-import {
-	type Boats,
-	type CreateActivity,
-	createActivitySchema,
-	type Ergs,
-	type Workouts,
-} from "@/schemas";
+import { type CreateActivity, createActivitySchema } from "@/schemas";
 
 export type UploadErgActivityScreenshot = (
 	params: {

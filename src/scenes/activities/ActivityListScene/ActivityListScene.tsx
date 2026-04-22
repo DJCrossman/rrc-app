@@ -2,22 +2,18 @@
 
 import type React from "react";
 import type { ComponentProps } from "react";
+import type { Activities, Activity } from "@/app/api/v1/activities/actions";
+import type { Athlete } from "@/app/api/v1/athletes/actions";
+import type { Boats } from "@/app/api/v1/boats/actions";
+import type { Ergs } from "@/app/api/v1/ergs/actions";
+import type { Workouts } from "@/app/api/v1/workouts/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
-import type {
-	Activities,
-	Activity,
-	Athlete,
-	Boats,
-	CreateActivity,
-	Ergs,
-	UpdateActivity,
-	Workouts,
-} from "@/schemas";
+import type { CreateActivity, UpdateActivity } from "@/schemas";
 import {
 	ActivityCreateDrawer,
 	ActivityDetailsDrawer,

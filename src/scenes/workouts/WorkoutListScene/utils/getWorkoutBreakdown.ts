@@ -1,4 +1,4 @@
-import type { Workout } from "@/schemas";
+import type { Workout } from "@/app/api/v1/workouts/actions";
 
 export const getWorkoutBreakdown = <T extends Workout>({
 	description,

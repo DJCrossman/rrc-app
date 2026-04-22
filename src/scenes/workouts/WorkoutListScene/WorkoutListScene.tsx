@@ -4,7 +4,12 @@ import { IconPlus } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { redirect } from "next/navigation";
 import type React from "react";
-import type { UploadWorkoutScreenshotResult } from "@/app/api/v1/workouts/actions";
+import type { AnalyticMetrics } from "@/app/api/v1/analytics/actions";
+import type {
+	UploadWorkoutScreenshotResult,
+	Workout,
+	Workouts,
+} from "@/app/api/v1/workouts/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
@@ -12,12 +17,7 @@ import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
-import type {
-	AnalyticMetrics,
-	CreateWorkout,
-	Workout,
-	Workouts,
-} from "@/schemas";
+import type { CreateWorkout } from "@/schemas";
 import { WorkoutCreateDrawer, WorkoutDetailsDrawer } from "./components";
 import { WorkoutTable } from "./WorkoutTable/WorkoutTable";
 

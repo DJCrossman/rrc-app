@@ -1,13 +1,13 @@
 interface QueryOptions<T> {
 	type: string;
-	id?: number;
+	id?: string;
 	query?: Record<string, T>;
 }
 
 export const generateQueryKey = <T>({ type, id, query }: QueryOptions<T>) => {
 	return [
 		type,
-		id?.toString(),
+		id,
 		...(query
 			? Object.entries(query)
 					.sort(([keyA], [keyB]) => keyA.localeCompare(keyB))

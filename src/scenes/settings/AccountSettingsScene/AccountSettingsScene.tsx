@@ -29,7 +29,14 @@ export const AccountSettingsScene = ({ onUpdateProfile }: IProps) => {
 			</CardHeader>
 			<CardContent>
 				<AccountForm
-					user={user}
+					user={{
+						...user,
+						nickname: user.nickname ?? undefined,
+						email: user.email ?? undefined,
+						dateJoined: user.dateJoined ?? undefined,
+						heightInCm: user.heightInCm ?? undefined,
+						weightInKg: user.weightInKg ?? undefined,
+					}}
 					onSubmit={async (data) => {
 						try {
 							await onUpdateProfile(data);

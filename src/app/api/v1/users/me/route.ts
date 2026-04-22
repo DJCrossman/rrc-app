@@ -1,8 +1,8 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import type { CurrentAthlete } from "@/schemas/athlete.schema";
-import { getAthleteByUserId } from "../../athletes/actions";
+import type { CurrentAthlete } from "@/app/api/v1/users/utils";
+import { envVars } from "@/lib/env";
 import { getConcept2User } from "../../concept2/users/actions";
 import { getAccessToken, isTokenExpired } from "../../concept2/utils";
 import { getStravaAthlete } from "../../strava/athlete/actions";
@@ -10,6 +10,7 @@ import {
 	getAccessToken as getStravaAccessToken,
 	isTokenExpired as isStravaTokenExpired,
 } from "../../strava/utils";
+import { findOrCreateUserAndAthleteByClerkId } from "../actions";
 
 export async function GET(request: Request) {
 	try {
@@ -18,15 +19,10 @@ export async function GET(request: Request) {
 		if (!clerkUserId) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
-		console.log(clerkUserId);
 
-		// TODO: Map Clerk user ID to your database user ID
-		// For now, using a placeholder - you'll need to implement user mapping
-		const userId = 1;
-		const user = await getAthleteByUserId(userId);
-		if (!user) {
-			throw new Error("User not found");
-		}
+		await ensureDefaultOrganizationMembership(clerkUserId);
+
+		const user = await findOrCreateUserAndAthleteByClerkId(clerkUserId);
 
 		const concept2Values = await getConcept2Values(request);
 		const stravaValues = await getStravaValues(request);
@@ -41,6 +37,29 @@ export async function GET(request: Request) {
 		);
 	}
 }
+
+const ensureDefaultOrganizationMembership = async (clerkUserId: string) => {
+	const organizationId = envVars.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID;
+	const client = await clerkClient();
+	const memberships = await client.users.getOrganizationMembershipList({
+		userId: clerkUserId,
+		limit: 100,
+	});
+
+	const isMember = memberships.data.some(
+		(membership) => membership.organization.id === organizationId,
+	);
+
+	if (isMember) {
+		return;
+	}
+
+	await client.organizations.createOrganizationMembership({
+		organizationId,
+		userId: clerkUserId,
+		role: "org:member",
+	});
+};
 
 const getConcept2Values = async (
 	request: Request,
@@ -59,7 +78,7 @@ const getConcept2Values = async (
 			if (!refreshResponse.ok) {
 				return {
 					concept2Connected: false,
-					concept2UserId: undefined,
+					concept2UserId: null,
 				};
 			}
 		}
@@ -68,7 +87,7 @@ const getConcept2Values = async (
 		if (!accessToken) {
 			return {
 				concept2Connected: false,
-				concept2UserId: undefined,
+				concept2UserId: null,
 			};
 		}
 
@@ -77,7 +96,7 @@ const getConcept2Values = async (
 		if (concept2UserResponse.status === "rejected") {
 			return {
 				concept2Connected: false,
-				concept2UserId: undefined,
+				concept2UserId: null,
 			};
 		}
 
@@ -89,7 +108,7 @@ const getConcept2Values = async (
 		console.error("Concept2 values retrieval error:", error);
 		return {
 			concept2Connected: false,
-			concept2UserId: undefined,
+			concept2UserId: null,
 		};
 	}
 };
@@ -111,7 +130,7 @@ const getStravaValues = async (
 			if (!refreshResponse.ok) {
 				return {
 					stravaConnected: false,
-					stravaAthleteId: undefined,
+					stravaAthleteId: null,
 				};
 			}
 		}
@@ -120,7 +139,7 @@ const getStravaValues = async (
 		if (!accessToken) {
 			return {
 				stravaConnected: false,
-				stravaAthleteId: undefined,
+				stravaAthleteId: null,
 			};
 		}
 
@@ -129,7 +148,7 @@ const getStravaValues = async (
 		if (stravaAthleteResponse.status === "rejected") {
 			return {
 				stravaConnected: false,
-				stravaAthleteId: undefined,
+				stravaAthleteId: null,
 			};
 		}
 
@@ -141,7 +160,7 @@ const getStravaValues = async (
 		console.error("Strava values retrieval error:", error);
 		return {
 			stravaConnected: false,
-			stravaAthleteId: undefined,
+			stravaAthleteId: null,
 		};
 	}
 };

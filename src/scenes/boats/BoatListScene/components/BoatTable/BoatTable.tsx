@@ -15,7 +15,7 @@ import {
 } from "@tanstack/react-table";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-
+import type { Boat, Boats } from "@/app/api/v1/boats/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -41,7 +41,7 @@ import {
 	formatWeightRange,
 } from "@/lib/formatters";
 import { routes } from "@/lib/routes";
-import { type Boat, type Boats, SeatTypes } from "@/schemas";
+import { SeatTypes } from "@/schemas";
 
 const boatSizes = ["all", ...SeatTypes] as const;
 

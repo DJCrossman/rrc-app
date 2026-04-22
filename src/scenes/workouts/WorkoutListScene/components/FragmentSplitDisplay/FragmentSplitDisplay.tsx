@@ -1,10 +1,11 @@
+import type { AnalyticMetrics } from "@/app/api/v1/analytics/actions";
+import type { WorkoutFragment } from "@/app/api/v1/workouts/actions";
 import {
 	formatCompactDuration,
 	formatCompactSplit,
 	formatMeters,
 } from "@/lib/formatters";
 import { calculateTargetSplit } from "@/lib/formatters/calculateTargetSplit";
-import type { AnalyticMetrics, WorkoutFragment } from "@/schemas";
 
 interface FragmentSplitDisplayProps {
 	fragment: WorkoutFragment;

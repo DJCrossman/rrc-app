@@ -9,12 +9,16 @@ export const ManufacturerTypes = [
 	"whitehall_rowing_and_sail",
 	"paluski_boats",
 ] as const;
+export type ManufacturerType = (typeof ManufacturerTypes)[number];
 
 export const SeatTypes = ["1", "2", "4", "8"] as const;
+export type SeatType = (typeof SeatTypes)[number];
 
 export const RiggingTypes = ["sculling", "sweep"] as const;
+export type RiggingType = (typeof RiggingTypes)[number];
 
 export const WeightUnitTypes = ["kilogram", "pound"] as const;
+export type WeightUnitType = (typeof WeightUnitTypes)[number];
 
 export const createBoatSchema = z.object({
 	name: z.string().min(1, { message: "Name is required" }),
@@ -29,14 +33,3 @@ export const createBoatSchema = z.object({
 });
 
 export type CreateBoat = z.infer<typeof createBoatSchema>;
-
-export const boatSchema = createBoatSchema.extend({
-	id: z.number(),
-	meters: z.number(),
-});
-
-export type Boat = z.infer<typeof boatSchema>;
-
-export const boatsSchema = z.array(boatSchema);
-
-export type Boats = z.infer<typeof boatsSchema>;

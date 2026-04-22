@@ -10,14 +10,3 @@ export const createErgSchema = z.object({
 });
 
 export type CreateErg = z.infer<typeof createErgSchema>;
-
-export const ergSchema = createErgSchema.extend({
-	id: z.number(),
-	meters: z.number(),
-});
-
-export type Erg = z.infer<typeof ergSchema>;
-
-export const ergsSchema = z.array(ergSchema);
-
-export type Ergs = z.infer<typeof ergsSchema>;

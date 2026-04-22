@@ -1,5 +1,6 @@
 import { RedirectType, redirect } from "next/navigation";
 import { z } from "zod";
+import type { Athlete } from "@/app/api/v1/athletes/actions";
 import {
 	createAthlete,
 	getAthleteById,
@@ -8,12 +9,12 @@ import {
 } from "@/app/api/v1/athletes/actions";
 import { routes } from "@/lib/routes";
 import { AthleteListScene } from "@/scenes/athletes";
-import type { Athlete, CreateAthlete } from "@/schemas/athlete.schema";
+import type { CreateAthlete } from "@/schemas/athlete.schema";
 import { getActivities } from "../api/v1/activities/actions";
 import { getAthletes } from "../api/v1/athletes/actions";
 
 const querySchema = z.object({
-	athleteId: z.coerce.number().optional(),
+	athleteId: z.string().optional(),
 	action: z.literal("create").optional(),
 });
 

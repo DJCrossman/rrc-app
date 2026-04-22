@@ -3,6 +3,10 @@
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
+import type { Activity } from "@/app/api/v1/activities/actions";
+import type { Boats } from "@/app/api/v1/boats/actions";
+import type { Ergs } from "@/app/api/v1/ergs/actions";
+import type { Workouts } from "@/app/api/v1/workouts/actions";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
@@ -14,14 +18,7 @@ import {
 } from "@/components/ui/drawer";
 import { formatDuration } from "@/lib/formatters/formatDuration";
 import { formatMeters } from "@/lib/formatters/formatMeters";
-import type {
-	Activity,
-	Boats,
-	CreateActivity,
-	Ergs,
-	UpdateActivity,
-	Workouts,
-} from "@/schemas";
+import type { CreateActivity, UpdateActivity } from "@/schemas";
 import {
 	ActivityForm,
 	type UploadErgActivityScreenshot,
@@ -95,8 +92,9 @@ export const ActivityDetailsDrawer = ({
 								elapsedTime: activity.elapsedTime,
 								distance: activity.distance,
 								athleteId: activity.athlete.id,
-								boatId: activity.boat?.id,
-								ergId: activity.erg?.id,
+								boatId:
+									activity.type === "water" ? activity.boat.id : undefined,
+								ergId: activity.type === "erg" ? activity.erg.id : undefined,
 								workoutId: activity.workout?.id,
 							}}
 							onCancel={() => setIsEditing(false)}
@@ -131,12 +129,12 @@ export const ActivityDetailsDrawer = ({
 								<div>
 									<strong>Athlete:</strong> {activity.athlete.name}
 								</div>
-								{activity.boat && (
+								{activity.type === "water" && (
 									<div>
 										<strong>Boat:</strong> {activity.boat.name}
 									</div>
 								)}
-								{activity.erg && (
+								{activity.type === "erg" && (
 									<div>
 										<strong>ERG:</strong> {activity.erg.name}
 									</div>

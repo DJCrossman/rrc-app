@@ -2,6 +2,10 @@
 
 import { IconX } from "@tabler/icons-react";
 import { useState } from "react";
+import type { Athlete } from "@/app/api/v1/athletes/actions";
+import type { Boats } from "@/app/api/v1/boats/actions";
+import type { Ergs } from "@/app/api/v1/ergs/actions";
+import type { Workouts } from "@/app/api/v1/workouts/actions";
 import {
 	Drawer,
 	DrawerClose,
@@ -10,7 +14,7 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
-import type { Athlete, Boats, CreateActivity, Ergs, Workouts } from "@/schemas";
+import type { CreateActivity } from "@/schemas";
 import {
 	ActivityForm,
 	type UploadErgActivityScreenshot,

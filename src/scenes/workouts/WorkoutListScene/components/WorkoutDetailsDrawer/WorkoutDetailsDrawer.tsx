@@ -3,6 +3,8 @@
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
+import type { AnalyticMetrics } from "@/app/api/v1/analytics/actions";
+import type { Workout } from "@/app/api/v1/workouts/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +16,7 @@ import {
 } from "@/components/ui/drawer";
 import { formatCompactSplit, formatDuration } from "@/lib/formatters";
 import { cn } from "@/lib/utils";
-import type { AnalyticMetrics, CreateWorkout, Workout } from "@/schemas";
+import type { CreateWorkout } from "@/schemas";
 import { getWorkoutBreakdown } from "../../utils/getWorkoutBreakdown";
 import { intensityColorMap } from "../../utils/intensityColorMap";
 import { FragmentSplitDisplay } from "../FragmentSplitDisplay";

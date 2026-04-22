@@ -7,7 +7,7 @@ import {
 	updateActivity,
 	uploadErgActivityScreenshot,
 } from "@/app/api/v1/activities/actions";
-import { getAthleteByUserId } from "@/app/api/v1/athletes/actions";
+import { getCurrentAthlete } from "@/app/api/v1/athletes/actions";
 import { getBoats } from "@/app/api/v1/boats/actions";
 import { getErgs } from "@/app/api/v1/ergs/actions";
 import { getWorkouts } from "@/app/api/v1/workouts/actions";
@@ -17,7 +17,7 @@ import { ActivityListScene } from "@/scenes/activities";
 import type { CreateActivity, UpdateActivity } from "@/schemas";
 
 const querySchema = z.object({
-	activityId: z.coerce.number().optional(),
+	activityId: z.string().optional(),
 	action: z.literal("create").optional(),
 });
 
@@ -27,7 +27,7 @@ export default async function ActivitiesPage({
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
 	const { activityId, action } = querySchema.parse(await searchParams);
-	const currentAthlete = await getAthleteByUserId(1);
+	const currentAthlete = await getCurrentAthlete();
 	const { data: activities } = await getActivities({});
 	const { data: boats } = await getBoats();
 	const { data: ergs } = await getErgs();

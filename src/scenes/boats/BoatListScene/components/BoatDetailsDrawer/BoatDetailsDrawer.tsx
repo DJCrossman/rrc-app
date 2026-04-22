@@ -2,6 +2,8 @@
 
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { useState } from "react";
+import type { Activities } from "@/app/api/v1/activities/actions";
+import type { Boat } from "@/app/api/v1/boats/actions";
 import { ActivityTable } from "@/components/activities";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +20,7 @@ import {
 	formatSeatSetup,
 	formatWeightRange,
 } from "@/lib/formatters";
-import type { Activities, Boat, CreateBoat } from "@/schemas";
+import type { CreateBoat } from "@/schemas";
 import { BoatForm } from "../BoatForm/BoatForm";
 
 interface BoatDetailsDrawerProps {

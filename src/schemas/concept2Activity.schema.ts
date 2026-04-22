@@ -15,7 +15,7 @@ export const concept2ActivitySchema = z.object({
 	weight_class: z.string(),
 	verified: z.boolean(),
 	ranked: z.boolean(),
-	comments: z.string().nullable(),
+	comments: z.string().optional(),
 	privacy: z.string(),
 	stroke_data: z.union([
 		z.boolean(),
@@ -65,7 +65,6 @@ export const concept2ActivitySchema = z.object({
 			)
 			.optional(),
 	}),
-	real_time: z.null().optional(),
 });
 
 export type Concept2Activity = z.infer<typeof concept2ActivitySchema>;

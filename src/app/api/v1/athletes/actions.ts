@@ -1,169 +1,157 @@
 "use server";
-import { DateTime, Interval } from "luxon";
 import { requireAuth } from "@/lib/auth";
-import { activitiesDBSchema } from "@/schemas";
-import {
-	type Athlete,
-	type AthleteStats,
-	athleteDBSchema,
-	athleteSchema,
-	athletesSchema,
-	type CreateAthlete,
-} from "@/schemas/athlete.schema";
-import { membershipsSchema } from "@/schemas/memberships.schema";
-import { getActivities } from "../activities/actions";
-import activitiesData from "../activities/activities.json";
-import memberships from "../memberships/memberships.json";
-import athletes from "./athletes.json";
-
-const membershipsParsed = membershipsSchema.parse(memberships);
-const activitiesDBParsed = activitiesDBSchema.parse(activitiesData);
-const athletesParsed = athletesSchema.parse(
-	athletes.map((athlete) => {
-		const athleteEntity = athleteDBSchema.parse(athlete);
-		const name =
-			athleteEntity.role === "admin"
-				? [
-						athleteEntity.firstName,
-						athleteEntity.nickname ? `(${athleteEntity.nickname})` : "",
-						athleteEntity.lastName,
-					]
-						.filter(Boolean)
-						.join(" ")
-				: athleteEntity.nickname || athleteEntity.firstName;
-		const activeMembership = membershipsParsed.find(
-			(membership) =>
-				membership.athleteId === athleteEntity.id &&
-				Interval.fromDateTimes(
-					DateTime.fromISO(membership.startDate),
-					DateTime.fromISO(membership.endDate),
-				).contains(DateTime.now()),
-		);
-		const programType = membershipsParsed[0]?.programType;
-		return athleteSchema.parse({
-			...athlete,
-			name,
-			activeMembership,
-			programType,
-		});
-	}),
-);
+import { db } from "@/lib/db";
+import type { AthleteStats, CreateAthlete } from "@/schemas/athlete.schema";
+import { concept2ActivitySchema } from "@/schemas/concept2Activity.schema";
+import { athleteInclude, mapToAthleteDto } from "./utils";
 
 export const getAthletes = async () => {
 	await requireAuth();
 
+	const rows = await db.athlete.findMany({
+		orderBy: { id: "asc" },
+		include: athleteInclude,
+	});
+
 	return {
-		data: athletesParsed,
+		data: rows.map(mapToAthleteDto),
 	};
 };
 
-export async function getAthleteById(id?: number): Promise<Athlete | null> {
+export async function getAthleteById(id?: string) {
 	await requireAuth();
+	if (!id) return null;
 
-	const athlete = athletesParsed.find((athlete) => athlete.id === id);
-	return athlete ?? null;
+	const row = await db.athlete.findUnique({
+		where: { id },
+		include: athleteInclude,
+	});
+	return row ? mapToAthleteDto(row) : null;
 }
 
-export async function getAthleteByUserId(userId: number): Promise<Athlete> {
-	const athlete = athletesParsed.find((athlete) => athlete.userId === userId);
+export async function getAthleteByUserId(userId: string) {
+	const row = await db.athlete.findUnique({
+		where: { clerkUserId: userId },
+		include: athleteInclude,
+	});
 
-	if (!athlete) {
-		throw new Error("Athlete not found");
+	if (!row) {
+		throw new Error(`Athlete not found for userId ${userId}`);
 	}
 
-	return athlete;
+	return mapToAthleteDto(row);
 }
 
-export const createAthlete = async (data: CreateAthlete): Promise<Athlete> => {
+export async function getCurrentAthlete() {
+	const userId = await requireAuth();
+	return getAthleteByUserId(userId);
+}
+
+export const createAthlete = async (data: CreateAthlete) => {
 	await requireAuth();
 
-	const name = data?.nickname || data?.firstName;
-	const athlete = athleteSchema.parse({
-		id: athletesParsed.length + 1,
-		userId: athletesParsed.length + 1,
-		name,
-		...data,
+	const row = await db.athlete.create({
+		data: {
+			firstName: data.firstName,
+			lastName: data.lastName,
+			nickname: data.nickname,
+			phone: data.phone,
+			gender: data.gender,
+			dateOfBirth: new Date(data.dateOfBirth),
+			dateJoined: data.dateJoined ? new Date(data.dateJoined) : undefined,
+			heightInCm: data.heightInCm,
+			weightInKg: data.weightInKg,
+		},
+		include: athleteInclude,
 	});
-	athletesParsed.push(athlete);
-	return athlete;
+
+	return mapToAthleteDto(row);
 };
 
-export const updateAthlete = async (data: Athlete): Promise<Athlete> => {
-	const athleteIndex = athletesParsed.findIndex(
-		(athlete) => athlete.id === data.id,
-	);
-	if (athleteIndex === -1) {
-		throw new Error("Athlete not found");
-	}
-	const updatedAthlete = athleteSchema.parse({
-		...athletesParsed[athleteIndex],
-		...data,
+export const updateAthlete = async (data: Athlete) => {
+	await requireAuth();
+
+	const row = await db.athlete.update({
+		where: { id: data.id },
+		data: {
+			firstName: data.firstName,
+			lastName: data.lastName,
+			nickname: data.nickname,
+			phone: data.phone,
+			gender: data.gender,
+			dateOfBirth: new Date(data.dateOfBirth),
+			dateJoined: data.dateJoined ? new Date(data.dateJoined) : undefined,
+			heightInCm: data.heightInCm,
+			weightInKg: data.weightInKg,
+		},
+		include: athleteInclude,
 	});
-	athletesParsed[athleteIndex] = updatedAthlete;
-	return updatedAthlete;
+
+	return mapToAthleteDto(row);
 };
 
 export const getAthleteStats = async (
-	athleteId: number,
+	athleteId: string,
 ): Promise<AthleteStats> => {
-	const { data: activities } = await getActivities({ athleteId });
+	const ergActivities = await db.activity.findMany({
+		where: { athleteId, type: "erg" },
+		orderBy: { startDate: "desc" },
+		select: {
+			id: true,
+			distance: true,
+			elapsedTime: true,
+			startDate: true,
+			conceptTwoData: true,
+		},
+	});
 
-	// Filter for erg activities only
-	const ergActivities = activities.filter(
-		(activity) => activity.type === "erg",
-	);
-
-	// Helper function to get effective duration for an activity
 	const getEffectiveDuration = (
 		activity: (typeof ergActivities)[number],
 		targetDistance: number,
-	): { duration: number; date: string; activityId: number } | null => {
-		// Check if it's a single piece matching the target distance exactly
+	): { duration: number; date: string; activityId: string } | undefined => {
 		if (activity.distance === targetDistance) {
 			return {
 				duration: activity.elapsedTime,
-				date: activity.startDate,
+				date: activity.startDate.toISOString(),
 				activityId: activity.id,
 			};
 		}
 
-		// Check for Concept2 intervals - all must be the same distance as target
-		const activityDB = activitiesDBParsed.find((a) => a.id === activity.id);
-		if (
-			activityDB?.type === "erg" &&
-			activityDB.conceptTwoData?.workout?.intervals
-		) {
-			const intervals = activityDB.conceptTwoData.workout.intervals;
-
-			// Check if ALL intervals are the target distance
-			const allMatchTarget = intervals.every(
-				(interval) =>
-					interval.type === "distance" && interval.distance === targetDistance,
-			);
-
-			if (allMatchTarget && intervals.length > 0) {
-				// Calculate average time (intervals are in seconds, convert to milliseconds)
-				const totalTimeMs = intervals.reduce(
-					(sum, interval) => sum + interval.time * 1000,
-					0,
-				);
-				const avgTimeMs = totalTimeMs / intervals.length;
-
-				return {
-					duration: avgTimeMs,
-					date: activity.startDate,
-					activityId: activity.id,
-				};
+		if (activity.conceptTwoData) {
+			const parsed = concept2ActivitySchema.safeParse(activity.conceptTwoData);
+			if (parsed.success) {
+				const intervals = parsed.data.workout?.intervals;
+				if (intervals && intervals.length > 0) {
+					const allMatchTarget = intervals.every(
+						(interval) =>
+							interval.type === "distance" &&
+							interval.distance === targetDistance,
+					);
+					if (allMatchTarget) {
+						const totalTimeMs = intervals.reduce(
+							(sum, interval) => sum + interval.time * 1000,
+							0,
+						);
+						return {
+							duration: totalTimeMs / intervals.length,
+							date: activity.startDate.toISOString(),
+							activityId: activity.id,
+						};
+					}
+				}
 			}
 		}
 
-		return null;
+		return undefined;
 	};
 
-	// Calculate stats for 2K (2000m)
 	const twoKmActivities = ergActivities
-		.map((activity) => getEffectiveDuration(activity, 2000))
-		.filter((stat): stat is NonNullable<typeof stat> => stat !== null);
+		.map((a) => getEffectiveDuration(a, 2000))
+		.filter((s): s is NonNullable<typeof s> => s !== undefined);
+
+	const sixKmActivities = ergActivities
+		.map((a) => getEffectiveDuration(a, 6000))
+		.filter((s): s is NonNullable<typeof s> => s !== undefined);
 
 	const lastTwoKmRaceDuration =
 		twoKmActivities.length > 0
@@ -176,11 +164,6 @@ export const getAthleteStats = async (
 		twoKmActivities.length > 0
 			? twoKmActivities.sort((a, b) => a.duration - b.duration)[0]
 			: undefined;
-
-	// Calculate stats for 6K (6000m)
-	const sixKmActivities = ergActivities
-		.map((activity) => getEffectiveDuration(activity, 6000))
-		.filter((stat): stat is NonNullable<typeof stat> => stat !== undefined);
 
 	const lastSixKmRaceDuration =
 		sixKmActivities.length > 0
@@ -201,3 +184,6 @@ export const getAthleteStats = async (
 		bestSixKmRaceDuration,
 	};
 };
+
+export type Athlete = NonNullable<Awaited<ReturnType<typeof getAthleteById>>>;
+export type Athletes = Awaited<ReturnType<typeof getAthletes>>["data"];

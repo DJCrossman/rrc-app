@@ -7,22 +7,22 @@ export const routes = {
 	boats: {
 		list: () => "/boats",
 		create: () => "/boats?action=create",
-		view: (id: number) => `/boats?boatId=${id}`,
+		view: (id: string) => `/boats?boatId=${id}`,
 	},
 	athletes: {
 		list: () => "/athletes",
 		create: () => "/athletes?action=create",
-		view: (id: number) => `/athletes?athleteId=${id}`,
+		view: (id: string) => `/athletes?athleteId=${id}`,
 	},
 	ergs: {
 		list: () => "/ergs",
 		create: () => "/ergs?action=create",
-		view: (id: number) => `/ergs?ergId=${id}`,
+		view: (id: string) => `/ergs?ergId=${id}`,
 	},
 	activities: {
 		list: () => "/activities",
 		create: () => "/activities?action=create",
-		view: (id: number) => `/activities?activityId=${id}`,
+		view: (id: string) => `/activities?activityId=${id}`,
 	},
 	workouts: {
 		list: ({ week }: { week?: DateTime<true> } = {}) => {
@@ -43,8 +43,8 @@ export const routes = {
 			}
 			return `/workouts?${params.toString()}`;
 		},
-		view: ({ id, week }: { id: number; week?: DateTime<true> }) => {
-			const params = new URLSearchParams({ workoutId: id.toString() });
+		view: ({ id, week }: { id: string; week?: DateTime<true> }) => {
+			const params = new URLSearchParams({ workoutId: id });
 			if (week) {
 				params.append("week", week.toISODate());
 			}

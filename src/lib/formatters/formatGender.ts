@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import type { Athlete } from "@/schemas";
+import type { Athlete } from "@/app/api/v1/athletes/actions";
 
 export const formatGender = ({
 	gender,

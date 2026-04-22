@@ -1,13 +1,15 @@
 "use client";
 
 import type { default as React } from "react";
+import type { Activities } from "@/app/api/v1/activities/actions";
+import type { Boat, Boats } from "@/app/api/v1/boats/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
-import type { Activities, Boat, Boats, CreateBoat } from "@/schemas";
+import type { CreateBoat } from "@/schemas";
 import { BoatCreateDrawer, BoatDetailsDrawer, BoatTable } from "./components";
 
 interface IProps {

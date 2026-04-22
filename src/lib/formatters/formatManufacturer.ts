@@ -1,4 +1,4 @@
-import type { Boat } from "../../schemas/boat.schema";
+import type { Boat } from "@/app/api/v1/boats/actions";
 
 export const formatManufacturer = (manufacturer: Boat["manufacturer"]) => {
 	if (manufacturer === "kaschper_racing_shells_ltd") {

@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ── Athlete ───────────────────────────────────────────────────────────────────
+
+enum Role {
+  admin
+  member
+}
+
+enum Gender {
+  male
+  female
+  nonbinary
+}
+
+model athlete {
+  id              String       @id @default(dbgenerated("generate_id('ath_')"))
+  clerkUserId     String?      @unique
+  firstName       String
+  lastName        String
+  nickname        String?
+  phone           String
+  email           String?      @unique
+  role            Role         @default(member)
+  gender          Gender
+  dateOfBirth     DateTime     @db.Date
+  dateJoined      DateTime?
+  heightInCm      Float?
+  weightInKg      Float?
+  concept2UserId  Int?
+  stravaAthleteId String?
+  memberships     membership[]
+  activities      activity[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+// ── Program / Membership ──────────────────────────────────────────────────────
+
+enum ProgramType {
+  masters
+  juniors
+  alumni
+}
+
+model program {
+  id          String       @id @default(dbgenerated("generate_id('prog_')"))
+  name        String
+  description String
+  programType ProgramType
+  startDate   DateTime
+  endDate     DateTime
+  memberships membership[]
+}
+
+model membership {
+  id        String  @id @default(dbgenerated("generate_id('mem_')"))
+  athleteId String
+  programId String
+  athlete   athlete @relation(fields: [athleteId], references: [id])
+  program   program @relation(fields: [programId], references: [id])
+}
+
+// ── Boat ──────────────────────────────────────────────────────────────────────
+
+enum WeightUnit {
+  kilogram
+  pound
+}
+
+model boat {
+  id                  String     @id @default(dbgenerated("generate_id('boat_')"))
+  name                String
+  manufacturer        String
+  seats               String
+  rigging             String
+  weightMinKg         Float
+  weightMaxKg         Float
+  preferredWeightUnit WeightUnit
+  activities          activity[]
+}
+
+// ── Erg ───────────────────────────────────────────────────────────────────────
+
+model erg {
+  id              String     @id @default(dbgenerated("generate_id('erg_')"))
+  name            String
+  manufacturer    String
+  firmwareVersion String?
+  hardwareVersion String?
+  serialNumber    String?
+  dataCode        String?
+  activities      activity[]
+}
+
+// ── Workout ───────────────────────────────────────────────────────────────────
+
+enum WorkoutType {
+  distance
+  time
+  other
+}
+
+enum IntensityCategory {
+  C1
+  C2
+  C3
+  C4
+  C5
+  C6
+}
+
+model workout {
+  id                String             @id @default(dbgenerated("generate_id('work_')"))
+  description       String
+  startDate         DateTime
+  workoutType       WorkoutType
+  elapsedTime       Int?
+  distance          Int?
+  intervalCount     Int                @default(1)
+  intensityCategory IntensityCategory
+  fragments         workout_fragment[]
+  activities        activity[]
+}
+
+model workout_fragment {
+  id            String  @id @default(dbgenerated("generate_id('work_frag_')"))
+  workoutId     String
+  rate          Int?
+  elapsedTime   Int?
+  distance      Int?
+  relativeTo    String
+  relativeSplit Float
+  workout       workout @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+}
+
+// ── Activity ──────────────────────────────────────────────────────────────────
+
+enum ActivityType {
+  water
+  erg
+}
+
+model activity {
+  id             String       @id @default(dbgenerated("generate_id('act_')"))
+  name           String
+  startDate      DateTime
+  timezone       String
+  workoutType    WorkoutType
+  elapsedTime    Int
+  distance       Int
+  type           ActivityType
+  athleteId      String
+  boatId         String?
+  ergId          String?
+  workoutId      String?
+  stravaId       Int?
+  stravaData     Json?
+  conceptTwoId   Int?
+  conceptTwoData Json?
+  athlete        athlete  @relation(fields: [athleteId], references: [id])
+  boat           boat?    @relation(fields: [boatId], references: [id])
+  erg            erg?     @relation(fields: [ergId], references: [id])
+  workout        workout? @relation(fields: [workoutId], references: [id])
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

@@ -2,6 +2,8 @@
 
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { useState } from "react";
+import type { Activities } from "@/app/api/v1/activities/actions";
+import type { Erg } from "@/app/api/v1/ergs/actions";
 import { ActivityTable } from "@/components/activities";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +15,7 @@ import {
 	DrawerTitle,
 } from "@/components/ui/drawer";
 import { formatMeters } from "@/lib/formatters";
-import type { Activities, CreateErg, Erg } from "@/schemas";
+import type { CreateErg } from "@/schemas";
 import { ErgForm } from "../ErgForm/ErgForm";
 
 interface ErgDetailsDrawerProps {
@@ -79,10 +81,10 @@ export const ErgDetailsDrawer = ({
 							defaultValues={{
 								name: erg.name,
 								manufacturer: erg.manufacturer,
-								serialNumber: erg.serialNumber,
-								firmwareVersion: erg.firmwareVersion,
-								hardwareVersion: erg.hardwareVersion,
-								dataCode: erg.dataCode,
+								serialNumber: erg.serialNumber ?? undefined,
+								firmwareVersion: erg.firmwareVersion ?? undefined,
+								hardwareVersion: erg.hardwareVersion ?? undefined,
+								dataCode: erg.dataCode ?? undefined,
 							}}
 							onCancel={() => setIsEditing(false)}
 							onSubmit={handleSubmit}

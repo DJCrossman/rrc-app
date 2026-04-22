@@ -1,5 +1,14 @@
 import z from "zod";
 
+// if window exists it should be undefined or the passed in value
+const zServerOnly = <T extends z.ZodTypeAny>(schema: T) =>
+	z.union([schema, z.undefined()]).refine((val) => {
+		if (typeof window === "undefined") {
+			return val !== undefined;
+		}
+		return true;
+	}, "This variable is only available on the server");
+
 export const envVars = z
 	.object({
 		NEXT_PUBLIC_HOME_URL: z.url().default("https://www.reginarowing.com/"),
@@ -14,6 +23,7 @@ export const envVars = z
 		OLLAMA_API_KEY: z.string().optional(),
 		SIGNUP_CODE: z.string().optional(),
 		NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID: z.string(),
+		DATABASE_URL: zServerOnly(z.string()),
 	})
 	/**
 	 * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
@@ -30,4 +40,5 @@ export const envVars = z
 		SIGNUP_CODE: process.env.SIGNUP_CODE,
 		NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID:
 			process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID,
+		DATABASE_URL: process.env.DATABASE_URL,
 	});

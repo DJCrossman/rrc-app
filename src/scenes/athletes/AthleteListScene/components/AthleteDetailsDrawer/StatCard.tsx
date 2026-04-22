@@ -5,7 +5,7 @@ interface StatCardProps {
 	stat: {
 		duration: number;
 		date: string;
-		activityId: number;
+		activityId: string;
 	} | null;
 	distance: number;
 }

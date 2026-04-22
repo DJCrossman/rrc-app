@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 import { RedirectType, redirect } from "next/navigation";
 import { z } from "zod";
 import { getAnalytics } from "@/app/api/v1/analytics/actions";
+import type { Workout } from "@/app/api/v1/workouts/actions";
 import {
 	createWorkout,
 	getWorkoutById,
@@ -12,10 +13,10 @@ import {
 import { envVars } from "@/lib/env";
 import { routes } from "@/lib/routes";
 import { WorkoutListScene } from "@/scenes/workouts";
-import type { CreateWorkout, Workout } from "@/schemas";
+import type { CreateWorkout } from "@/schemas";
 
 const querySchema = z.object({
-	workoutId: z.coerce.number().optional(),
+	workoutId: z.string().optional(),
 	action: z.literal("create").optional(),
 	week: z
 		.string()

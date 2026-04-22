@@ -21,6 +21,7 @@ import {
 import { DateTime } from "luxon";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import type { Athlete, Athletes } from "@/app/api/v1/athletes/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -41,7 +42,7 @@ import {
 } from "@/components/ui/table";
 import { formatProgram } from "@/lib/formatters";
 import { routes } from "@/lib/routes";
-import { type Athlete, type Athletes, ProgramTypes } from "@/schemas";
+import { ProgramTypes } from "@/schemas";
 
 const programOptions = ["all", ...ProgramTypes] as const;
 const activeMembershipOptions = ["all", "true", "false"] as const;

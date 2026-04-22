@@ -1,6 +1,11 @@
 "use client";
 
 import { type default as React, useState } from "react";
+import type {
+	AnalyticMetrics,
+	Leaderboard,
+	MetersTimeSeries,
+} from "@/app/api/v1/analytics/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -9,7 +14,6 @@ import {
 	MetersTimeSeriesChart,
 } from "@/scenes/dashboard/DashboardScene/components";
 import { AnalyticMetricCards } from "@/scenes/dashboard/DashboardScene/components/AnalyticMetricCards/AnalyticMetricCards";
-import type { AnalyticMetrics, Leaderboard, MetersTimeSeries } from "@/schemas";
 
 interface IProps {
 	data: {

@@ -3,6 +3,8 @@
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
+import type { Activities } from "@/app/api/v1/activities/actions";
+import type { Athlete } from "@/app/api/v1/athletes/actions";
 import { ActivityTable } from "@/components/activities";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +18,7 @@ import {
 } from "@/components/ui/drawer";
 import { formatProgram, formatRole } from "@/lib/formatters";
 import { formatGender } from "@/lib/formatters/formatGender";
-import type { Activities, Athlete, CreateAthlete } from "@/schemas";
+import type { CreateAthlete } from "@/schemas";
 import type { AthleteStats } from "@/schemas/athlete.schema";
 import { AthleteForm } from "../AthleteForm/AthleteForm";
 import { StatCard } from "./StatCard";
@@ -83,7 +85,18 @@ export const AthleteDetailsDrawer = ({
 				<div className="flex-1 overflow-y-auto p-6 space-y-6">
 					{isEditing ? (
 						<AthleteForm
-							initialValues={athlete}
+							initialValues={{
+								firstName: athlete.firstName,
+								lastName: athlete.lastName,
+								nickname: athlete.nickname ?? undefined,
+								phone: athlete.phone,
+								email: athlete.email ?? undefined,
+								gender: athlete.gender,
+								dateOfBirth: athlete.dateOfBirth,
+								dateJoined: athlete.dateJoined ?? undefined,
+								heightInCm: athlete.heightInCm ?? undefined,
+								weightInKg: athlete.weightInKg ?? undefined,
+							}}
 							onCancel={() => setIsEditing(false)}
 							onSubmit={handleSubmit}
 						/>

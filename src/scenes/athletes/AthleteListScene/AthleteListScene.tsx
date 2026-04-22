@@ -1,13 +1,15 @@
 "use client";
 
 import type React from "react";
+import type { Activities } from "@/app/api/v1/activities/actions";
+import type { Athlete, Athletes } from "@/app/api/v1/athletes/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
-import type { Activities, Athlete, Athletes, CreateAthlete } from "@/schemas";
+import type { CreateAthlete } from "@/schemas";
 import type { AthleteStats } from "@/schemas/athlete.schema";
 import {
 	AthleteCreateDrawer,

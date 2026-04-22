@@ -1,13 +1,15 @@
 "use client";
 
 import type { default as React } from "react";
+import type { Activities } from "@/app/api/v1/activities/actions";
+import type { Erg, Ergs } from "@/app/api/v1/ergs/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
-import type { Activities, CreateErg, Erg, Ergs } from "@/schemas";
+import type { CreateErg } from "@/schemas";
 import { ErgCreateDrawer, ErgDetailsDrawer, ErgTable } from "./components";
 
 interface IProps {

@@ -1,6 +1,7 @@
 import { RedirectType, redirect } from "next/navigation";
 import { z } from "zod";
 import { getActivities } from "@/app/api/v1/activities/actions";
+import type { Boat } from "@/app/api/v1/boats/actions";
 import {
 	createBoat,
 	getBoatById,
@@ -9,10 +10,10 @@ import {
 } from "@/app/api/v1/boats/actions";
 import { routes } from "@/lib/routes";
 import { BoatListScene } from "@/scenes/boats";
-import type { Boat, CreateBoat } from "@/schemas";
+import type { CreateBoat } from "@/schemas";
 
 const querySchema = z.object({
-	boatId: z.coerce.number().optional(),
+	boatId: z.string().optional(),
 	action: z.literal("create").optional(),
 });
 
