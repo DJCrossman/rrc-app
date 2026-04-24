@@ -1,24 +1,28 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type React from "react";
-import type { ComponentProps } from "react";
-import type { Activities, Activity } from "@/app/api/v1/activities/actions";
-import type { Athlete } from "@/app/api/v1/athletes/actions";
-import type { Boats } from "@/app/api/v1/boats/actions";
-import type { Ergs } from "@/app/api/v1/ergs/actions";
-import type { Workouts } from "@/app/api/v1/workouts/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
-import type { CreateActivity, UpdateActivity } from "@/schemas";
+import { trpcClient } from "@/lib/trpc/client";
+import type {
+	Activities,
+	Activity,
+	Athlete,
+	Boats,
+	Ergs,
+	Workouts,
+} from "@/lib/trpc/types";
+import type { CreateActivity } from "@/schemas";
 import {
 	ActivityCreateDrawer,
 	ActivityDetailsDrawer,
 	ActivityTable,
 } from "./components";
+import type { UploadErgActivityScreenshot } from "./components/ActivityForm/ActivityForm";
 
 interface ActivityListSceneProps {
 	data: Activities;
@@ -28,16 +32,31 @@ interface ActivityListSceneProps {
 	ergs: Ergs;
 	workouts: Workouts;
 	isCreateDrawerOpen: boolean;
-	onCreateActivity: (data: CreateActivity) => Promise<void> | void;
-	onUpdateActivity: (data: UpdateActivity) => Promise<void> | void;
-	onUploadErgActivityScreenshot?:
-		| ComponentProps<
-				typeof ActivityCreateDrawer
-		  >["onUploadErgActivityScreenshot"]
-		| ComponentProps<
-				typeof ActivityDetailsDrawer
-		  >["onUploadErgActivityScreenshot"];
+	isAIEnabled: boolean;
 }
+
+const uploadErgActivityScreenshot: UploadErgActivityScreenshot = async ({
+	file,
+	athleteId,
+	ergId,
+}) => {
+	const formData = new FormData();
+	formData.append("file", file);
+	formData.append("athleteId", athleteId);
+	if (ergId) formData.append("ergId", ergId);
+
+	const response = await fetch("/api/v1/activities/screenshot", {
+		method: "POST",
+		body: formData,
+	});
+	if (!response.ok) {
+		return { success: false };
+	}
+	return (await response.json()) as {
+		success: boolean;
+		data?: CreateActivity;
+	};
+};
 
 export const ActivityListScene = ({
 	data,
@@ -47,11 +66,28 @@ export const ActivityListScene = ({
 	ergs,
 	workouts,
 	isCreateDrawerOpen,
-	onCreateActivity,
-	onUpdateActivity,
-	onUploadErgActivityScreenshot,
+	isAIEnabled,
 }: ActivityListSceneProps) => {
-	const router = useNavigate();
+	const router = useRouter();
+	const utils = trpcClient.useUtils();
+	const createActivity = trpcClient.activities.createActivity.useMutation({
+		onSuccess: async () => {
+			await utils.activities.getActivities.invalidate();
+			router.push(routes.activities.list());
+			router.refresh();
+		},
+	});
+	const updateActivity = trpcClient.activities.updateActivity.useMutation({
+		onSuccess: async () => {
+			await utils.activities.getActivities.invalidate();
+			await utils.activities.getActivityById.invalidate();
+			router.refresh();
+		},
+	});
+
+	const onUploadErgActivityScreenshot = isAIEnabled
+		? uploadErgActivityScreenshot
+		: undefined;
 
 	return (
 		<SidebarProvider
@@ -83,7 +119,9 @@ export const ActivityListScene = ({
 					boats={boats}
 					ergs={ergs}
 					workouts={workouts}
-					onSubmit={onCreateActivity}
+					onSubmit={async (data) => {
+						await createActivity.mutateAsync(data);
+					}}
 					onUploadErgActivityScreenshot={onUploadErgActivityScreenshot}
 					onClose={() => router.push(routes.activities.list())}
 				/>
@@ -94,7 +132,9 @@ export const ActivityListScene = ({
 				boats={boats}
 				ergs={ergs}
 				workouts={workouts}
-				onSubmit={onUpdateActivity}
+				onSubmit={async (data) => {
+					await updateActivity.mutateAsync(data);
+				}}
 				onUploadErgActivityScreenshot={onUploadErgActivityScreenshot}
 				onClose={() => router.push(routes.activities.list())}
 			/>

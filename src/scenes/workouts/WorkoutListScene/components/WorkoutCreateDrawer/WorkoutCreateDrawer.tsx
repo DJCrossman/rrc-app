@@ -1,7 +1,7 @@
 "use client";
 
 import { IconX } from "@tabler/icons-react";
-import type { UploadWorkoutScreenshotResult } from "@/app/api/v1/workouts/actions";
+import type { UploadWorkoutScreenshotResult } from "@/app/api/v1/workouts/screenshot/route";
 import {
 	Drawer,
 	DrawerClose,

@@ -1,14 +1,14 @@
 "use client";
 
 import { type default as React, useState } from "react";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SiteHeader } from "@/components/site-header";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import type {
 	AnalyticMetrics,
 	Leaderboard,
 	MetersTimeSeries,
-} from "@/app/api/v1/analytics/actions";
-import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+} from "@/lib/trpc/types";
 import {
 	LeaderboardTable,
 	MetersTimeSeriesChart,

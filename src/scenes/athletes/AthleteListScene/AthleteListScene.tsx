@@ -1,15 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type React from "react";
-import type { Activities } from "@/app/api/v1/activities/actions";
-import type { Athlete, Athletes } from "@/app/api/v1/athletes/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
-import type { CreateAthlete } from "@/schemas";
+import { trpcClient } from "@/lib/trpc/client";
+import type { Activities, Athlete, Athletes } from "@/lib/trpc/types";
 import type { AthleteStats } from "@/schemas/athlete.schema";
 import {
 	AthleteCreateDrawer,
@@ -23,8 +22,6 @@ interface IProps {
 	activities?: Activities;
 	athleteStats: AthleteStats | null;
 	isCreateDrawerOpen: boolean;
-	onCreateAthlete: (data: CreateAthlete) => Promise<void> | void;
-	onUpdateAthlete: (data: Athlete) => Promise<void> | void;
 }
 
 export const AthleteListScene = ({
@@ -33,10 +30,23 @@ export const AthleteListScene = ({
 	activities = [],
 	athleteStats,
 	isCreateDrawerOpen,
-	onCreateAthlete,
-	onUpdateAthlete,
 }: IProps) => {
-	const router = useNavigate();
+	const router = useRouter();
+	const utils = trpcClient.useUtils();
+	const createAthlete = trpcClient.athletes.createAthlete.useMutation({
+		onSuccess: async () => {
+			await utils.athletes.getAthletes.invalidate();
+			router.push(routes.athletes.list());
+			router.refresh();
+		},
+	});
+	const updateAthlete = trpcClient.athletes.updateAthlete.useMutation({
+		onSuccess: async () => {
+			await utils.athletes.getAthletes.invalidate();
+			await utils.athletes.getAthleteById.invalidate();
+			router.refresh();
+		},
+	});
 
 	return (
 		<SidebarProvider
@@ -63,7 +73,9 @@ export const AthleteListScene = ({
 			</SidebarInset>
 			<AthleteCreateDrawer
 				isOpen={isCreateDrawerOpen}
-				onSubmit={onCreateAthlete}
+				onSubmit={async (data) => {
+					await createAthlete.mutateAsync(data);
+				}}
 				onClose={() => router.push(routes.athletes.list())}
 			/>
 			<AthleteDetailsDrawer
@@ -71,7 +83,9 @@ export const AthleteListScene = ({
 				athlete={selectedAthlete}
 				activities={activities}
 				athleteStats={athleteStats}
-				onSubmit={onUpdateAthlete}
+				onSubmit={async (data) => {
+					await updateAthlete.mutateAsync(data);
+				}}
 				onClose={() => router.push(routes.athletes.list())}
 			/>
 		</SidebarProvider>

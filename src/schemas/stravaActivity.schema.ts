@@ -68,3 +68,10 @@ export const stravaActivitySchema = z.object({
 });
 
 export type StravaActivity = z.infer<typeof stravaActivitySchema>;
+
+export const getStravaActivitiesInputSchema = z.object({
+	accessToken: z.string().optional(),
+});
+export type GetStravaActivitiesInput = z.infer<
+	typeof getStravaActivitiesInputSchema
+>;

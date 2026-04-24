@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import type { Athlete } from "@/app/api/v1/athletes/actions";
+import type { Athlete } from "@/lib/trpc/types";
 
 export const formatGender = ({
 	gender,

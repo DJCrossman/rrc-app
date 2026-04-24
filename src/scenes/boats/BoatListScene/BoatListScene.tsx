@@ -1,15 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type { default as React } from "react";
-import type { Activities } from "@/app/api/v1/activities/actions";
-import type { Boat, Boats } from "@/app/api/v1/boats/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
-import type { CreateBoat } from "@/schemas";
+import { trpcClient } from "@/lib/trpc/client";
+import type { Activities, Boat, Boats } from "@/lib/trpc/types";
 import { BoatCreateDrawer, BoatDetailsDrawer, BoatTable } from "./components";
 
 interface IProps {
@@ -17,8 +16,6 @@ interface IProps {
 	selectedBoat: Boat | null;
 	activities?: Activities;
 	isCreateDrawerOpen: boolean;
-	onCreateBoat: (data: CreateBoat) => Promise<void> | void;
-	onUpdateBoat: (data: Boat) => Promise<void> | void;
 }
 
 export const BoatListScene = ({
@@ -26,10 +23,24 @@ export const BoatListScene = ({
 	selectedBoat,
 	activities = [],
 	isCreateDrawerOpen,
-	onCreateBoat,
-	onUpdateBoat,
 }: IProps) => {
-	const router = useNavigate();
+	const router = useRouter();
+	const utils = trpcClient.useUtils();
+	const createBoat = trpcClient.boats.createBoat.useMutation({
+		onSuccess: async () => {
+			await utils.boats.getBoats.invalidate();
+			router.push(routes.boats.list());
+			router.refresh();
+		},
+	});
+	const updateBoat = trpcClient.boats.updateBoat.useMutation({
+		onSuccess: async () => {
+			await utils.boats.getBoats.invalidate();
+			await utils.boats.getBoatById.invalidate();
+			router.refresh();
+		},
+	});
+
 	return (
 		<SidebarProvider
 			style={
@@ -55,14 +66,18 @@ export const BoatListScene = ({
 			</SidebarInset>
 			<BoatCreateDrawer
 				isOpen={isCreateDrawerOpen}
-				onSubmit={onCreateBoat}
+				onSubmit={async (data) => {
+					await createBoat.mutateAsync(data);
+				}}
 				onClose={() => router.push(routes.boats.list())}
 			/>
 			<BoatDetailsDrawer
 				isOpen={!!selectedBoat}
 				boat={selectedBoat}
 				activities={activities}
-				onSubmit={onUpdateBoat}
+				onSubmit={async (data) => {
+					await updateBoat.mutateAsync(data);
+				}}
 				onClose={() => router.push(routes.boats.list())}
 			/>
 		</SidebarProvider>

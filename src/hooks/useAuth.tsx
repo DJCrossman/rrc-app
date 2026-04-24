@@ -2,8 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useContext } from "react";
-import type { CurrentAthlete } from "@/app/api/v1/users/utils";
 import { generateQueryKey } from "@/lib/keygen";
+import type { CurrentAthlete } from "@/lib/trpc/types";
 
 type AuthBase = {
 	error: Error | null;

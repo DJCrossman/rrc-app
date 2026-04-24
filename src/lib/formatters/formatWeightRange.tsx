@@ -1,4 +1,4 @@
-import type { Boat } from "@/app/api/v1/boats/actions";
+import type { Boat } from "@/lib/trpc/types";
 
 const getUnitFormatter = (unit: Boat["weightRange"]["unit"]) => {
 	return new Intl.NumberFormat("en-US", {

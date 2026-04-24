@@ -3,10 +3,6 @@
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
-import type { Activity } from "@/app/api/v1/activities/actions";
-import type { Boats } from "@/app/api/v1/boats/actions";
-import type { Ergs } from "@/app/api/v1/ergs/actions";
-import type { Workouts } from "@/app/api/v1/workouts/actions";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
@@ -18,6 +14,7 @@ import {
 } from "@/components/ui/drawer";
 import { formatDuration } from "@/lib/formatters/formatDuration";
 import { formatMeters } from "@/lib/formatters/formatMeters";
+import type { Activity, Boats, Ergs, Workouts } from "@/lib/trpc/types";
 import type { CreateActivity, UpdateActivity } from "@/schemas";
 import {
 	ActivityForm,

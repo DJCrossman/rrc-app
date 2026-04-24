@@ -26,3 +26,18 @@ export const workoutCoreSchema = z.object({
 });
 
 export type CreateWorkout = z.infer<typeof workoutCoreSchema>;
+
+export const updateWorkoutFragmentSchema = createWorkoutFragmentSchema.extend({
+	id: z.string().optional(),
+	workoutId: z.string().optional(),
+});
+
+export const updateWorkoutSchema = workoutCoreSchema.extend({
+	id: z.string(),
+	fragments: z.array(updateWorkoutFragmentSchema).optional(),
+});
+
+export type UpdateWorkout = z.infer<typeof updateWorkoutSchema>;
+
+export const getWorkoutByIdInputSchema = z.object({ id: z.string() });
+export type GetWorkoutByIdInput = z.infer<typeof getWorkoutByIdInputSchema>;

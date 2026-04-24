@@ -1,15 +1,14 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import type { default as React } from "react";
-import type { Activities } from "@/app/api/v1/activities/actions";
-import type { Erg, Ergs } from "@/app/api/v1/ergs/actions";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
-import type { CreateErg } from "@/schemas";
+import { trpcClient } from "@/lib/trpc/client";
+import type { Activities, Erg, Ergs } from "@/lib/trpc/types";
 import { ErgCreateDrawer, ErgDetailsDrawer, ErgTable } from "./components";
 
 interface IProps {
@@ -17,8 +16,6 @@ interface IProps {
 	selectedErg: Erg | null;
 	activities?: Activities;
 	isCreateDrawerOpen: boolean;
-	onCreateErg: (data: CreateErg) => Promise<void> | void;
-	onUpdateErg: (data: Erg) => Promise<void> | void;
 }
 
 export const ErgListScene = ({
@@ -26,10 +23,23 @@ export const ErgListScene = ({
 	selectedErg,
 	activities = [],
 	isCreateDrawerOpen,
-	onCreateErg,
-	onUpdateErg,
 }: IProps) => {
-	const router = useNavigate();
+	const router = useRouter();
+	const utils = trpcClient.useUtils();
+	const createErg = trpcClient.ergs.createErg.useMutation({
+		onSuccess: async () => {
+			await utils.ergs.getErgs.invalidate();
+			router.push(routes.ergs.list());
+			router.refresh();
+		},
+	});
+	const updateErg = trpcClient.ergs.updateErg.useMutation({
+		onSuccess: async () => {
+			await utils.ergs.getErgs.invalidate();
+			await utils.ergs.getErgById.invalidate();
+			router.refresh();
+		},
+	});
 
 	return (
 		<SidebarProvider
@@ -56,14 +66,18 @@ export const ErgListScene = ({
 			</SidebarInset>
 			<ErgCreateDrawer
 				isOpen={isCreateDrawerOpen}
-				onSubmit={onCreateErg}
+				onSubmit={async (data) => {
+					await createErg.mutateAsync(data);
+				}}
 				onClose={() => router.push(routes.ergs.list())}
 			/>
 			<ErgDetailsDrawer
 				isOpen={!!selectedErg}
 				erg={selectedErg}
 				activities={activities}
-				onSubmit={onUpdateErg}
+				onSubmit={async (data) => {
+					await updateErg.mutateAsync(data);
+				}}
 				onClose={() => router.push(routes.ergs.list())}
 			/>
 		</SidebarProvider>

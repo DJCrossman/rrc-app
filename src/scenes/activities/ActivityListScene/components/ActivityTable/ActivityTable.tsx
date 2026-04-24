@@ -22,7 +22,6 @@ import {
 import { DateTime } from "luxon";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import type { Activities, Activity } from "@/app/api/v1/activities/actions";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -43,6 +42,7 @@ import {
 import { formatDurationAsTime } from "@/lib/formatters/formatDuration";
 import { formatMeters } from "@/lib/formatters/formatMeters";
 import { routes } from "@/lib/routes";
+import type { Activities, Activity } from "@/lib/trpc/types";
 import { ActivityType } from "@/schemas";
 
 const activityTypeOptions = ["all", ...ActivityType] as const;

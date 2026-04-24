@@ -33,3 +33,12 @@ export const createBoatSchema = z.object({
 });
 
 export type CreateBoat = z.infer<typeof createBoatSchema>;
+
+export const updateBoatSchema = createBoatSchema.extend({
+	id: z.string(),
+});
+
+export type UpdateBoat = z.infer<typeof updateBoatSchema>;
+
+export const getBoatByIdInputSchema = z.object({ id: z.string() });
+export type GetBoatByIdInput = z.infer<typeof getBoatByIdInputSchema>;

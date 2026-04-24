@@ -46,3 +46,18 @@ export const updateActivitySchema = z.discriminatedUnion("type", [
 ]);
 
 export type UpdateActivity = z.infer<typeof updateActivitySchema>;
+
+export const getActivitiesInputSchema = z.object({
+	boatId: z.string().optional(),
+	athleteId: z.string().optional(),
+	ergId: z.string().optional(),
+});
+export type GetActivitiesInput = z.infer<typeof getActivitiesInputSchema>;
+
+export const getActivityByIdInputSchema = z.object({
+	id: z.string().optional(),
+});
+export type GetActivityByIdInput = z.infer<typeof getActivityByIdInputSchema>;
+
+export const deleteActivityInputSchema = z.object({ id: z.string() });
+export type DeleteActivityInput = z.infer<typeof deleteActivityInputSchema>;

@@ -3,8 +3,6 @@
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
-import type { AnalyticMetrics } from "@/app/api/v1/analytics/actions";
-import type { Workout } from "@/app/api/v1/workouts/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,8 +13,9 @@ import {
 	DrawerTitle,
 } from "@/components/ui/drawer";
 import { formatCompactSplit, formatDuration } from "@/lib/formatters";
+import type { AnalyticMetrics, Workout } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
-import type { CreateWorkout } from "@/schemas";
+import type { CreateWorkout, UpdateWorkout } from "@/schemas";
 import { getWorkoutBreakdown } from "../../utils/getWorkoutBreakdown";
 import { intensityColorMap } from "../../utils/intensityColorMap";
 import { FragmentSplitDisplay } from "../FragmentSplitDisplay";
@@ -26,7 +25,7 @@ interface WorkoutDetailsDrawerProps {
 	isOpen: boolean;
 	workout: Workout | null;
 	onClose: () => void;
-	onSubmit: (data: Workout) => Promise<void> | void;
+	onSubmit: (data: UpdateWorkout) => Promise<void> | void;
 	analytics?: Pick<AnalyticMetrics, "lastTwoKm" | "lastSixKm">;
 }
 
@@ -46,10 +45,11 @@ export const WorkoutDetailsDrawer = ({
 
 	const handleSubmit = async (data: { workouts: CreateWorkout[] }) => {
 		if (!workout) return;
-
+		const updated = data.workouts[0];
+		if (!updated) return;
 		await onSubmit({
-			...workout,
-			...data,
+			...updated,
+			id: workout.id,
 		});
 		setIsEditing(false);
 	};

@@ -24,3 +24,8 @@ export const stravaUserSchema = z.object({
 });
 
 export type StravaUser = z.infer<typeof stravaUserSchema>;
+
+export const getStravaAthleteInputSchema = z.object({
+	accessToken: z.string().optional(),
+});
+export type GetStravaAthleteInput = z.infer<typeof getStravaAthleteInputSchema>;

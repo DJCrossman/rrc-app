@@ -1,17 +1,6 @@
-import { RedirectType, redirect } from "next/navigation";
 import { z } from "zod";
-import type { Athlete } from "@/app/api/v1/athletes/actions";
-import {
-	createAthlete,
-	getAthleteById,
-	getAthleteStats,
-	updateAthlete,
-} from "@/app/api/v1/athletes/actions";
-import { routes } from "@/lib/routes";
 import { AthleteListScene } from "@/scenes/athletes";
-import type { CreateAthlete } from "@/schemas/athlete.schema";
-import { getActivities } from "../api/v1/activities/actions";
-import { getAthletes } from "../api/v1/athletes/actions";
+import { createServerCaller } from "@/server/caller";
 
 const querySchema = z.object({
 	athleteId: z.string().optional(),
@@ -24,12 +13,16 @@ export default async function AthletesPage({
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
 	const { athleteId, action } = querySchema.parse(await searchParams);
-	const { data } = await getAthletes();
-	const { data: activities } = athleteId
-		? await getActivities({ athleteId })
-		: { data: [] };
-	const selectedAthlete = await getAthleteById(athleteId);
-	const athleteStats = athleteId ? await getAthleteStats(athleteId) : null;
+	const caller = await createServerCaller();
+	const [{ data }, { data: activities }, selectedAthlete, athleteStats] =
+		await Promise.all([
+			caller.athletes.getAthletes(),
+			athleteId
+				? caller.activities.getActivities({ athleteId })
+				: Promise.resolve({ data: [] }),
+			caller.athletes.getAthleteById({ id: athleteId }),
+			athleteId ? caller.athletes.getAthleteStats({ athleteId }) : null,
+		]);
 
 	return (
 		<AthleteListScene
@@ -38,15 +31,6 @@ export default async function AthletesPage({
 			activities={activities}
 			athleteStats={athleteStats}
 			isCreateDrawerOpen={action === "create"}
-			onCreateAthlete={async (athlete: CreateAthlete) => {
-				"use server";
-				await createAthlete(athlete);
-				redirect(routes.athletes.list(), RedirectType.push);
-			}}
-			onUpdateAthlete={async (athlete: Athlete) => {
-				"use server";
-				await updateAthlete(athlete);
-			}}
 		/>
 	);
 }

@@ -3,8 +3,6 @@
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
-import type { Activities } from "@/app/api/v1/activities/actions";
-import type { Athlete } from "@/app/api/v1/athletes/actions";
 import { ActivityTable } from "@/components/activities";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -18,7 +16,8 @@ import {
 } from "@/components/ui/drawer";
 import { formatProgram, formatRole } from "@/lib/formatters";
 import { formatGender } from "@/lib/formatters/formatGender";
-import type { CreateAthlete } from "@/schemas";
+import type { Activities, Athlete } from "@/lib/trpc/types";
+import type { CreateAthlete, UpdateAthlete } from "@/schemas";
 import type { AthleteStats } from "@/schemas/athlete.schema";
 import { AthleteForm } from "../AthleteForm/AthleteForm";
 import { StatCard } from "./StatCard";
@@ -29,7 +28,7 @@ interface AthleteDetailsDrawerProps {
 	activities: Activities;
 	athleteStats: AthleteStats | null;
 	onClose: () => void;
-	onSubmit: (data: Athlete) => Promise<void> | void;
+	onSubmit: (data: UpdateAthlete) => Promise<void> | void;
 }
 
 export const AthleteDetailsDrawer = ({
@@ -51,8 +50,8 @@ export const AthleteDetailsDrawer = ({
 		if (!athlete) return;
 
 		await onSubmit({
-			...athlete,
 			...data,
+			id: athlete.id,
 		});
 		setIsEditing(false);
 	};

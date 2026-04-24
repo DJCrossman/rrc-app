@@ -1,4 +1,4 @@
-import type { Workout } from "@/app/api/v1/workouts/actions";
+import type { Workout } from "@/lib/trpc/types";
 
 export const getWorkoutBreakdown = <T extends Workout>({
 	description,

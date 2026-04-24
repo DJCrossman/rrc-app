@@ -1,20 +1,7 @@
-import { RedirectType, redirect } from "next/navigation";
 import { z } from "zod";
-import {
-	createActivity,
-	getActivities,
-	getActivityById,
-	updateActivity,
-	uploadErgActivityScreenshot,
-} from "@/app/api/v1/activities/actions";
-import { getCurrentAthlete } from "@/app/api/v1/athletes/actions";
-import { getBoats } from "@/app/api/v1/boats/actions";
-import { getErgs } from "@/app/api/v1/ergs/actions";
-import { getWorkouts } from "@/app/api/v1/workouts/actions";
 import { envVars } from "@/lib/env";
-import { routes } from "@/lib/routes";
 import { ActivityListScene } from "@/scenes/activities";
-import type { CreateActivity, UpdateActivity } from "@/schemas";
+import { createServerCaller } from "@/server/caller";
 
 const querySchema = z.object({
 	activityId: z.string().optional(),
@@ -27,12 +14,22 @@ export default async function ActivitiesPage({
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
 	const { activityId, action } = querySchema.parse(await searchParams);
-	const currentAthlete = await getCurrentAthlete();
-	const { data: activities } = await getActivities({});
-	const { data: boats } = await getBoats();
-	const { data: ergs } = await getErgs();
-	const { data: workouts } = await getWorkouts();
-	const selectedActivity = await getActivityById(activityId);
+	const caller = await createServerCaller();
+	const [
+		currentAthlete,
+		{ data: activities },
+		{ data: boats },
+		{ data: ergs },
+		{ data: workouts },
+		selectedActivity,
+	] = await Promise.all([
+		caller.athletes.getCurrentAthlete(),
+		caller.activities.getActivities({}),
+		caller.boats.getBoats(),
+		caller.ergs.getErgs(),
+		caller.workouts.getWorkouts(),
+		caller.activities.getActivityById({ id: activityId }),
+	]);
 
 	return (
 		<ActivityListScene
@@ -43,23 +40,7 @@ export default async function ActivitiesPage({
 			ergs={ergs}
 			workouts={workouts}
 			isCreateDrawerOpen={action === "create"}
-			onCreateActivity={async (activity: CreateActivity) => {
-				"use server";
-				await createActivity(activity);
-				redirect(routes.activities.list(), RedirectType.push);
-			}}
-			onUpdateActivity={async (activity: UpdateActivity) => {
-				"use server";
-				await updateActivity(activity);
-			}}
-			onUploadErgActivityScreenshot={
-				envVars.NEXT_PUBLIC_AI_ENABLED
-					? async (params) => {
-							"use server";
-							return await uploadErgActivityScreenshot(params);
-						}
-					: undefined
-			}
+			isAIEnabled={envVars.NEXT_PUBLIC_AI_ENABLED}
 		/>
 	);
 }

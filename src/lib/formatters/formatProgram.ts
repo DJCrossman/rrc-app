@@ -1,4 +1,4 @@
-import type { Athlete } from "@/app/api/v1/athletes/actions";
+import type { Athlete } from "@/lib/trpc/types";
 
 export const formatProgram = (program: Athlete["programType"]) => {
 	if (!program) return "";

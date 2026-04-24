@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import type { MetersTimeSeries } from "@/app/api/v1/analytics/actions";
 import {
 	Card,
 	CardAction,
@@ -26,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import type { MetersTimeSeries } from "@/lib/trpc/types";
 
 export const description = "An interactive area chart";
 

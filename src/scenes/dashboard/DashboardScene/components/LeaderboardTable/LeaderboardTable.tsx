@@ -23,7 +23,6 @@ import {
 } from "@tanstack/react-table";
 import { FlameIcon, SnowflakeIcon } from "lucide-react";
 import { useMemo, useState } from "react";
-import type { Leaderboard } from "@/app/api/v1/analytics/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -53,6 +52,7 @@ import {
 	formatMeters,
 	formatProgram,
 } from "@/lib/formatters";
+import type { Leaderboard } from "@/lib/trpc/types";
 
 const columns: ColumnDef<Leaderboard[number]>[] = [
 	{

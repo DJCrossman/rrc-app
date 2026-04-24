@@ -1,16 +1,6 @@
-import { RedirectType, redirect } from "next/navigation";
 import { z } from "zod";
-import { getActivities } from "@/app/api/v1/activities/actions";
-import type { Erg } from "@/app/api/v1/ergs/actions";
-import {
-	createErg,
-	getErgById,
-	getErgs,
-	updateErg,
-} from "@/app/api/v1/ergs/actions";
-import { routes } from "@/lib/routes";
 import { ErgListScene } from "@/scenes/ergs";
-import type { CreateErg } from "@/schemas";
+import { createServerCaller } from "@/server/caller";
 
 const querySchema = z.object({
 	ergId: z.string().optional(),
@@ -23,12 +13,14 @@ export default async function ErgsPage({
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
 	const { ergId, action } = querySchema.parse(await searchParams);
-
-	const { data } = await getErgs();
-	const { data: activities } = ergId
-		? await getActivities({ ergId })
-		: { data: [] };
-	const selectedErg = ergId ? await getErgById(ergId) : null;
+	const caller = await createServerCaller();
+	const [{ data }, { data: activities }, selectedErg] = await Promise.all([
+		caller.ergs.getErgs(),
+		ergId
+			? caller.activities.getActivities({ ergId })
+			: Promise.resolve({ data: [] }),
+		ergId ? caller.ergs.getErgById({ id: ergId }) : null,
+	]);
 
 	return (
 		<ErgListScene
@@ -36,15 +28,6 @@ export default async function ErgsPage({
 			selectedErg={selectedErg}
 			activities={activities}
 			isCreateDrawerOpen={action === "create"}
-			onCreateErg={async (erg: CreateErg) => {
-				"use server";
-				await createErg(erg);
-				redirect(routes.ergs.list(), RedirectType.push);
-			}}
-			onUpdateErg={async (erg: Erg) => {
-				"use server";
-				await updateErg(erg);
-			}}
 		/>
 	);
 }

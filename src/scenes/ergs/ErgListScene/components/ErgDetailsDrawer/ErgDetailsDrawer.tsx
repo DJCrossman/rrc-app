@@ -2,8 +2,6 @@
 
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { useState } from "react";
-import type { Activities } from "@/app/api/v1/activities/actions";
-import type { Erg } from "@/app/api/v1/ergs/actions";
 import { ActivityTable } from "@/components/activities";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +13,8 @@ import {
 	DrawerTitle,
 } from "@/components/ui/drawer";
 import { formatMeters } from "@/lib/formatters";
-import type { CreateErg } from "@/schemas";
+import type { Activities, Erg } from "@/lib/trpc/types";
+import type { CreateErg, UpdateErg } from "@/schemas";
 import { ErgForm } from "../ErgForm/ErgForm";
 
 interface ErgDetailsDrawerProps {
@@ -23,7 +22,7 @@ interface ErgDetailsDrawerProps {
 	erg: Erg | null;
 	activities: Activities;
 	onClose: () => void;
-	onSubmit: (data: Erg) => Promise<void> | void;
+	onSubmit: (data: UpdateErg) => Promise<void> | void;
 }
 
 export const ErgDetailsDrawer = ({
@@ -44,8 +43,8 @@ export const ErgDetailsDrawer = ({
 		if (!erg) return;
 
 		await onSubmit({
-			...erg,
 			...data,
+			id: erg.id,
 		});
 		setIsEditing(false);
 	};

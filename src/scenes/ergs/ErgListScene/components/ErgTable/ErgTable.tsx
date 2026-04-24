@@ -15,7 +15,6 @@ import {
 } from "@tanstack/react-table";
 import Link from "next/link";
 import { useState } from "react";
-import type { Erg, Ergs } from "@/app/api/v1/ergs/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -29,6 +28,7 @@ import {
 } from "@/components/ui/table";
 import { formatMeters } from "@/lib/formatters";
 import { routes } from "@/lib/routes";
+import type { Erg, Ergs } from "@/lib/trpc/types";
 
 const columns: ColumnDef<Erg>[] = [
 	{

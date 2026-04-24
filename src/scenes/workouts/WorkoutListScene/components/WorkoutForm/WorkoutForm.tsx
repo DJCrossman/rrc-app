@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Fragment, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import z from "zod";
-import type { UploadWorkoutScreenshotResult } from "@/app/api/v1/workouts/actions";
+import type { UploadWorkoutScreenshotResult } from "@/app/api/v1/workouts/screenshot/route";
 import { Button } from "@/components/ui/button";
 import { DateInput } from "@/components/ui/date-input";
 import {

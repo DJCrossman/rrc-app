@@ -2,10 +2,10 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DateTime, Interval } from "luxon";
-import type { Workout, Workouts } from "@/app/api/v1/workouts/actions";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { routes } from "@/lib/routes";
+import type { Workout, Workouts } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 import { getWorkoutBreakdown } from "../utils/getWorkoutBreakdown";
 import { intensityColorMap } from "../utils/intensityColorMap";

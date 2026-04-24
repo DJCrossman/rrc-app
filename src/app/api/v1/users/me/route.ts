@@ -1,34 +1,32 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import type { CurrentAthlete } from "@/app/api/v1/users/utils";
 import { envVars } from "@/lib/env";
-import { getConcept2User } from "../../concept2/users/actions";
+import type { CurrentAthlete } from "@/lib/trpc/types";
+import { createServerCaller } from "@/server/caller";
 import { getAccessToken, isTokenExpired } from "../../concept2/utils";
-import { getStravaAthlete } from "../../strava/athlete/actions";
 import {
 	getAccessToken as getStravaAccessToken,
 	isTokenExpired as isStravaTokenExpired,
 } from "../../strava/utils";
-import { findOrCreateUserAndAthleteByClerkId } from "../actions";
 
 export async function GET(request: Request) {
 	try {
-		const { userId: clerkUserId } = await auth();
+		const { userId } = await auth();
 
-		if (!clerkUserId) {
+		if (!userId) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		await ensureDefaultOrganizationMembership(clerkUserId);
+		await ensureDefaultOrganizationMembership(userId);
 
-		const user = await findOrCreateUserAndAthleteByClerkId(clerkUserId);
+		const trpc = await createServerCaller();
+		const user = await trpc.users.findOrCreateUserAndAthleteByUserId();
 
-		const concept2Values = await getConcept2Values(request);
-		const stravaValues = await getStravaValues(request);
-		Object.assign(user, concept2Values, stravaValues);
+		const concept2Values = await getConcept2Values(request, trpc);
+		const stravaValues = await getStravaValues(request, trpc);
 
-		return NextResponse.json(user);
+		return NextResponse.json({ ...user, ...concept2Values, ...stravaValues });
 	} catch (error) {
 		console.error("User info retrieval error:", error);
 		return NextResponse.json(
@@ -38,11 +36,11 @@ export async function GET(request: Request) {
 	}
 }
 
-const ensureDefaultOrganizationMembership = async (clerkUserId: string) => {
+const ensureDefaultOrganizationMembership = async (userId: string) => {
 	const organizationId = envVars.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID;
 	const client = await clerkClient();
 	const memberships = await client.users.getOrganizationMembershipList({
-		userId: clerkUserId,
+		userId,
 		limit: 100,
 	});
 
@@ -56,13 +54,14 @@ const ensureDefaultOrganizationMembership = async (clerkUserId: string) => {
 
 	await client.organizations.createOrganizationMembership({
 		organizationId,
-		userId: clerkUserId,
+		userId,
 		role: "org:member",
 	});
 };
 
 const getConcept2Values = async (
 	request: Request,
+	trpc: Awaited<ReturnType<typeof createServerCaller>>,
 ): Promise<Pick<CurrentAthlete, "concept2Connected" | "concept2UserId">> => {
 	try {
 		const cookieStore = await cookies();
@@ -70,34 +69,25 @@ const getConcept2Values = async (
 		if (tokenExpired) {
 			const refreshResponse = await fetch(
 				new URL("/api/v1/concept2/refresh", request.url),
-				{
-					method: "POST",
-				},
+				{ method: "POST" },
 			);
 
 			if (!refreshResponse.ok) {
-				return {
-					concept2Connected: false,
-					concept2UserId: null,
-				};
+				return { concept2Connected: false, concept2UserId: null };
 			}
 		}
 
 		const accessToken = await getAccessToken({ cookieStore });
 		if (!accessToken) {
-			return {
-				concept2Connected: false,
-				concept2UserId: null,
-			};
+			return { concept2Connected: false, concept2UserId: null };
 		}
 
-		const concept2UserResponse = await getConcept2User({ accessToken });
+		const concept2UserResponse = await trpc.concept2.getConcept2User({
+			accessToken,
+		});
 
 		if (concept2UserResponse.status === "rejected") {
-			return {
-				concept2Connected: false,
-				concept2UserId: null,
-			};
+			return { concept2Connected: false, concept2UserId: null };
 		}
 
 		return {
@@ -106,15 +96,13 @@ const getConcept2Values = async (
 		};
 	} catch (error) {
 		console.error("Concept2 values retrieval error:", error);
-		return {
-			concept2Connected: false,
-			concept2UserId: null,
-		};
+		return { concept2Connected: false, concept2UserId: null };
 	}
 };
 
 const getStravaValues = async (
 	request: Request,
+	trpc: Awaited<ReturnType<typeof createServerCaller>>,
 ): Promise<Pick<CurrentAthlete, "stravaConnected" | "stravaAthleteId">> => {
 	try {
 		const cookieStore = await cookies();
@@ -122,34 +110,25 @@ const getStravaValues = async (
 		if (tokenExpired) {
 			const refreshResponse = await fetch(
 				new URL("/api/v1/strava/refresh", request.url),
-				{
-					method: "POST",
-				},
+				{ method: "POST" },
 			);
 
 			if (!refreshResponse.ok) {
-				return {
-					stravaConnected: false,
-					stravaAthleteId: null,
-				};
+				return { stravaConnected: false, stravaAthleteId: null };
 			}
 		}
 
 		const accessToken = await getStravaAccessToken({ cookieStore });
 		if (!accessToken) {
-			return {
-				stravaConnected: false,
-				stravaAthleteId: null,
-			};
+			return { stravaConnected: false, stravaAthleteId: null };
 		}
 
-		const stravaAthleteResponse = await getStravaAthlete({ accessToken });
+		const stravaAthleteResponse = await trpc.strava.getStravaAthlete({
+			accessToken,
+		});
 
 		if (stravaAthleteResponse.status === "rejected") {
-			return {
-				stravaConnected: false,
-				stravaAthleteId: null,
-			};
+			return { stravaConnected: false, stravaAthleteId: null };
 		}
 
 		return {
@@ -158,9 +137,6 @@ const getStravaValues = async (
 		};
 	} catch (error) {
 		console.error("Strava values retrieval error:", error);
-		return {
-			stravaConnected: false,
-			stravaAthleteId: null,
-		};
+		return { stravaConnected: false, stravaAthleteId: null };
 	}
 };

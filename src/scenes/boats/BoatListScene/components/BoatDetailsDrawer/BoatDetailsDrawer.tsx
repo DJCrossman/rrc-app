@@ -2,8 +2,6 @@
 
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { useState } from "react";
-import type { Activities } from "@/app/api/v1/activities/actions";
-import type { Boat } from "@/app/api/v1/boats/actions";
 import { ActivityTable } from "@/components/activities";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +18,8 @@ import {
 	formatSeatSetup,
 	formatWeightRange,
 } from "@/lib/formatters";
-import type { CreateBoat } from "@/schemas";
+import type { Activities, Boat } from "@/lib/trpc/types";
+import type { CreateBoat, UpdateBoat } from "@/schemas";
 import { BoatForm } from "../BoatForm/BoatForm";
 
 interface BoatDetailsDrawerProps {
@@ -28,7 +27,7 @@ interface BoatDetailsDrawerProps {
 	boat: Boat | null;
 	activities: Activities;
 	onClose: () => void;
-	onSubmit: (data: Boat) => Promise<void> | void;
+	onSubmit: (data: UpdateBoat) => Promise<void> | void;
 }
 
 export const BoatDetailsDrawer = ({
@@ -49,8 +48,8 @@ export const BoatDetailsDrawer = ({
 		if (!boat) return;
 
 		await onSubmit({
-			...boat,
 			...data,
+			id: boat.id,
 		});
 		setIsEditing(false);
 	};

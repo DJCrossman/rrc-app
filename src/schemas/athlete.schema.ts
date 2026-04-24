@@ -40,6 +40,22 @@ export const updateAthleteSchema = athleteProfileSchema.extend({
 
 export type UpdateAthlete = z.infer<typeof updateAthleteSchema>;
 
+export const getAthleteByIdInputSchema = z.object({
+	id: z.string().optional(),
+});
+export type GetAthleteByIdInput = z.infer<typeof getAthleteByIdInputSchema>;
+
+export const getAthleteStatsInputSchema = z.object({
+	athleteId: z.string(),
+});
+export type GetAthleteStatsInput = z.infer<typeof getAthleteStatsInputSchema>;
+
+export const getUserByIdInputSchema = z.object({ id: z.string() });
+export type GetUserByIdInput = z.infer<typeof getUserByIdInputSchema>;
+
+export const getUserByUserIdInputSchema = z.object({ userId: z.string() });
+export type GetUserByUserIdInput = z.infer<typeof getUserByUserIdInputSchema>;
+
 export interface AthleteStats {
 	lastTwoKmRaceDuration?: {
 		duration: number;

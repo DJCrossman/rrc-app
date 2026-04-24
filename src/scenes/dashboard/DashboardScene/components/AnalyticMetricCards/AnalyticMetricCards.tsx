@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import { DateTime } from "luxon";
 import { useMemo } from "react";
-import type { AnalyticMetrics } from "@/app/api/v1/analytics/actions";
 import { Badge } from "@/components/ui/badge";
 import {
 	Card,
@@ -26,6 +25,7 @@ import {
 	formatMeters,
 	formatPercent,
 } from "@/lib/formatters";
+import type { AnalyticMetrics } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
 
 export interface IProps {

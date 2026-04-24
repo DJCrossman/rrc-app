@@ -22,7 +22,7 @@ enum Gender {
 
 model athlete {
   id              String       @id @default(dbgenerated("generate_id('ath_')"))
-  clerkUserId     String?      @unique
+  userId          String?      @unique
   firstName       String
   lastName        String
   nickname        String?

@@ -68,3 +68,28 @@ export const concept2ActivitySchema = z.object({
 });
 
 export type Concept2Activity = z.infer<typeof concept2ActivitySchema>;
+
+export const concept2ActivityTypes = [
+	"rower",
+	"skierg",
+	"bike",
+	"dynamic",
+	"slides",
+	"paddle",
+	"water",
+	"snow",
+	"rollerski",
+	"multierg",
+] as const;
+
+export const getConcept2ResultsInputSchema = z.object({
+	accessToken: z.string(),
+	searchParams: z.object({
+		from: z.string().optional(),
+		to: z.string().optional(),
+		type: z.enum(concept2ActivityTypes),
+	}),
+});
+export type GetConcept2ResultsInput = z.infer<
+	typeof getConcept2ResultsInputSchema
+>;

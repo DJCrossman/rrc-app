@@ -2,22 +2,17 @@
 
 import { IconPlus } from "@tabler/icons-react";
 import { DateTime } from "luxon";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import type React from "react";
-import type { AnalyticMetrics } from "@/app/api/v1/analytics/actions";
-import type {
-	UploadWorkoutScreenshotResult,
-	Workout,
-	Workouts,
-} from "@/app/api/v1/workouts/actions";
+import type { UploadWorkoutScreenshotResult } from "@/app/api/v1/workouts/screenshot/route";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useNavigate } from "@/hooks/useNavigate";
 import { routes } from "@/lib/routes";
-import type { CreateWorkout } from "@/schemas";
+import { trpcClient } from "@/lib/trpc/client";
+import type { AnalyticMetrics, Workout, Workouts } from "@/lib/trpc/types";
 import { WorkoutCreateDrawer, WorkoutDetailsDrawer } from "./components";
 import { WorkoutTable } from "./WorkoutTable/WorkoutTable";
 
@@ -27,13 +22,7 @@ interface WorkoutListSceneProps {
 	selectedWorkout: Workout | null;
 	isCreateDrawerOpen: boolean;
 	analyticMetrics?: Pick<AnalyticMetrics, "lastTwoKm" | "lastSixKm">;
-	onCreateWorkouts: (data: {
-		workouts: CreateWorkout[];
-	}) => Promise<void> | void;
-	onUpdateWorkout: (data: Workout) => Promise<void> | void;
-	onUploadWorkoutScreenshot?: (
-		file: File,
-	) => Promise<UploadWorkoutScreenshotResult>;
+	isAIEnabled: boolean;
 }
 
 export const WorkoutListScene = ({
@@ -42,11 +31,18 @@ export const WorkoutListScene = ({
 	selectedWorkout,
 	isCreateDrawerOpen,
 	analyticMetrics,
-	onCreateWorkouts,
-	onUpdateWorkout,
-	onUploadWorkoutScreenshot,
+	isAIEnabled,
 }: WorkoutListSceneProps) => {
-	const router = useNavigate();
+	const router = useRouter();
+	const utils = trpcClient.useUtils();
+	const createWorkout = trpcClient.workouts.createWorkout.useMutation();
+	const updateWorkout = trpcClient.workouts.updateWorkout.useMutation({
+		onSuccess: async () => {
+			await utils.workouts.getWorkouts.invalidate();
+			await utils.workouts.getWorkoutById.invalidate();
+			router.refresh();
+		},
+	});
 
 	const currentWeek = DateTime.fromISO(currentWeekIsoDate);
 
@@ -102,14 +98,46 @@ export const WorkoutListScene = ({
 			</SidebarInset>
 			<WorkoutCreateDrawer
 				isOpen={isCreateDrawerOpen}
-				onSubmit={onCreateWorkouts}
-				onUploadWorkoutScreenshot={onUploadWorkoutScreenshot}
+				onSubmit={async ({ workouts }) => {
+					const week = DateTime.fromISO(workouts[0].startDate);
+					for (const workout of workouts) {
+						await createWorkout.mutateAsync(workout);
+					}
+					await utils.workouts.getWorkouts.invalidate();
+					router.push(
+						routes.workouts.list({ week: week.isValid ? week : undefined }),
+					);
+					router.refresh();
+				}}
+				onUploadWorkoutScreenshot={async (
+					file: File,
+				): Promise<UploadWorkoutScreenshotResult> => {
+					if (!isAIEnabled) {
+						throw new Error("AI features are not enabled");
+					}
+					const formData = new FormData();
+					formData.append("file", file);
+
+					const response = await fetch("/api/v1/workouts/screenshot", {
+						method: "POST",
+						body: formData,
+					});
+					if (!response.ok) {
+						throw new Error(
+							(await response.json()).error ||
+								"Failed to parse workout screenshot",
+						);
+					}
+					return (await response.json()) as UploadWorkoutScreenshotResult;
+				}}
 				onClose={() => router.push(routes.workouts.list({ week: currentWeek }))}
 			/>
 			<WorkoutDetailsDrawer
 				isOpen={!!selectedWorkout}
 				workout={selectedWorkout}
-				onSubmit={onUpdateWorkout}
+				onSubmit={async (data) => {
+					await updateWorkout.mutateAsync(data);
+				}}
 				onClose={() => router.push(routes.workouts.list({ week: currentWeek }))}
 				analytics={analyticMetrics}
 			/>

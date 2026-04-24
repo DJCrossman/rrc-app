@@ -1,7 +1,8 @@
 import { DashboardScene } from "@/scenes/dashboard/DashboardScene";
-import { getAnalytics } from "./api/v1/analytics/actions";
+import { createServerCaller } from "@/server/caller";
 
 export default async function HomePage() {
-	const data = await getAnalytics();
+	const caller = await createServerCaller();
+	const data = await caller.analytics.getAnalytics();
 	return <DashboardScene data={data} />;
 }

@@ -17,3 +17,8 @@ export const concept2UserSchema = z.object({
 });
 
 export type Concept2User = z.infer<typeof concept2UserSchema>;
+
+export const getConcept2UserInputSchema = z.object({
+	accessToken: z.string(),
+});
+export type GetConcept2UserInput = z.infer<typeof getConcept2UserInputSchema>;

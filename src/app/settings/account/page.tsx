@@ -1,16 +1,17 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { updateUserProfile } from "@/app/api/v1/users/actions";
+import { trpcClient } from "@/lib/trpc/client";
 import { AccountSettingsScene } from "@/scenes/settings";
 
 export default function AccountPage() {
 	const queryClient = useQueryClient();
+	const updateUserProfile = trpcClient.users.updateUserProfile.useMutation();
 
 	return (
 		<AccountSettingsScene
 			onUpdateProfile={async (data) => {
-				await updateUserProfile(data);
+				await updateUserProfile.mutateAsync(data);
 				await queryClient.invalidateQueries();
 			}}
 		/>

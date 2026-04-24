@@ -11,7 +11,6 @@ import {
 } from "@tanstack/react-table";
 import { DateTime } from "luxon";
 import Link from "next/link";
-import type { Activities, Activity } from "@/app/api/v1/activities/actions";
 import {
 	Table,
 	TableBody,
@@ -23,6 +22,7 @@ import {
 import { formatDuration } from "@/lib/formatters/formatDuration";
 import { formatMeters } from "@/lib/formatters/formatMeters";
 import { routes } from "@/lib/routes";
+import type { Activities, Activity } from "@/lib/trpc/types";
 
 const columns: ColumnDef<Activity>[] = [
 	{
