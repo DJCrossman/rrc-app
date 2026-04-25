@@ -31,7 +31,7 @@ function parseStravaData(raw: unknown) {
 }
 
 export function mapToActivityDto(row: ActivityRow) {
-	if (row.type === "water" && row.boat) {
+	if (row.type === "water") {
 		return {
 			id: row.id,
 			name: row.name,
@@ -45,20 +45,22 @@ export function mapToActivityDto(row: ActivityRow) {
 			athlete: mapToAthleteDto(row.athlete),
 			workout: row.workout ? mapToWorkoutDto(row.workout) : undefined,
 			type: "water" as const,
-			boat: {
-				id: row.boat.id,
-				name: row.boat.name,
-				manufacturer: row.boat.manufacturer,
-				seats: row.boat.seats,
-				rigging: row.boat.rigging,
-				weightMinKg: row.boat.weightMinKg,
-				weightMaxKg: row.boat.weightMaxKg,
-				preferredWeightUnit: row.boat.preferredWeightUnit,
-			},
+			boat: row.boat
+				? {
+						id: row.boat.id,
+						name: row.boat.name,
+						manufacturer: row.boat.manufacturer,
+						seats: row.boat.seats,
+						rigging: row.boat.rigging,
+						weightMinKg: row.boat.weightMinKg,
+						weightMaxKg: row.boat.weightMaxKg,
+						preferredWeightUnit: row.boat.preferredWeightUnit,
+					}
+				: undefined,
 		};
 	}
 
-	if (row.type === "erg" && row.erg) {
+	if (row.type === "erg") {
 		const conceptTwoData = row.conceptTwoData
 			? concept2ActivitySchema.safeParse(
 					JSON.parse(
@@ -82,15 +84,17 @@ export function mapToActivityDto(row: ActivityRow) {
 			athlete: mapToAthleteDto(row.athlete),
 			workout: row.workout ? mapToWorkoutDto(row.workout) : undefined,
 			type: "erg" as const,
-			erg: {
-				id: row.erg.id,
-				name: row.erg.name,
-				manufacturer: row.erg.manufacturer,
-				firmwareVersion: row.erg.firmwareVersion,
-				hardwareVersion: row.erg.hardwareVersion,
-				serialNumber: row.erg.serialNumber,
-				dataCode: row.erg.dataCode,
-			},
+			erg: row.erg
+				? {
+						id: row.erg.id,
+						name: row.erg.name,
+						manufacturer: row.erg.manufacturer,
+						firmwareVersion: row.erg.firmwareVersion,
+						hardwareVersion: row.erg.hardwareVersion,
+						serialNumber: row.erg.serialNumber,
+						dataCode: row.erg.dataCode,
+					}
+				: undefined,
 			conceptTwoData,
 		};
 	}

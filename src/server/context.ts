@@ -1,23 +1,33 @@
 import { auth } from "@clerk/nextjs/server";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { db } from "@/lib/db";
+import { createConcept2Service } from "./services/concept2-service";
+import { createStravaService } from "./services/strava-service";
 
-export type Context = {
-	userId: string | null;
+type BaseContext = {
 	db: typeof db;
-	cookieStore: Awaited<ReturnType<typeof cookies>>;
-	headers: Headers;
+	services: {
+		strava: ReturnType<typeof createStravaService>;
+		concept2: ReturnType<typeof createConcept2Service>;
+	};
 };
 
-export async function createTRPCContext(opts?: {
+export type UnauthenticatedContext = BaseContext & { userId: null };
+export type AuthenticatedContext = BaseContext & { userId: string };
+export type Context = UnauthenticatedContext | AuthenticatedContext;
+
+export async function createTRPCContext(_opts?: {
 	req?: Request;
 }): Promise<Context> {
 	const { userId } = await auth();
 	const cookieStore = await cookies();
+	const services = {
+		strava: createStravaService({ cookieStore }),
+		concept2: createConcept2Service({ cookieStore }),
+	};
 	return {
-		userId,
+		userId: userId ?? null,
 		db,
-		cookieStore,
-		headers: opts?.req?.headers ?? (await headers()),
+		services,
 	};
 }

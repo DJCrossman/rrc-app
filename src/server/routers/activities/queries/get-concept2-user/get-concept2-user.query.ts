@@ -6,15 +6,13 @@ import {
 	concept2UserSchema,
 	type GetConcept2UserInput,
 } from "@/schemas";
-import type { Context } from "@/server/context";
+import type { AuthenticatedContext } from "@/server/context";
 
-const responseSchema = z.object({
-	data: concept2UserSchema,
-});
+const responseSchema = z.object({ data: concept2UserSchema });
 
 export async function getConcept2UserQuery(
 	input: GetConcept2UserInput,
-	_ctx: Context,
+	_ctx: AuthenticatedContext,
 ): Promise<PromiseSettledResult<Concept2User>> {
 	const config = getConcept2Config();
 
@@ -61,8 +59,5 @@ export async function getConcept2UserQuery(
 		};
 	}
 
-	return {
-		status: "fulfilled",
-		value: parsedResponse.data.data,
-	};
+	return { status: "fulfilled", value: parsedResponse.data.data };
 }

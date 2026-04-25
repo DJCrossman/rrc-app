@@ -1,5 +1,5 @@
 import { clerkClient } from "@clerk/nextjs/server";
-import type { Context } from "@/server/context";
+import type { AuthenticatedContext } from "@/server/context";
 import { mapToUserDto } from "@/server/routers/users/common/map-to-user-dto";
 
 const DEFAULT_PHONE_NUMBER = "+13065550123";
@@ -8,10 +8,8 @@ const DEFAULT_DATE_OF_BIRTH = new Date("1900-01-01T00:00:00.000Z");
 
 export async function findOrCreateUserAndAthleteByUserIdCommand(
 	_input: undefined,
-	{ db, userId }: Context,
+	{ db, userId }: AuthenticatedContext,
 ) {
-	if (!userId) throw new Error("Unauthenticated");
-
 	const existingUser = await db.athlete.findUnique({ where: { userId } });
 	if (existingUser) {
 		return mapToUserDto(existingUser);

@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { createServerCaller } from "@/server/caller";
 import type { StravaTokenData } from "../types";
 import { getStravaConfig, saveAthlete, saveTokens } from "../utils";
 
@@ -57,6 +58,11 @@ export async function GET(request: Request) {
 		const tokenData: StravaTokenData = await tokenResponse.json();
 		await saveTokens({ tokenData, cookieStore });
 		await saveAthlete({ athlete: tokenData.athlete, cookieStore });
+
+		const caller = await createServerCaller();
+		await caller.activities.connectStrava({
+			stravaAthleteId: tokenData.athlete.id.toString(),
+		});
 
 		return NextResponse.redirect(new URL("/settings/apps", request.url));
 	} catch (error) {

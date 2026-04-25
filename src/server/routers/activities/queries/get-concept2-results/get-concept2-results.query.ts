@@ -6,7 +6,7 @@ import {
 	concept2ActivitySchema,
 	type GetConcept2ResultsInput,
 } from "@/schemas";
-import type { Context } from "@/server/context";
+import type { AuthenticatedContext } from "@/server/context";
 
 const responseSchema = z.object({
 	data: z.array(concept2ActivitySchema),
@@ -24,7 +24,7 @@ const responseSchema = z.object({
 
 export async function getConcept2ResultsQuery(
 	input: GetConcept2ResultsInput,
-	_ctx: Context,
+	_ctx: AuthenticatedContext,
 ): Promise<PromiseSettledResult<Concept2Activity[]>> {
 	const config = getConcept2Config();
 
@@ -75,8 +75,5 @@ export async function getConcept2ResultsQuery(
 		};
 	}
 
-	return {
-		status: "fulfilled",
-		value: parsedResponse.data.data,
-	};
+	return { status: "fulfilled", value: parsedResponse.data.data };
 }

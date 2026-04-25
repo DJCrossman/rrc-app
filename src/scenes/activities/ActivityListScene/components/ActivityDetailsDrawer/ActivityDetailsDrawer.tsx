@@ -90,8 +90,8 @@ export const ActivityDetailsDrawer = ({
 								distance: activity.distance,
 								athleteId: activity.athlete.id,
 								boatId:
-									activity.type === "water" ? activity.boat.id : undefined,
-								ergId: activity.type === "erg" ? activity.erg.id : undefined,
+									activity.type === "water" ? activity.boat?.id : undefined,
+								ergId: activity.type === "erg" ? activity.erg?.id : undefined,
 								workoutId: activity.workout?.id,
 							}}
 							onCancel={() => setIsEditing(false)}
@@ -126,12 +126,12 @@ export const ActivityDetailsDrawer = ({
 								<div>
 									<strong>Athlete:</strong> {activity.athlete.name}
 								</div>
-								{activity.type === "water" && (
+								{activity.type === "water" && activity.boat && (
 									<div>
 										<strong>Boat:</strong> {activity.boat.name}
 									</div>
 								)}
-								{activity.type === "erg" && (
+								{activity.type === "erg" && activity.erg && (
 									<div>
 										<strong>ERG:</strong> {activity.erg.name}
 									</div>

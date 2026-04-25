@@ -29,3 +29,8 @@ export const getStravaAthleteInputSchema = z.object({
 	accessToken: z.string().optional(),
 });
 export type GetStravaAthleteInput = z.infer<typeof getStravaAthleteInputSchema>;
+
+export const connectStravaInputSchema = z.object({
+	stravaAthleteId: z.string(),
+});
+export type ConnectStravaInput = z.infer<typeof connectStravaInputSchema>;

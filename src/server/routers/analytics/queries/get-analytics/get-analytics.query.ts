@@ -1,12 +1,11 @@
 import { DateTime } from "luxon";
-import type { Context } from "@/server/context";
+import type { AuthenticatedContext } from "@/server/context";
 import { mapToAthleteDto } from "@/server/routers/athletes/common/map-to-athlete-dto";
 
 export async function getAnalyticsQuery(
 	_input: undefined,
-	{ db, userId }: Context,
+	{ db, userId }: AuthenticatedContext,
 ) {
-	if (!userId) throw new Error("Unauthenticated");
 	const athlete = await db.athlete.findUnique({
 		where: { userId },
 	});

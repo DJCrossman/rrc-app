@@ -2,6 +2,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { CurrentUserProvider, useAuth } from "@/hooks/useAuth";
+import { SyncStatusProvider } from "@/hooks/useSyncStatus";
 
 const PUBLIC_ROUTES = new Set(["/login", "/signup"]);
 
@@ -40,7 +41,7 @@ export const AuthenticatedLayout = ({
 	}
 	return (
 		<CurrentUserProvider {...auth} user={user}>
-			{children}
+			<SyncStatusProvider>{children}</SyncStatusProvider>
 		</CurrentUserProvider>
 	);
 };

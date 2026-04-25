@@ -82,7 +82,7 @@ const getConcept2Values = async (
 			return { concept2Connected: false, concept2UserId: null };
 		}
 
-		const concept2UserResponse = await trpc.concept2.getConcept2User({
+		const concept2UserResponse = await trpc.activities.getConcept2User({
 			accessToken,
 		});
 
@@ -123,7 +123,7 @@ const getStravaValues = async (
 			return { stravaConnected: false, stravaAthleteId: null };
 		}
 
-		const stravaAthleteResponse = await trpc.strava.getStravaAthlete({
+		const stravaAthleteResponse = await trpc.activities.getStravaAthlete({
 			accessToken,
 		});
 

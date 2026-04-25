@@ -22,3 +22,8 @@ export const getConcept2UserInputSchema = z.object({
 	accessToken: z.string(),
 });
 export type GetConcept2UserInput = z.infer<typeof getConcept2UserInputSchema>;
+
+export const connectConcept2InputSchema = z.object({
+	concept2UserId: z.number(),
+});
+export type ConnectConcept2Input = z.infer<typeof connectConcept2InputSchema>;

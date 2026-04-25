@@ -1,6 +1,7 @@
 "use client";
 
 import { IconBrandStrava } from "@tabler/icons-react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -23,9 +24,11 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { useCurrentUser } from "@/hooks/useAuth";
+import { type SyncSource, useSyncStatus } from "@/hooks/useSyncStatus";
+import { trpcClient } from "@/lib/trpc/client";
 
 export type IntegrationApplication = {
-	id: "concept2" | "strava";
+	id: SyncSource;
 	name: string;
 	description: string;
 	authUrl: string;
@@ -55,8 +58,39 @@ export const AccountAppsScene = ({
 	integrations: IntegrationApplication[];
 }) => {
 	const { user } = useCurrentUser();
+	const utils = trpcClient.useUtils();
+	const { runningSources, cooldownSources } = useSyncStatus();
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [selectedApp, setSelectedApp] = useState<IntegrationApplication>();
+
+	const onSyncSettled = () => {
+		utils.activities.getActivities.invalidate();
+		utils.activities.getPendingInboxBatches.invalidate();
+	};
+
+	const stravaSync = trpcClient.activities.syncStravaActivities.useMutation({
+		onSuccess: onSyncSettled,
+		onError: onSyncSettled,
+	});
+
+	const concept2Sync = trpcClient.activities.syncConcept2Activities.useMutation(
+		{ onSuccess: onSyncSettled, onError: onSyncSettled },
+	);
+
+	const isSyncing = (source: SyncSource): boolean => {
+		if (source === "strava" && stravaSync.isPending) return true;
+		if (source === "concept2" && concept2Sync.isPending) return true;
+		return runningSources.has(source);
+	};
+
+	const isLocked = (source: SyncSource): boolean =>
+		isSyncing(source) || cooldownSources.has(source);
+
+	const startSync = (source: SyncSource) => {
+		if (isLocked(source)) return;
+		if (source === "strava") stravaSync.mutate();
+		else concept2Sync.mutate();
+	};
 
 	return (
 		<div className="space-y-6">
@@ -93,35 +127,54 @@ export const AccountAppsScene = ({
 							<CardContent>
 								<CardDescription>{app.description}</CardDescription>
 							</CardContent>
-							<CardFooter>
-								{!!app.authUrl && !isConnected && (
-									<Button
-										asChild
-										variant={isConnected ? "outline" : "default"}
-										className="w-full"
-									>
+							<CardFooter className="gap-2">
+								{!isConnected && app.authUrl && (
+									<Button asChild className="w-full">
 										<Link href={app.authUrl}>Connect</Link>
 									</Button>
 								)}
-								{!app.authUrl && (
+								{!isConnected && !app.authUrl && (
 									<Button
 										onClick={() => {
-											if (isConnected) {
-												// Show disconnect confirmation dialog
-												setSelectedApp(app);
-												setDialogOpen(true);
-											} else {
-												toast.success(`Connected to ${app?.name}`, {
-													description:
-														"Your account has been successfully linked",
-												});
-											}
+											toast.success(`Connected to ${app?.name}`, {
+												description:
+													"Your account has been successfully linked",
+											});
 										}}
-										variant={isConnected ? "outline" : "default"}
 										className="w-full"
 									>
-										{isConnected ? "Disconnect" : "Connect"}
+										Connect
 									</Button>
+								)}
+								{isConnected && (
+									<>
+										<Button
+											onClick={() => startSync(app.id)}
+											disabled={isLocked(app.id)}
+											className="flex-1"
+										>
+											{isSyncing(app.id) ? (
+												<>
+													<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+													Syncing…
+												</>
+											) : cooldownSources.has(app.id) ? (
+												"Sync (cooling down)"
+											) : (
+												"Sync"
+											)}
+										</Button>
+										<Button
+											variant="outline"
+											className="flex-1"
+											onClick={() => {
+												setSelectedApp(app);
+												setDialogOpen(true);
+											}}
+										>
+											Disconnect
+										</Button>
+									</>
 								)}
 							</CardFooter>
 						</Card>

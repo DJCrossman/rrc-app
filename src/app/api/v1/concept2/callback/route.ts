@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { createServerCaller } from "@/server/caller";
 import {
 	type Concept2TokenData,
 	getConcept2Config,
@@ -60,6 +61,21 @@ export async function GET(request: Request) {
 
 		const tokenData: Concept2TokenData = await tokenResponse.json();
 		await saveTokens({ tokenData, cookieStore });
+
+		const caller = await createServerCaller();
+		const concept2UserResponse = await caller.activities.getConcept2User({
+			accessToken: tokenData.access_token,
+		});
+		if (concept2UserResponse.status === "fulfilled") {
+			await caller.activities.connectConcept2({
+				concept2UserId: concept2UserResponse.value.id,
+			});
+		} else {
+			console.error(
+				"Failed to fetch Concept2 user after connect:",
+				concept2UserResponse.reason,
+			);
+		}
 
 		return NextResponse.redirect(new URL("/settings/apps", request.url));
 	} catch (error) {

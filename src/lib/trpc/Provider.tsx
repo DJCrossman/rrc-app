@@ -15,7 +15,7 @@ export const TRPCReactProvider = ({ children }: PropsWithChildren) => {
 						process.env.NODE_ENV === "development" ||
 						(op.direction === "down" && op.result instanceof Error),
 				}),
-				httpBatchLink({ url: "/api/trpc" }),
+				httpBatchLink({ url: "/api/v1/trpc" }),
 			],
 		}),
 	);

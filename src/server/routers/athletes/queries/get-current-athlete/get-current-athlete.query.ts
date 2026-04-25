@@ -1,4 +1,4 @@
-import type { Context } from "@/server/context";
+import type { AuthenticatedContext } from "@/server/context";
 import {
 	athleteInclude,
 	mapToAthleteDto,
@@ -6,9 +6,8 @@ import {
 
 export async function getCurrentAthleteQuery(
 	_input: undefined,
-	{ db, userId }: Context,
+	{ db, userId }: AuthenticatedContext,
 ) {
-	if (!userId) throw new Error("Unauthenticated");
 	const row = await db.athlete.findUnique({
 		where: { userId },
 		include: athleteInclude,

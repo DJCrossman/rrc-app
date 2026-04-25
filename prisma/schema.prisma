@@ -21,16 +21,16 @@ enum Gender {
 }
 
 model athlete {
-  id              String       @id @default(dbgenerated("generate_id('ath_')"))
-  userId          String?      @unique
+  id              String           @id @default(dbgenerated("generate_id('ath_'::text)"))
+  userId          String?          @unique
   firstName       String
   lastName        String
   nickname        String?
   phone           String
-  email           String?      @unique
-  role            Role         @default(member)
+  email           String?          @unique
+  role            Role             @default(member)
   gender          Gender
-  dateOfBirth     DateTime     @db.Date
+  dateOfBirth     DateTime         @db.Date
   dateJoined      DateTime?
   heightInCm      Float?
   weightInKg      Float?
@@ -38,8 +38,9 @@ model athlete {
   stravaAthleteId String?
   memberships     membership[]
   activities      activity[]
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  inboxBatches    activity_inbox[]
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 }
 
 // ── Program / Membership ──────────────────────────────────────────────────────
@@ -51,7 +52,7 @@ enum ProgramType {
 }
 
 model program {
-  id          String       @id @default(dbgenerated("generate_id('prog_')"))
+  id          String       @id @default(dbgenerated("generate_id('prog_'::text)"))
   name        String
   description String
   programType ProgramType
@@ -61,7 +62,7 @@ model program {
 }
 
 model membership {
-  id        String  @id @default(dbgenerated("generate_id('mem_')"))
+  id        String  @id @default(dbgenerated("generate_id('mem_'::text)"))
   athleteId String
   programId String
   athlete   athlete @relation(fields: [athleteId], references: [id])
@@ -76,7 +77,7 @@ enum WeightUnit {
 }
 
 model boat {
-  id                  String     @id @default(dbgenerated("generate_id('boat_')"))
+  id                  String     @id @default(dbgenerated("generate_id('boat_'::text)"))
   name                String
   manufacturer        String
   seats               String
@@ -90,7 +91,7 @@ model boat {
 // ── Erg ───────────────────────────────────────────────────────────────────────
 
 model erg {
-  id              String     @id @default(dbgenerated("generate_id('erg_')"))
+  id              String     @id @default(dbgenerated("generate_id('erg_'::text)"))
   name            String
   manufacturer    String
   firmwareVersion String?
@@ -118,7 +119,7 @@ enum IntensityCategory {
 }
 
 model workout {
-  id                String             @id @default(dbgenerated("generate_id('work_')"))
+  id                String             @id @default(dbgenerated("generate_id('work_'::text)"))
   description       String
   startDate         DateTime
   workoutType       WorkoutType
@@ -131,7 +132,7 @@ model workout {
 }
 
 model workout_fragment {
-  id            String  @id @default(dbgenerated("generate_id('work_frag_')"))
+  id            String  @id @default(dbgenerated("generate_id('work_frag_'::text)"))
   workoutId     String
   rate          Int?
   elapsedTime   Int?
@@ -149,7 +150,7 @@ enum ActivityType {
 }
 
 model activity {
-  id             String       @id @default(dbgenerated("generate_id('act_')"))
+  id             String       @id @default(dbgenerated("generate_id('act_'::text)"))
   name           String
   startDate      DateTime
   timezone       String
@@ -161,14 +162,54 @@ model activity {
   boatId         String?
   ergId          String?
   workoutId      String?
-  stravaId       Int?
+  stravaId       BigInt?
   stravaData     Json?
-  conceptTwoId   Int?
+  conceptTwoId   BigInt?
   conceptTwoData Json?
-  athlete        athlete  @relation(fields: [athleteId], references: [id])
-  boat           boat?    @relation(fields: [boatId], references: [id])
-  erg            erg?     @relation(fields: [ergId], references: [id])
-  workout        workout? @relation(fields: [workoutId], references: [id])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  athlete        athlete      @relation(fields: [athleteId], references: [id])
+  boat           boat?        @relation(fields: [boatId], references: [id])
+  erg            erg?         @relation(fields: [ergId], references: [id])
+  workout        workout?     @relation(fields: [workoutId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([athleteId, stravaId])
+  @@unique([athleteId, conceptTwoId])
+}
+
+// ── Activity Inbox ────────────────────────────────────────────────────────────
+
+enum IntegrationSource {
+  strava
+  concept2
+}
+
+enum ActivityInboxKind {
+  sync
+  webhook
+}
+
+enum ActivityInboxStatus {
+  pending
+  running
+  completed
+  failed
+}
+
+model activity_inbox {
+  id                String              @id @default(dbgenerated("generate_id('inbox_'::text)"))
+  athleteId         String
+  source            IntegrationSource
+  kind              ActivityInboxKind
+  status            ActivityInboxStatus @default(pending)
+  payload           Json
+  receivedAt        DateTime            @default(now())
+  completedAt       DateTime?
+  errorMessage      String?
+  activitiesCreated Int                 @default(0)
+  attempts          Int                 @default(0)
+  athlete           athlete             @relation(fields: [athleteId], references: [id])
+
+  @@index([athleteId, status])
+  @@index([status, receivedAt])
 }
