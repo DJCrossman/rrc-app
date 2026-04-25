@@ -88,7 +88,7 @@
 		"@types/react": "^19.2.7",
 		"@types/react-dom": "^19.2.3",
 		"@vitest/ui": "^4.0.18",
-		"baseline-browser-mapping": "^2.10.18",
+		"baseline-browser-mapping": "^2.10.22",
 		"happy-dom": "^20.4.0",
 		"neonctl": "^2.22.0",
 		"prisma": "^7.7.0",
