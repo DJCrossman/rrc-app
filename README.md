@@ -200,6 +200,27 @@ bun test             # Run tests
 bun lint             # Run linter
 bun run setup:ollama # Initial Ollama setup (one-time)
 bun run start:ollama # Manually start Ollama server
+bun run db:migrate         # Run Prisma migrations
+bun run db:branch:create   # Create a Neon `develop` branch off `main`
+bun run db:branch:reset    # Reset `develop` back on top of `main`
+```
+
+## Database (Neon)
+
+For local development we work against a Neon branch called `develop` so that
+nothing touches the `main` branch. Authenticate the Neon CLI once with
+`bunx neonctl auth` (or set `NEON_API_KEY`), then set `NEON_PROJECT_ID` in
+`.env`.
+
+```bash
+# Spin up a fresh `develop` branch off `main` and print connection strings
+bun run db:branch:create
+
+# Paste the printed DATABASE_URL / DATABASE_URL_UNPOOLED into .env, then:
+bun run db:migrate
+
+# When `develop` drifts or accumulates junk, reset it on top of `main`
+bun run db:branch:reset
 ```
 
 ## Learn More
