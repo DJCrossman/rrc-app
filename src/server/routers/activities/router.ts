@@ -3,6 +3,8 @@ import { connectConcept2Procedure } from "./commands/connect-concept2/connect-co
 import { connectStravaProcedure } from "./commands/connect-strava/connect-strava.procedure";
 import { createActivityProcedure } from "./commands/create-activity/create-activity.procedure";
 import { deleteActivityProcedure } from "./commands/delete-activity/delete-activity.procedure";
+import { disconnectConcept2Procedure } from "./commands/disconnect-concept2/disconnect-concept2.procedure";
+import { disconnectStravaProcedure } from "./commands/disconnect-strava/disconnect-strava.procedure";
 import { processConcept2InboxBatchProcedure } from "./commands/process-concept2-inbox-batch/process-concept2-inbox-batch.procedure";
 import { processStravaInboxBatchProcedure } from "./commands/process-strava-inbox-batch/process-strava-inbox-batch.procedure";
 import { syncConcept2ActivitiesProcedure } from "./commands/sync-concept2-activities/sync-concept2-activities.procedure";
@@ -25,10 +27,12 @@ export const activitiesRouter = router({
 	getStravaAthlete: getStravaAthleteProcedure,
 	getStravaActivities: getStravaActivitiesProcedure,
 	connectStrava: connectStravaProcedure,
+	disconnectStrava: disconnectStravaProcedure,
 	syncStravaActivities: syncStravaActivitiesProcedure,
 	getConcept2User: getConcept2UserProcedure,
 	getConcept2Results: getConcept2ResultsProcedure,
 	connectConcept2: connectConcept2Procedure,
+	disconnectConcept2: disconnectConcept2Procedure,
 	syncConcept2Activities: syncConcept2ActivitiesProcedure,
 	getPendingInboxBatches: getPendingInboxBatchesProcedure,
 	processStravaInboxBatch: processStravaInboxBatchProcedure,

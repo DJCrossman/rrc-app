@@ -1,6 +1,7 @@
 "use client";
 
 import { IconBrandStrava } from "@tabler/icons-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -59,6 +60,7 @@ export const AccountAppsScene = ({
 }) => {
 	const { user } = useCurrentUser();
 	const utils = trpcClient.useUtils();
+	const queryClient = useQueryClient();
 	const { runningSources, cooldownSources } = useSyncStatus();
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [selectedApp, setSelectedApp] = useState<IntegrationApplication>();
@@ -77,6 +79,25 @@ export const AccountAppsScene = ({
 		{ onSuccess: onSyncSettled, onError: onSyncSettled },
 	);
 
+	const stravaDisconnect = trpcClient.activities.disconnectStrava.useMutation({
+		onSuccess: () => {
+			queryClient.invalidateQueries();
+			toast.success(`Disconnected from Strava`, {
+				description: "Your account has been unlinked",
+			});
+		},
+	});
+
+	const concept2Disconnect =
+		trpcClient.activities.disconnectConcept2.useMutation({
+			onSuccess: () => {
+				queryClient.invalidateQueries();
+				toast.success(`Disconnected from Concept2`, {
+					description: "Your account has been unlinked",
+				});
+			},
+		});
+
 	const isSyncing = (source: SyncSource): boolean => {
 		if (source === "strava" && stravaSync.isPending) return true;
 		if (source === "concept2" && concept2Sync.isPending) return true;
@@ -91,6 +112,9 @@ export const AccountAppsScene = ({
 		if (source === "strava") stravaSync.mutate();
 		else concept2Sync.mutate();
 	};
+
+	const isDisconnecting =
+		stravaDisconnect.isPending || concept2Disconnect.isPending;
 
 	return (
 		<div className="space-y-6">
@@ -192,22 +216,38 @@ export const AccountAppsScene = ({
 						</DialogDescription>
 					</DialogHeader>
 					<DialogFooter>
-						<Button variant="outline" onClick={() => setDialogOpen(false)}>
+						<Button
+							variant="outline"
+							onClick={() => setDialogOpen(false)}
+							disabled={isDisconnecting}
+						>
 							Cancel
 						</Button>
 						<Button
 							variant="destructive"
 							onClick={() => {
-								if (selectedApp) {
-									toast.success(`Disconnected from ${selectedApp.name}`, {
-										description: "Your account has been unlinked",
-									});
-								}
-								setDialogOpen(false);
-								setSelectedApp(undefined);
+								if (!selectedApp) return;
+								const mutation =
+									selectedApp.id === "strava"
+										? stravaDisconnect
+										: concept2Disconnect;
+								mutation.mutate(undefined, {
+									onSettled: () => {
+										setDialogOpen(false);
+										setSelectedApp(undefined);
+									},
+								});
 							}}
+							disabled={isDisconnecting}
 						>
-							Disconnect
+							{isDisconnecting ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									Disconnecting…
+								</>
+							) : (
+								"Disconnect"
+							)}
 						</Button>
 					</DialogFooter>
 				</DialogContent>

@@ -2,6 +2,8 @@ import { DateTime } from "luxon";
 import type { cookies } from "next/headers";
 import type { StravaTokenData } from "@/app/api/v1/strava/types";
 import {
+	clearAthlete,
+	clearTokens,
 	getAccessToken,
 	getRefreshToken,
 	getStravaConfig,
@@ -31,6 +33,7 @@ export type StravaService = {
 	fetchAllRowingActivities: () => Promise<StravaActivity[]>;
 	fetchRecentRowingActivities: () => Promise<StravaActivity[]>;
 	fetchAthlete: () => Promise<StravaUser>;
+	disconnect: () => Promise<void>;
 };
 
 export class StravaServiceError extends Error {
@@ -290,11 +293,18 @@ export function createStravaService({
 		return parsed.data;
 	}
 
+	async function disconnect(): Promise<void> {
+		await clearTokens({ cookieStore });
+		await clearAthlete({ cookieStore });
+		logger.info("disconnected — cleared tokens and athlete cookie");
+	}
+
 	return {
 		resolveAccessToken,
 		fetchAllRowingActivities,
 		fetchRecentRowingActivities,
 		fetchAthlete,
+		disconnect,
 	};
 }
 

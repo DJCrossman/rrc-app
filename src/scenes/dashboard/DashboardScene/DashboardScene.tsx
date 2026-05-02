@@ -10,6 +10,7 @@ import type {
 	MetersTimeSeries,
 } from "@/lib/trpc/types";
 import {
+	IntegrationAlert,
 	LeaderboardTable,
 	MetersTimeSeriesChart,
 } from "@/scenes/dashboard/DashboardScene/components";
@@ -42,14 +43,17 @@ export const DashboardScene = ({ data }: IProps) => {
 				<div className="flex flex-1 flex-col">
 					<div className="@container/main flex flex-1 flex-col gap-2">
 						<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+							<IntegrationAlert />
 							<AnalyticMetricCards data={data.analyticMetrics} />
-							<div className="px-4 lg:px-6">
-								<MetersTimeSeriesChart
-									data={data.metersTimeSeries}
-									timeRange={period}
-									setTimeRange={setPeriod}
-								/>
-							</div>
+							{data.metersTimeSeries.length > 0 && (
+								<div className="px-4 lg:px-6">
+									<MetersTimeSeriesChart
+										data={data.metersTimeSeries}
+										timeRange={period}
+										setTimeRange={setPeriod}
+									/>
+								</div>
+							)}
 							<LeaderboardTable data={data.leaderboard} />
 						</div>
 					</div>

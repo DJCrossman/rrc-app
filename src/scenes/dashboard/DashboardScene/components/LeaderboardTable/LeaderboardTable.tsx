@@ -22,6 +22,7 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import { FlameIcon, SnowflakeIcon } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,7 @@ import {
 	formatMeters,
 	formatProgram,
 } from "@/lib/formatters";
+import { routes } from "@/lib/routes";
 import type { Leaderboard } from "@/lib/trpc/types";
 
 const columns: ColumnDef<Leaderboard[number]>[] = [
@@ -66,9 +68,11 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
 		header: "Program",
 		cell: ({ row }) => (
 			<div className="w-16">
-				<Badge variant="outline" className="text-muted-foreground px-1.5">
-					{formatProgram(row.original.programType)}
-				</Badge>
+				{row.original.programType && (
+					<Badge variant="outline" className="text-muted-foreground px-1.5">
+						{formatProgram(row.original.programType)}
+					</Badge>
+				)}
 			</div>
 		),
 		enableSorting: true,
@@ -212,9 +216,11 @@ export function LeaderboardTable({ data }: ILeaderboardTableProps) {
 				</Select>
 
 				<div className="flex items-center gap-2">
-					<Button variant="outline" size="sm">
-						<IconPlus />
-						<span className="hidden lg:inline">Add Workout</span>
+					<Button asChild variant="outline" size="sm">
+						<Link href={routes.activities.create()}>
+							<IconPlus />
+							<span className="hidden lg:inline">Track Activity</span>
+						</Link>
 					</Button>
 				</div>
 			</div>

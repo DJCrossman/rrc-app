@@ -2,6 +2,7 @@ import type { cookies } from "next/headers";
 import { z } from "zod";
 import {
 	type Concept2TokenData,
+	clearTokens,
 	getAccessToken,
 	getConcept2Config,
 	getRefreshToken,
@@ -34,6 +35,7 @@ const responseSchema = z.object({
 export type Concept2Service = {
 	resolveAccessToken: () => Promise<string | null>;
 	fetchAllResults: (type: "rower" | "water") => Promise<Concept2Activity[]>;
+	disconnect: () => Promise<void>;
 };
 
 export function createConcept2Service({
@@ -164,5 +166,10 @@ export function createConcept2Service({
 		return all;
 	}
 
-	return { resolveAccessToken, fetchAllResults };
+	async function disconnect(): Promise<void> {
+		await clearTokens({ cookieStore });
+		logger.info("disconnected — cleared tokens");
+	}
+
+	return { resolveAccessToken, fetchAllResults, disconnect };
 }
