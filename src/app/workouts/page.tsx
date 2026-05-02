@@ -1,6 +1,5 @@
 import { DateTime } from "luxon";
 import { z } from "zod";
-import { envVars } from "@/lib/env";
 import { WorkoutListScene } from "@/scenes/workouts";
 import { createServerCaller } from "@/server/caller";
 
@@ -33,7 +32,6 @@ export default async function WorkoutsPage({
 			currentWeekIsoDate={week}
 			isCreateDrawerOpen={action === "create"}
 			analyticMetrics={analyticMetrics}
-			isAIEnabled={envVars.NEXT_PUBLIC_AI_ENABLED}
 		/>
 	);
 }

@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { envVars } from "@/lib/env";
 import { ActivityListScene } from "@/scenes/activities";
 import { createServerCaller } from "@/server/caller";
 
@@ -40,7 +39,6 @@ export default async function ActivitiesPage({
 			ergs={ergs}
 			workouts={workouts}
 			isCreateDrawerOpen={action === "create"}
-			isAIEnabled={envVars.NEXT_PUBLIC_AI_ENABLED}
 		/>
 	);
 }

@@ -12,10 +12,6 @@ const zServerOnly = <T extends z.ZodTypeAny>(schema: T) =>
 export const envVars = z
 	.object({
 		NEXT_PUBLIC_HOME_URL: z.url().default("https://www.reginarowing.com/"),
-		NEXT_PUBLIC_AI_ENABLED: z
-			.string()
-			.transform((val) => val === "true")
-			.default(false),
 		C2_CLIENT_ID: z.string().optional(),
 		C2_CLIENT_SECRET: z.string().optional(),
 		OLLAMA_HOST: z.url().default("http://localhost:11434/api"),
@@ -31,7 +27,6 @@ export const envVars = z
 	 */
 	.parse({
 		NEXT_PUBLIC_HOME_URL: process.env.NEXT_PUBLIC_HOME_URL,
-		NEXT_PUBLIC_AI_ENABLED: process.env.NEXT_PUBLIC_AI_ENABLED,
 		C2_CLIENT_ID: process.env.C2_CLIENT_ID,
 		C2_CLIENT_SECRET: process.env.C2_CLIENT_SECRET,
 		OLLAMA_HOST: process.env.OLLAMA_HOST,

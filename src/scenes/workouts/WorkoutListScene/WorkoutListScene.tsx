@@ -22,7 +22,6 @@ interface WorkoutListSceneProps {
 	selectedWorkout: Workout | null;
 	isCreateDrawerOpen: boolean;
 	analyticMetrics?: Pick<AnalyticMetrics, "lastTwoKm" | "lastSixKm">;
-	isAIEnabled: boolean;
 }
 
 export const WorkoutListScene = ({
@@ -31,7 +30,6 @@ export const WorkoutListScene = ({
 	selectedWorkout,
 	isCreateDrawerOpen,
 	analyticMetrics,
-	isAIEnabled,
 }: WorkoutListSceneProps) => {
 	const router = useRouter();
 	const utils = trpcClient.useUtils();
@@ -112,9 +110,6 @@ export const WorkoutListScene = ({
 				onUploadWorkoutScreenshot={async (
 					file: File,
 				): Promise<UploadWorkoutScreenshotResult> => {
-					if (!isAIEnabled) {
-						throw new Error("AI features are not enabled");
-					}
 					const formData = new FormData();
 					formData.append("file", file);
 

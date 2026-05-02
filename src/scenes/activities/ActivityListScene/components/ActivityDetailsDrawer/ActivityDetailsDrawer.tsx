@@ -29,7 +29,7 @@ interface ActivityDetailsDrawerProps {
 	workouts: Workouts;
 	onClose: () => void;
 	onSubmit: (data: UpdateActivity) => Promise<void> | void;
-	onUploadErgActivityScreenshot?: UploadErgActivityScreenshot;
+	onUploadErgActivityScreenshot: UploadErgActivityScreenshot;
 }
 
 export const ActivityDetailsDrawer = ({

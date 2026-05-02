@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AlertCircleIcon, MaximizeIcon, XIcon } from "lucide-react";
+import { MaximizeIcon, XIcon } from "lucide-react";
 import { DateTime } from "luxon";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,7 +28,7 @@ interface ActivityFormProps {
 	workouts: Workouts;
 	defaultValues?: Partial<CreateActivity>;
 	onSubmit: SubmitHandler<CreateActivity>;
-	onUploadErgActivityScreenshot?: UploadErgActivityScreenshot;
+	onUploadErgActivityScreenshot: UploadErgActivityScreenshot;
 	onCancel?: (() => void) | string;
 	isImageFullscreen: boolean;
 	setIsImageFullscreen: (isFullscreen: boolean) => void;
@@ -42,7 +42,6 @@ export function ActivityForm({
 	isImageFullscreen,
 	setIsImageFullscreen,
 }: ActivityFormProps) {
-	const isAIEnabled = !!onUploadErgActivityScreenshot;
 	const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
 	const [uploadError, setUploadError] = useState<string | null>(null);
@@ -118,34 +117,10 @@ export function ActivityForm({
 		[onUploadErgActivityScreenshot, form],
 	);
 
-	if (!isAIEnabled || form.watch("type") !== "erg") {
-		return (
-			<div className="p-4 rounded">
-				<div className="mb-4 flex items-start gap-3">
-					<div className="mt-1 rounded-lg bg-muted p-2">
-						<AlertCircleIcon className="h-5 w-5 text-muted-foreground" />
-					</div>
-					<div>
-						<h2 className="font-semibold text-foreground">
-							Screenshot Parsing Unavailable
-						</h2>
-						<p className="text-sm text-muted-foreground mt-1">
-							This feature is coming soon. Please manually enter your activity
-							details below.
-						</p>
-						<p className="mt-3">
-							<CancelButton onCancel={cancelLinkOrAction} />
-						</p>
-					</div>
-				</div>
-			</div>
-		);
-	}
-
 	return (
 		<Form {...form}>
 			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-				<fieldset className="space-y-2" disabled={isUploading || !isAIEnabled}>
+				<fieldset className="space-y-2" disabled={isUploading}>
 					<FormLabel>Upload ERG Screenshot</FormLabel>
 					{!uploadedFile && (
 						<div className="flex items-center gap-2">
@@ -278,10 +253,7 @@ export function ActivityForm({
 						</div>
 					</fieldset>
 				)}
-				<fieldset
-					className="flex justify-between gap-4"
-					disabled={isUploading || !isAIEnabled}
-				>
+				<fieldset className="flex justify-between gap-4" disabled={isUploading}>
 					<CancelButton onCancel={cancelLinkOrAction} />
 					<Button type="submit">Save</Button>
 				</fieldset>

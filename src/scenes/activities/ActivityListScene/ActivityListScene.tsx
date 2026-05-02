@@ -32,7 +32,6 @@ interface ActivityListSceneProps {
 	ergs: Ergs;
 	workouts: Workouts;
 	isCreateDrawerOpen: boolean;
-	isAIEnabled: boolean;
 }
 
 const uploadErgActivityScreenshot: UploadErgActivityScreenshot = async ({
@@ -66,7 +65,6 @@ export const ActivityListScene = ({
 	ergs,
 	workouts,
 	isCreateDrawerOpen,
-	isAIEnabled,
 }: ActivityListSceneProps) => {
 	const router = useRouter();
 	const utils = trpcClient.useUtils();
@@ -84,10 +82,6 @@ export const ActivityListScene = ({
 			router.refresh();
 		},
 	});
-
-	const onUploadErgActivityScreenshot = isAIEnabled
-		? uploadErgActivityScreenshot
-		: undefined;
 
 	return (
 		<SidebarProvider
@@ -122,7 +116,7 @@ export const ActivityListScene = ({
 					onSubmit={async (data) => {
 						await createActivity.mutateAsync(data);
 					}}
-					onUploadErgActivityScreenshot={onUploadErgActivityScreenshot}
+					onUploadErgActivityScreenshot={uploadErgActivityScreenshot}
 					onClose={() => router.push(routes.activities.list())}
 				/>
 			)}
@@ -135,7 +129,7 @@ export const ActivityListScene = ({
 				onSubmit={async (data) => {
 					await updateActivity.mutateAsync(data);
 				}}
-				onUploadErgActivityScreenshot={onUploadErgActivityScreenshot}
+				onUploadErgActivityScreenshot={uploadErgActivityScreenshot}
 				onClose={() => router.push(routes.activities.list())}
 			/>
 		</SidebarProvider>

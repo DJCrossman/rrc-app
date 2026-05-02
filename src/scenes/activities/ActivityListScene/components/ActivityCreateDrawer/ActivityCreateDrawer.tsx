@@ -24,7 +24,7 @@ interface ActivityCreateDrawerProps {
 	ergs: Ergs;
 	workouts: Workouts;
 	onSubmit: (data: CreateActivity) => Promise<void> | void;
-	onUploadErgActivityScreenshot?: UploadErgActivityScreenshot;
+	onUploadErgActivityScreenshot: UploadErgActivityScreenshot;
 	onClose: () => void;
 }
 
