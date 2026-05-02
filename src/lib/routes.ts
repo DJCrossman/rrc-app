@@ -12,6 +12,7 @@ export const routes = {
 	athletes: {
 		list: () => "/athletes",
 		create: () => "/athletes?action=create",
+		bulkCreate: () => "/athletes?action=bulkCreate",
 		view: (id: string) => `/athletes?athleteId=${id}`,
 	},
 	ergs: {

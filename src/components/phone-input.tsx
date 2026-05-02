@@ -2,7 +2,7 @@
 import { CheckIcon, ChevronsUpDown } from "lucide-react";
 import * as React from "react";
 import type { Control } from "react-hook-form";
-import {
+import RPNInputControlled, {
 	type FlagProps,
 	getCountryCallingCode,
 	type Country as RPNCountry,
@@ -55,6 +55,27 @@ export const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
 		},
 	);
 PhoneInput.displayName = "PhoneInput";
+
+type PhoneInputControlledProps = RPNProps<typeof RPNInputControlled>;
+
+export const PhoneInputControlled: React.ForwardRefExoticComponent<PhoneInputControlledProps> =
+	React.forwardRef<
+		React.ElementRef<typeof RPNInputControlled>,
+		PhoneInputControlledProps
+	>(({ className, ...props }, ref) => {
+		return (
+			<RPNInputControlled
+				ref={ref}
+				className={cn("flex", className)}
+				flagComponent={FlagComponent}
+				countrySelectComponent={CountrySelect}
+				inputComponent={InputComponent}
+				smartCaret={false}
+				{...props}
+			/>
+		);
+	});
+PhoneInputControlled.displayName = "PhoneInputControlled";
 
 const InputComponent = React.forwardRef<
 	HTMLInputElement,

@@ -45,15 +45,29 @@ function DrawerOverlay({
   )
 }
 
+/**
+ * Provides the live `DrawerContent` DOM node so descendants can portal popovers
+ * (Calendar, ComboBox, etc.) inside the drawer instead of `document.body`.
+ * Portaling outside makes those popovers a sibling of the modal Dialog, which
+ * Radix marks `aria-hidden`/`inert`, breaking interaction.
+ */
+const DrawerContentContext = React.createContext<HTMLElement | null>(null)
+
+function useDrawerContentContainer() {
+  return React.useContext(DrawerContentContext)
+}
+
 function DrawerContent({
   className,
   children,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Content>) {
+  const [container, setContainer] = React.useState<HTMLElement | null>(null)
   return (
     <DrawerPortal data-slot="drawer-portal">
       <DrawerOverlay />
       <DrawerPrimitive.Content
+        ref={setContainer}
         data-slot="drawer-content"
         className={cn(
           "group/drawer-content bg-background fixed z-50 flex h-auto flex-col",
@@ -66,7 +80,9 @@ function DrawerContent({
         {...props}
       >
         <div className="bg-muted mx-auto mt-4 hidden h-2 w-[100px] shrink-0 rounded-full group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
-        {children}
+        <DrawerContentContext.Provider value={container}>
+          {children}
+        </DrawerContentContext.Provider>
       </DrawerPrimitive.Content>
     </DrawerPortal>
   )
@@ -132,4 +148,5 @@ export {
   DrawerFooter,
   DrawerTitle,
   DrawerDescription,
+  useDrawerContentContainer,
 }

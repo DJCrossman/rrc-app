@@ -3,6 +3,7 @@
 import * as React from 'react';
 
 import { Calendar } from '@/components/ui/calendar';
+import { useDrawerContentContainer } from '@/components/ui/drawer';
 import {
   Popover,
   PopoverContent,
@@ -43,42 +44,49 @@ interface DateInputProps
   onChange?: (e: PartialChangeEvent) => void;
 }
 
-export const DateInput = ({ value, onChange, ...props }: DateInputProps) => (
-  <Popover>
-    <PopoverTrigger asChild>
-      <Input
-        {...props}
-        type="date"
-        className={cn(
-          isSafari ? 'safari-date' : '',
-          !hasNativeSupport ? 'unsupported-date' : '',
-          props.className,
-        )}
-        value={value ?? ''}
-        onChange={onChange}
-      />
-    </PopoverTrigger>
-    {!hasNativeSupport && (
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          captionLayout="dropdown"
-          selected={value ? DateTime.fromISO(value).toJSDate() : undefined}
-          defaultMonth={value ? DateTime.fromISO(value).toJSDate() : undefined}
-          onSelect={(date?: Date) =>
-            onChange?.({
-              target: {
-                value: date
-                  ? (DateTime.fromJSDate(date).toISODate() ?? '')
-                  : '',
-                name: props.name,
-              },
-            })
-          }
-          initialFocus
-          required={props.required}
+export const DateInput = ({ value, onChange, ...props }: DateInputProps) => {
+  const drawerContainer = useDrawerContentContainer();
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Input
+          {...props}
+          type="date"
+          className={cn(
+            isSafari ? 'safari-date' : '',
+            !hasNativeSupport ? 'unsupported-date' : '',
+            props.className,
+          )}
+          value={value ?? ''}
+          onChange={onChange}
         />
-      </PopoverContent>
-    )}
-  </Popover>
-);
+      </PopoverTrigger>
+      {!hasNativeSupport && (
+        <PopoverContent
+          className="w-auto p-0"
+          align="start"
+          container={drawerContainer ?? undefined}
+        >
+          <Calendar
+            mode="single"
+            captionLayout="dropdown"
+            selected={value ? DateTime.fromISO(value).toJSDate() : undefined}
+            defaultMonth={value ? DateTime.fromISO(value).toJSDate() : undefined}
+            onSelect={(date?: Date) =>
+              onChange?.({
+                target: {
+                  value: date
+                    ? (DateTime.fromJSDate(date).toISODate() ?? '')
+                    : '',
+                  name: props.name,
+                },
+              })
+            }
+            initialFocus
+            required={props.required}
+          />
+        </PopoverContent>
+      )}
+    </Popover>
+  );
+};

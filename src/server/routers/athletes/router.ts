@@ -1,4 +1,5 @@
 import { router } from "@/server/trpc";
+import { bulkCreateAthletesProcedure } from "./commands/bulk-create-athletes/bulk-create-athletes.procedure";
 import { createAthleteProcedure } from "./commands/create-athlete/create-athlete.procedure";
 import { updateAthleteProcedure } from "./commands/update-athlete/update-athlete.procedure";
 import { getAthleteByIdProcedure } from "./queries/get-athlete-by-id/get-athlete-by-id.procedure";
@@ -12,5 +13,6 @@ export const athletesRouter = router({
 	getCurrentAthlete: getCurrentAthleteProcedure,
 	getAthleteStats: getAthleteStatsProcedure,
 	createAthlete: createAthleteProcedure,
+	createAthletes: bulkCreateAthletesProcedure,
 	updateAthlete: updateAthleteProcedure,
 });

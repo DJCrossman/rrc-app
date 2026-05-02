@@ -3,6 +3,7 @@
 import {
 	IconCaretDown,
 	IconCaretUp,
+	IconChevronDown,
 	IconCircleCheck,
 	IconPlus,
 } from "@tabler/icons-react";
@@ -23,6 +24,12 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -210,13 +217,37 @@ export function AthleteTable({ data }: IAthleteTableProps) {
 					</Select>
 				</div>
 
-				<div className="flex items-center gap-2">
-					<Button asChild variant="outline" size="sm">
+				<div className="flex items-center">
+					<Button
+						asChild
+						variant="outline"
+						size="sm"
+						className="rounded-r-none"
+					>
 						<Link href={routes.athletes.create()}>
 							<IconPlus />
 							<span className="hidden lg:inline">Add Athlete</span>
 						</Link>
 					</Button>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant="outline"
+								size="sm"
+								className="rounded-l-none border-l-0 px-2"
+								aria-label="More add options"
+							>
+								<IconChevronDown />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuItem asChild>
+								<Link href={routes.athletes.bulkCreate()}>
+									Bulk Add Athletes
+								</Link>
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			</div>
 			<div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">

@@ -34,6 +34,12 @@ export const createAthleteSchema = athleteProfileSchema.extend({
 
 export type CreateAthlete = z.infer<typeof createAthleteSchema>;
 
+export const bulkCreateAthletesSchema = z.object({
+	athletes: z.array(createAthleteSchema).min(1),
+});
+
+export type BulkCreateAthletes = z.infer<typeof bulkCreateAthletesSchema>;
+
 export const updateAthleteSchema = athleteProfileSchema.extend({
 	id: z.string(),
 });

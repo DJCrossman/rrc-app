@@ -4,7 +4,7 @@ import { createServerCaller } from "@/server/caller";
 
 const querySchema = z.object({
 	athleteId: z.string().optional(),
-	action: z.literal("create").optional(),
+	action: z.enum(["create", "bulkCreate"]).optional(),
 });
 
 export default async function AthletesPage({
@@ -31,6 +31,7 @@ export default async function AthletesPage({
 			activities={activities}
 			athleteStats={athleteStats}
 			isCreateDrawerOpen={action === "create"}
+			isBulkCreateDrawerOpen={action === "bulkCreate"}
 		/>
 	);
 }

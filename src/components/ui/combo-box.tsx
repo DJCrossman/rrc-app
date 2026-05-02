@@ -12,6 +12,7 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command';
+import { useDrawerContentContainer } from '@/components/ui/drawer';
 import {
   Popover,
   PopoverContent,
@@ -39,6 +40,7 @@ export function Combobox(props: ComboBoxProps<string>) {
   } = props;
   const [open, setOpen] = React.useState(false);
   const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const drawerContainer = useDrawerContentContainer();
 
   const contentRef = React.useCallback((node: HTMLDivElement | null) => {
     if (node && triggerRef.current) {
@@ -62,9 +64,10 @@ export function Combobox(props: ComboBoxProps<string>) {
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent 
+      <PopoverContent
         ref={contentRef}
         className="p-0"
+        container={drawerContainer ?? undefined}
       >
         <Command>
           <CommandInput

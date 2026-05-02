@@ -3,18 +3,21 @@
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { AppSidebar } from "@/components/app-sidebar";
+import { BulkUploadDrawer } from "@/components/bulk-upload-drawer";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
 import type { Activities, Athlete, Athletes } from "@/lib/trpc/types";
+import { type CreateAthlete, createAthleteSchema } from "@/schemas";
 import type { AthleteStats } from "@/schemas/athlete.schema";
 import {
 	AthleteCreateDrawer,
 	AthleteDetailsDrawer,
 	AthleteTable,
 } from "./components";
+import { useAthleteBulkColumns } from "./components/useAthleteBulkColumns";
 
 interface IProps {
 	data: Athletes;
@@ -22,6 +25,7 @@ interface IProps {
 	activities?: Activities;
 	athleteStats: AthleteStats | null;
 	isCreateDrawerOpen: boolean;
+	isBulkCreateDrawerOpen: boolean;
 }
 
 export const AthleteListScene = ({
@@ -30,10 +34,19 @@ export const AthleteListScene = ({
 	activities = [],
 	athleteStats,
 	isCreateDrawerOpen,
+	isBulkCreateDrawerOpen,
 }: IProps) => {
 	const router = useRouter();
 	const utils = trpcClient.useUtils();
+	const athleteBulkColumns = useAthleteBulkColumns();
 	const createAthlete = trpcClient.athletes.createAthlete.useMutation({
+		onSuccess: async () => {
+			await utils.athletes.getAthletes.invalidate();
+			router.push(routes.athletes.list());
+			router.refresh();
+		},
+	});
+	const bulkCreateAthletes = trpcClient.athletes.createAthletes.useMutation({
 		onSuccess: async () => {
 			await utils.athletes.getAthletes.invalidate();
 			router.push(routes.athletes.list());
@@ -77,6 +90,15 @@ export const AthleteListScene = ({
 					await createAthlete.mutateAsync(data);
 				}}
 				onClose={() => router.push(routes.athletes.list())}
+			/>
+			<BulkUploadDrawer<CreateAthlete>
+				isOpen={isBulkCreateDrawerOpen}
+				onClose={() => router.push(routes.athletes.list())}
+				schema={createAthleteSchema}
+				columns={athleteBulkColumns}
+				onSubmit={async (athletes) => {
+					await bulkCreateAthletes.mutateAsync({ athletes });
+				}}
 			/>
 			<AthleteDetailsDrawer
 				isOpen={!!selectedAthlete}
