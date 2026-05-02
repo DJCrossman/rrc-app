@@ -4,8 +4,8 @@ import {
 	IconActivity,
 	IconDashboard,
 	IconFolder,
-	// TODO: Re-enable Boats and ERGs navigation
-	// IconSailboat2,
+	IconSailboat2,
+	// TODO: Re-enable ERGs navigation
 	// IconTreadmill,
 	IconUsers,
 } from "@tabler/icons-react";
@@ -64,12 +64,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							url: routes.dashboard.home(),
 							icon: IconDashboard,
 						},
-						// TODO: Re-enable Boats and ERGs navigation
-						// {
-						// 	title: "Boats",
-						// 	url: routes.boats.list(),
-						// 	icon: IconSailboat2,
-						// },
+						{
+							title: "Boats",
+							url: routes.boats.list(),
+							icon: IconSailboat2,
+						},
+						// TODO: Re-enable ERGs navigation
 						// {
 						// 	title: "ERGs",
 						// 	url: routes.ergs.list(),
