@@ -19,5 +19,6 @@ export function mapToUserDto(user: athlete) {
 		stravaAthleteId: user.stravaAthleteId,
 		concept2Connected: user.concept2UserId !== null,
 		stravaConnected: user.stravaAthleteId !== null,
+		rcaConnected: false,
 	};
 }

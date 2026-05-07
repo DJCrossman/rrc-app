@@ -12,23 +12,23 @@ export type AthleteRow = Prisma.athleteGetPayload<{
 export function mapToAthleteDto(row: AthleteRow) {
 	const now = DateTime.now();
 
-	const activeMembership = row.memberships
-		.map((m) => ({
-			id: m.id,
-			athleteId: m.athleteId,
-			programId: m.programId,
-			name: m.program.name,
-			description: m.program.description,
-			programType: m.program.programType,
-			startDate: m.program.startDate.toISOString(),
-			endDate: m.program.endDate.toISOString(),
-		}))
-		.find((m) =>
-			Interval.fromDateTimes(
-				DateTime.fromISO(m.startDate),
-				DateTime.fromISO(m.endDate),
-			).contains(now),
-		);
+	const memberships = row.memberships.map((m) => ({
+		id: m.id,
+		athleteId: m.athleteId,
+		programId: m.programId,
+		name: m.program.name,
+		description: m.program.description,
+		startDate: m.program.startDate?.toISOString() ?? null,
+		endDate: m.program.endDate?.toISOString() ?? null,
+	}));
+
+	const activeMembership = memberships.find((m) => {
+		if (!m.startDate || !m.endDate) return false;
+		return Interval.fromDateTimes(
+			DateTime.fromISO(m.startDate),
+			DateTime.fromISO(m.endDate),
+		).contains(now);
+	});
 
 	return {
 		id: row.id,
@@ -44,7 +44,7 @@ export function mapToAthleteDto(row: AthleteRow) {
 		dateJoined: row.dateJoined?.toISOString(),
 		heightInCm: row.heightInCm,
 		weightInKg: row.weightInKg,
+		memberships,
 		activeMembership,
-		programType: activeMembership?.programType,
 	};
 }

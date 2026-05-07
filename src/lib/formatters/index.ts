@@ -3,7 +3,6 @@ export * from "./formatManufacturer";
 export * from "./formatMeters";
 export * from "./formatPercent";
 export * from "./formatPeriod";
-export * from "./formatProgram";
 export * from "./formatRole";
 export * from "./formatSeatSetup";
 export * from "./formatSplit";

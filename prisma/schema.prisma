@@ -45,20 +45,17 @@ model athlete {
 
 // ── Program / Membership ──────────────────────────────────────────────────────
 
-enum ProgramType {
-  masters
-  juniors
-  alumni
-}
-
 model program {
-  id          String       @id @default(dbgenerated("generate_id('prog_'::text)"))
-  name        String
-  description String
-  programType ProgramType
-  startDate   DateTime
-  endDate     DateTime
-  memberships membership[]
+  id               String       @id @default(dbgenerated("generate_id('prog_'::text)"))
+  rcaProgramId     String       @unique
+  rcaOrgId         Int?
+  organizationName String?
+  name             String
+  description      String?
+  startDate    DateTime?    @db.Date
+  endDate      DateTime?    @db.Date
+  syncedAt     DateTime?
+  memberships  membership[]
 }
 
 model membership {
@@ -67,6 +64,8 @@ model membership {
   programId String
   athlete   athlete @relation(fields: [athleteId], references: [id])
   program   program @relation(fields: [programId], references: [id])
+
+  @@unique([athleteId, programId])
 }
 
 // ── Boat ──────────────────────────────────────────────────────────────────────

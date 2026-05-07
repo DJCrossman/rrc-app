@@ -6,8 +6,6 @@ export type UserRole = (typeof UserRoles)[number];
 
 export const GenderTypes = ["male", "female", "nonbinary"] as const;
 
-export const ProgramTypes = ["masters", "juniors", "alumni"] as const;
-
 export const athleteProfileSchema = z.object({
 	firstName: z.string().min(1),
 	lastName: z.string().min(1),

@@ -4,10 +4,12 @@ import { connectStravaProcedure } from "./commands/connect-strava/connect-strava
 import { createActivityProcedure } from "./commands/create-activity/create-activity.procedure";
 import { deleteActivityProcedure } from "./commands/delete-activity/delete-activity.procedure";
 import { disconnectConcept2Procedure } from "./commands/disconnect-concept2/disconnect-concept2.procedure";
+import { disconnectRcaProcedure } from "./commands/disconnect-rca/disconnect-rca.procedure";
 import { disconnectStravaProcedure } from "./commands/disconnect-strava/disconnect-strava.procedure";
 import { processConcept2InboxBatchProcedure } from "./commands/process-concept2-inbox-batch/process-concept2-inbox-batch.procedure";
 import { processStravaInboxBatchProcedure } from "./commands/process-strava-inbox-batch/process-strava-inbox-batch.procedure";
 import { syncConcept2ActivitiesProcedure } from "./commands/sync-concept2-activities/sync-concept2-activities.procedure";
+import { syncRcaProcedure } from "./commands/sync-rca/sync-rca.procedure";
 import { syncStravaActivitiesProcedure } from "./commands/sync-strava-activities/sync-strava-activities.procedure";
 import { updateActivityProcedure } from "./commands/update-activity/update-activity.procedure";
 import { getActivitiesProcedure } from "./queries/get-activities/get-activities.procedure";
@@ -34,6 +36,8 @@ export const activitiesRouter = router({
 	connectConcept2: connectConcept2Procedure,
 	disconnectConcept2: disconnectConcept2Procedure,
 	syncConcept2Activities: syncConcept2ActivitiesProcedure,
+	disconnectRca: disconnectRcaProcedure,
+	syncRca: syncRcaProcedure,
 	getPendingInboxBatches: getPendingInboxBatchesProcedure,
 	processStravaInboxBatch: processStravaInboxBatchProcedure,
 	processConcept2InboxBatch: processConcept2InboxBatchProcedure,

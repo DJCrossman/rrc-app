@@ -31,6 +31,7 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
+import { MultiSelect, type Option } from "@/components/ui/multi-select";
 import {
 	Select,
 	SelectContent,
@@ -46,12 +47,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { formatProgram } from "@/lib/formatters";
 import { routes } from "@/lib/routes";
+import { trpcClient } from "@/lib/trpc/client";
 import type { Athlete, Athletes } from "@/lib/trpc/types";
-import { ProgramTypes } from "@/schemas";
 
-const programOptions = ["all", ...ProgramTypes] as const;
 const activeMembershipOptions = ["all", "true", "false"] as const;
 
 const columns: ColumnDef<Athlete>[] = [
@@ -80,17 +79,26 @@ const columns: ColumnDef<Athlete>[] = [
 			) : null,
 	},
 	{
-		accessorKey: "programType",
-		header: "Program",
-		cell: ({ row }) =>
-			!row.original.programType ? (
-				""
-			) : (
-				<Badge variant="outline" className="text-muted-foreground px-1.5">
-					{formatProgram(row.original.programType)}
-				</Badge>
-			),
-		enableSorting: true,
+		accessorKey: "memberships",
+		header: "Programs",
+		cell: ({ row }) => {
+			const items = row.original.memberships ?? [];
+			if (items.length === 0) return "";
+			return (
+				<div className="flex flex-wrap gap-1">
+					{items.map((m) => (
+						<Badge
+							key={m.id}
+							variant="outline"
+							className="text-muted-foreground px-1.5"
+						>
+							{m.name}
+						</Badge>
+					))}
+				</div>
+			);
+		},
+		enableSorting: false,
 	},
 	{
 		accessorKey: "dateJoined",
@@ -110,19 +118,37 @@ interface IAthleteTableProps {
 
 export function AthleteTable({ data }: IAthleteTableProps) {
 	const [filterBy, setFilterBy] = useState<{
-		program?: Athlete["programType"] | "all";
+		programIds: string[];
 		isActive?: "true" | "false" | "all";
-	}>({ program: "all", isActive: "all" });
+	}>({ programIds: [], isActive: "all" });
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [pagination, setPagination] = useState({
 		pageIndex: 0,
 		pageSize: 100,
 	});
 
+	const programsQuery = trpcClient.programs.getPrograms.useQuery();
+	const programOptions: Option[] = useMemo(
+		() =>
+			(programsQuery.data?.data ?? []).map((p) => ({
+				value: p.id,
+				label: p.name,
+			})),
+		[programsQuery.data],
+	);
+	const selectedProgramOptions = useMemo(
+		() => programOptions.filter((o) => filterBy.programIds.includes(o.value)),
+		[programOptions, filterBy.programIds],
+	);
+
 	const filteredData = useMemo(() => {
 		return data.filter((item) => {
-			if (filterBy.program && filterBy.program !== "all") {
-				return item.programType === filterBy.program;
+			if (filterBy.programIds.length > 0) {
+				const memberships = item.memberships ?? [];
+				const matches = memberships.some((m) =>
+					filterBy.programIds.includes(m.programId),
+				);
+				if (!matches) return false;
 			}
 			if (filterBy.isActive !== undefined && filterBy.isActive !== "all") {
 				return !!item.activeMembership === (filterBy.isActive === "true");
@@ -155,33 +181,20 @@ export function AthleteTable({ data }: IAthleteTableProps) {
 			<div className="flex items-center justify-between p-4 lg:px-6">
 				<div className="flex items-center gap-2">
 					<Label htmlFor="program-selector" className="sr-only">
-						Program
+						Programs
 					</Label>
-					<Select
-						defaultValue="all"
-						value={filterBy.program}
-						onValueChange={(value) => {
+					<MultiSelect
+						className="min-w-[240px]"
+						placeholder="All Programs"
+						options={programOptions}
+						value={selectedProgramOptions}
+						onChange={(opts) =>
 							setFilterBy((prev) => ({
 								...prev,
-								program: programOptions.find((i) => i === value) || "all",
-							}));
-						}}
-					>
-						<SelectTrigger
-							className="flex w-fit"
-							size="sm"
-							id="program-selector"
-						>
-							<SelectValue placeholder="Select a program" />
-						</SelectTrigger>
-						<SelectContent>
-							{programOptions.map((program) => (
-								<SelectItem key={program} value={program}>
-									{program === "all" ? "All Programs" : formatProgram(program)}
-								</SelectItem>
-							))}
-						</SelectContent>
-					</Select>
+								programIds: opts.map((o) => o.value),
+							}))
+						}
+					/>
 					<Label htmlFor="active-membership-selector" className="sr-only">
 						Active Membership
 					</Label>

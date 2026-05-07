@@ -11,7 +11,7 @@ import {
 import { toast } from "sonner";
 import { trpcClient } from "@/lib/trpc/client";
 
-export type SyncSource = "strava" | "concept2";
+export type SyncSource = "strava" | "concept2" | "rca";
 
 type SyncStatusContextValue = {
 	runningSources: Set<SyncSource>;
@@ -42,6 +42,7 @@ export function SyncStatusProvider({
 	const cooldownEndsAtMap = useMemo(() => {
 		const map = new Map<SyncSource, number>();
 		for (const source of SOURCES) {
+			if (source === "rca") continue;
 			const ts = latestBySource?.[source];
 			if (!ts) continue;
 			map.set(source, new Date(ts).getTime() + COOLDOWN_MS);
@@ -122,11 +123,12 @@ const POLL_ACTIVE_MS = 3000;
 const POLL_IDLE_MS = 30000;
 const COOLDOWN_MS = 60 * 1000;
 
-const SOURCES: SyncSource[] = ["strava", "concept2"];
+const SOURCES: SyncSource[] = ["strava", "concept2", "rca"];
 
 const SOURCE_LABEL: Record<SyncSource, string> = {
 	strava: "Strava",
 	concept2: "Concept2",
+	rca: "Rowing Canada",
 };
 
 const toastId = (source: SyncSource) => `sync-${source}`;

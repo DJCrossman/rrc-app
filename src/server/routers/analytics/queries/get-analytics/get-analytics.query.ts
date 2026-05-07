@@ -203,7 +203,7 @@ export async function getAnalyticsQuery(
 			name: athleteDto.name,
 			heightInCm: athleteDto.heightInCm,
 			weightInKg: athleteDto.weightInKg,
-			programType: athleteDto.programType,
+			memberships: athleteDto.memberships,
 			activeMembership: athleteDto.activeMembership,
 			meters,
 			points: 0,

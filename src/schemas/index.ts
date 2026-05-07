@@ -5,6 +5,8 @@ export * from "./concept2Activity.schema";
 export * from "./concept2User.schema";
 export * from "./erg.schema.";
 export * from "./phoneNumber.schema";
+export * from "./rcaMembership.schema";
+export * from "./rcaUser.schema";
 export * from "./stravaActivity.schema";
 export * from "./stravaUser.schema";
 export * from "./workouts.schema";

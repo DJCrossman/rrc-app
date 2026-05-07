@@ -14,7 +14,7 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
-import { formatProgram, formatRole } from "@/lib/formatters";
+import { formatRole } from "@/lib/formatters";
 import { formatGender } from "@/lib/formatters/formatGender";
 import type { Activities, Athlete } from "@/lib/trpc/types";
 import type { CreateAthlete, UpdateAthlete } from "@/schemas";
@@ -146,13 +146,18 @@ export const AthleteDetailsDrawer = ({
 										<strong>Gender:</strong> {formatGender(athlete)}
 									</div>
 									<div>
-										<strong>Active Membership:</strong>
+										<strong>Programs:</strong>
 										<br />
-										{athlete?.activeMembership?.name || "None"}
-										{athlete.programType && (
-											<Badge variant="outline" className="ml-2">
-												{formatProgram(athlete.programType)}
-											</Badge>
+										{athlete.memberships && athlete.memberships.length > 0 ? (
+											<div className="mt-1 flex flex-wrap gap-1">
+												{athlete.memberships.map((m) => (
+													<Badge key={m.id} variant="outline">
+														{m.name}
+													</Badge>
+												))}
+											</div>
+										) : (
+											"None"
 										)}
 									</div>
 									<div>

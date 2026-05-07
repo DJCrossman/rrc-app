@@ -5,6 +5,7 @@ import { envVars } from "@/lib/env";
 import type { CurrentAthlete } from "@/lib/trpc/types";
 import { createServerCaller } from "@/server/caller";
 import { getAccessToken, isTokenExpired } from "../../concept2/utils";
+import { getSession as getRcaSession } from "../../rca/utils";
 import {
 	getAccessToken as getStravaAccessToken,
 	isTokenExpired as isStravaTokenExpired,
@@ -25,8 +26,14 @@ export async function GET(request: Request) {
 
 		const concept2Values = await getConcept2Values(request, trpc);
 		const stravaValues = await getStravaValues(request, trpc);
+		const rcaValues = await getRcaValues();
 
-		return NextResponse.json({ ...user, ...concept2Values, ...stravaValues });
+		return NextResponse.json({
+			...user,
+			...concept2Values,
+			...stravaValues,
+			...rcaValues,
+		});
 	} catch (error) {
 		console.error("User info retrieval error:", error);
 		return NextResponse.json(
@@ -97,6 +104,19 @@ const getConcept2Values = async (
 	} catch (error) {
 		console.error("Concept2 values retrieval error:", error);
 		return { concept2Connected: false, concept2UserId: null };
+	}
+};
+
+const getRcaValues = async (): Promise<
+	Pick<CurrentAthlete, "rcaConnected">
+> => {
+	try {
+		const cookieStore = await cookies();
+		const session = await getRcaSession({ cookieStore });
+		return { rcaConnected: session !== null };
+	} catch (error) {
+		console.error("RCA values retrieval error:", error);
+		return { rcaConnected: false };
 	}
 };
 

@@ -27,6 +27,7 @@ import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { MultiSelect, type Option } from "@/components/ui/multi-select";
 import {
 	Select,
 	SelectContent,
@@ -51,9 +52,9 @@ import {
 	formatCompactDuration,
 	formatCompactSplit,
 	formatMeters,
-	formatProgram,
 } from "@/lib/formatters";
 import { routes } from "@/lib/routes";
+import { trpcClient } from "@/lib/trpc/client";
 import type { Leaderboard } from "@/lib/trpc/types";
 
 const columns: ColumnDef<Leaderboard[number]>[] = [
@@ -64,18 +65,26 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
 		enableSorting: true,
 	},
 	{
-		accessorKey: "program",
-		header: "Program",
-		cell: ({ row }) => (
-			<div className="w-16">
-				{row.original.programType && (
-					<Badge variant="outline" className="text-muted-foreground px-1.5">
-						{formatProgram(row.original.programType)}
-					</Badge>
-				)}
-			</div>
-		),
-		enableSorting: true,
+		accessorKey: "memberships",
+		header: "Programs",
+		cell: ({ row }) => {
+			const items = row.original.memberships ?? [];
+			if (items.length === 0) return null;
+			return (
+				<div className="flex flex-wrap gap-1">
+					{items.map((m) => (
+						<Badge
+							key={m.id}
+							variant="outline"
+							className="text-muted-foreground px-1.5"
+						>
+							{m.name}
+						</Badge>
+					))}
+				</div>
+			);
+		},
+		enableSorting: false,
 	},
 	{
 		accessorKey: "meters",
@@ -150,9 +159,7 @@ interface ILeaderboardTableProps {
 
 export function LeaderboardTable({ data }: ILeaderboardTableProps) {
 	const [rowSelection, setRowSelection] = useState({});
-	const [filterBy, setFilterBy] = useState<{
-		program?: Leaderboard[number]["programType"] | "all";
-	}>({ program: "all" });
+	const [programIds, setProgramIds] = useState<string[]>([]);
 	const [sorting, setSorting] = useState<SortingState>([
 		{ id: "meters", desc: true },
 	]);
@@ -161,10 +168,27 @@ export function LeaderboardTable({ data }: ILeaderboardTableProps) {
 		pageSize: 10,
 	});
 
+	const programsQuery = trpcClient.programs.getPrograms.useQuery();
+	const programOptions: Option[] = useMemo(
+		() =>
+			(programsQuery.data?.data ?? []).map((p) => ({
+				value: p.id,
+				label: p.name,
+			})),
+		[programsQuery.data],
+	);
+	const selectedProgramOptions = useMemo(
+		() => programOptions.filter((o) => programIds.includes(o.value)),
+		[programOptions, programIds],
+	);
+
 	const filteredData = useMemo(() => {
-		if (filterBy.program === "all") return data;
-		return data.filter((item) => item.programType === filterBy.program);
-	}, [data, filterBy]);
+		if (programIds.length === 0) return data;
+		return data.filter((item) => {
+			const memberships = item.memberships ?? [];
+			return memberships.some((m) => programIds.includes(m.programId));
+		});
+	}, [data, programIds]);
 
 	const table = useReactTable({
 		data: filteredData,
@@ -191,29 +215,15 @@ export function LeaderboardTable({ data }: ILeaderboardTableProps) {
 		<div className="w-full flex-col justify-start gap-6">
 			<div className="flex items-center justify-between p-4 lg:px-6">
 				<Label htmlFor="view-selector" className="sr-only">
-					View
+					Programs
 				</Label>
-				<Select
-					defaultValue="outline"
-					value={filterBy.program?.toLowerCase()}
-					onValueChange={(value) => {
-						const validValues = ["all", "masters", "juniors"] as const;
-						setFilterBy((prev) => ({
-							...prev,
-							program:
-								validValues.find((i) => i.toLowerCase() === value) || "all",
-						}));
-					}}
-				>
-					<SelectTrigger className="flex w-fit" size="sm" id="view-selector">
-						<SelectValue placeholder="Select a view" />
-					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="all">All Athletes</SelectItem>
-						<SelectItem value="masters">Masters</SelectItem>
-						<SelectItem value="juniors">Juniors</SelectItem>
-					</SelectContent>
-				</Select>
+				<MultiSelect
+					className="min-w-[240px]"
+					placeholder="All Programs"
+					options={programOptions}
+					value={selectedProgramOptions}
+					onChange={(opts) => setProgramIds(opts.map((o) => o.value))}
+				/>
 
 				<div className="flex items-center gap-2">
 					<Button asChild variant="outline" size="sm">
