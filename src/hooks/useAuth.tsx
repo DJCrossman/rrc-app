@@ -7,7 +7,7 @@ import type { CurrentAthlete } from "@/lib/trpc/types";
 
 type AuthBase = {
 	error: Error | null;
-	isFetching: boolean;
+	isPending: boolean;
 };
 
 export function useAuth(opts: {
@@ -21,7 +21,7 @@ export function useAuth({
 }: {
 	ensureSignedIn?: boolean;
 } = {}) {
-	const { data, error, isFetching } = useQuery({
+	const { data, error, isPending, fetchStatus } = useQuery({
 		queryKey: generateQueryKey({ type: "currentUser" }),
 		enabled: ensureSignedIn,
 		queryFn: async (): Promise<CurrentAthlete | null> => {
@@ -43,13 +43,13 @@ export function useAuth({
 	return {
 		user: data ?? null,
 		error,
-		isFetching,
+		isPending: isPending && fetchStatus !== "idle",
 	};
 }
 
 type CurrentUser = Omit<
 	ReturnType<typeof useAuth>,
-	"user" | "error" | "isFetching"
+	"user" | "error" | "isPending"
 > & {
 	user: NonNullable<ReturnType<typeof useAuth>["user"]>;
 };

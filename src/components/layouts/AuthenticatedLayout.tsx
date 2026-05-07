@@ -14,21 +14,21 @@ export const AuthenticatedLayout = ({
 	const pathname = usePathname();
 	const router = useRouter();
 	const isPublicRoute = PUBLIC_ROUTES.has(pathname);
-	const { user, isFetching, error, ...auth } = useAuth({
+	const { user, isPending, error, ...auth } = useAuth({
 		ensureSignedIn: !isPublicRoute,
 	});
 
 	useEffect(() => {
-		if (!isFetching && !user && !isPublicRoute) {
+		if (!isPending && !user && !isPublicRoute) {
 			router.replace("/login");
 		}
-	}, [isFetching, isPublicRoute, router, user]);
+	}, [isPending, isPublicRoute, router, user]);
 
 	if (isPublicRoute) {
 		return children;
 	}
 
-	if (isFetching) {
+	if (isPending) {
 		// TODO: Show loading state
 		return null;
 	}

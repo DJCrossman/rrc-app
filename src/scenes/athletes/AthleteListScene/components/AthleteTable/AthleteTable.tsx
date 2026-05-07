@@ -79,23 +79,15 @@ const columns: ColumnDef<Athlete>[] = [
 			) : null,
 	},
 	{
-		accessorKey: "memberships",
-		header: "Programs",
+		id: "program",
+		header: "Program",
 		cell: ({ row }) => {
-			const items = row.original.memberships ?? [];
-			if (items.length === 0) return "";
+			const m = row.original.activeMembership;
+			if (!m) return "";
 			return (
-				<div className="flex flex-wrap gap-1">
-					{items.map((m) => (
-						<Badge
-							key={m.id}
-							variant="outline"
-							className="text-muted-foreground px-1.5"
-						>
-							{m.name}
-						</Badge>
-					))}
-				</div>
+				<Badge variant="outline" className="text-muted-foreground px-1.5">
+					{m.name}
+				</Badge>
 			);
 		},
 		enableSorting: false,
