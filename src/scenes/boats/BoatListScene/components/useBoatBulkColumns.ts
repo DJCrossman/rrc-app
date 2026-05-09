@@ -13,45 +13,20 @@ import {
 	WeightUnitTypes,
 } from "@/schemas";
 
-const manufacturerEditor = selectEditor<Partial<BulkCreateBoatRow>>(
-	[...ManufacturerTypes],
-	(option) => formatManufacturer(option as BulkCreateBoatRow["manufacturer"]),
-);
-
-const seatsEditor = selectEditor<Partial<BulkCreateBoatRow>>(
-	[...SeatTypes],
-	(option, row) =>
-		formatSeatSetup({
-			seats: option as BulkCreateBoatRow["seats"],
-			rigging: row.rigging,
-		}),
-);
-
-const riggingEditor = selectEditor<Partial<BulkCreateBoatRow>>(
-	[...RiggingTypes],
-	(option) => option.charAt(0).toUpperCase() + option.slice(1),
-);
-
-const weightUnitEditor = selectEditor<Partial<BulkCreateBoatRow>>(
-	[...WeightUnitTypes],
-	(option) => option.charAt(0).toUpperCase() + option.slice(1),
-);
-
 export function useBoatBulkColumns(): readonly Column<
 	Partial<BulkCreateBoatRow>
 >[] {
 	return useMemo(
 		() => [
-			{
-				key: "name",
-				name: "Name",
-				renderEditCell: textEditor,
-				editable: true,
-			},
+			{ key: "name", name: "Name", renderEditCell: textEditor, editable: true },
 			{
 				key: "manufacturer",
 				name: "Manufacturer",
-				renderEditCell: manufacturerEditor,
+				renderEditCell: selectEditor<Partial<BulkCreateBoatRow>>(
+					[...ManufacturerTypes],
+					(option) =>
+						formatManufacturer(option as BulkCreateBoatRow["manufacturer"]),
+				),
 				editable: true,
 				renderCell: ({ row }) =>
 					row.manufacturer ? formatManufacturer(row.manufacturer) : "",
@@ -59,7 +34,14 @@ export function useBoatBulkColumns(): readonly Column<
 			{
 				key: "seats",
 				name: "Seats",
-				renderEditCell: seatsEditor,
+				renderEditCell: selectEditor<Partial<BulkCreateBoatRow>>(
+					[...SeatTypes],
+					(option, row) =>
+						formatSeatSetup({
+							seats: option as BulkCreateBoatRow["seats"],
+							rigging: row.rigging,
+						}),
+				),
 				editable: true,
 				renderCell: ({ row }) =>
 					row.seats
@@ -69,7 +51,10 @@ export function useBoatBulkColumns(): readonly Column<
 			{
 				key: "rigging",
 				name: "Rigging",
-				renderEditCell: riggingEditor,
+				renderEditCell: selectEditor<Partial<BulkCreateBoatRow>>(
+					[...RiggingTypes],
+					(option) => option.charAt(0).toUpperCase() + option.slice(1),
+				),
 				editable: true,
 				renderCell: ({ row }) =>
 					row.rigging
@@ -81,21 +66,20 @@ export function useBoatBulkColumns(): readonly Column<
 				name: "Weight Min",
 				renderEditCell: textEditor,
 				editable: true,
-				renderCell: ({ row }) =>
-					row.weightMin !== undefined ? String(row.weightMin) : "",
 			},
 			{
 				key: "weightMax",
 				name: "Weight Max",
 				renderEditCell: textEditor,
 				editable: true,
-				renderCell: ({ row }) =>
-					row.weightMax !== undefined ? String(row.weightMax) : "",
 			},
 			{
 				key: "weightUnit",
 				name: "Weight Unit",
-				renderEditCell: weightUnitEditor,
+				renderEditCell: selectEditor<Partial<BulkCreateBoatRow>>(
+					[...WeightUnitTypes],
+					(option) => option.charAt(0).toUpperCase() + option.slice(1),
+				),
 				editable: true,
 				renderCell: ({ row }) =>
 					row.weightUnit

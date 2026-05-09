@@ -5,6 +5,7 @@ export const ManufacturerTypes = [
 	"fluidesign",
 	"kaschper_racing_shells_ltd",
 	"liteboat_canada",
+	"lite_boat",
 	"swift_racing_canada",
 	"whitehall_rowing_and_sail",
 	"paluski_boats",

@@ -4,6 +4,7 @@ import {
 	IconAlertCircle,
 	IconPlus,
 	IconTrash,
+	IconWand,
 	IconX,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -18,6 +19,11 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 interface BulkUploadDrawerProps<TRow> {
@@ -26,6 +32,8 @@ interface BulkUploadDrawerProps<TRow> {
 	schema: z.ZodType<TRow>;
 	columns: readonly Column<Partial<TRow>>[];
 	onSubmit: (rows: TRow[]) => Promise<void> | void;
+	onSuggest?: (row: Partial<TRow>) => Partial<TRow>;
+	suggestTooltip?: string;
 }
 
 type InternalRow<TRow> = Partial<TRow> & { __id: string };
@@ -36,6 +44,8 @@ export function BulkUploadDrawer<TRow>({
 	schema,
 	columns,
 	onSubmit,
+	onSuggest,
+	suggestTooltip,
 }: BulkUploadDrawerProps<TRow>) {
 	const [rows, setRows] = useState<InternalRow<TRow>[]>(() => [
 		createEmptyRow<TRow>(),
@@ -105,6 +115,20 @@ export function BulkUploadDrawer<TRow>({
 		setRows((prev) => prev.filter((r) => !selectedRows.has(r.__id)));
 		setSelectedRows(new Set());
 	}, [selectedRows]);
+
+	const handleSuggest = useCallback(() => {
+		if (!onSuggest) return;
+		setRows((prev) =>
+			prev.map((row) => {
+				const { __id, ...userRow } = row;
+				const next = onSuggest(userRow as Partial<TRow>);
+				return { ...next, __id } as InternalRow<TRow>;
+			}),
+		);
+		setRowErrors({});
+	}, [onSuggest]);
+
+	const hasRowErrors = Object.keys(rowErrors).length > 0;
 
 	const handleSave = useCallback(async () => {
 		setSubmitError(null);
@@ -245,6 +269,23 @@ export function BulkUploadDrawer<TRow>({
 						<IconTrash />
 						Remove selected ({selectedRows.size})
 					</Button>
+					{onSuggest && (
+						<Tooltip open={hasRowErrors || undefined}>
+							<TooltipTrigger asChild>
+								<Button
+									variant={hasRowErrors ? "default" : "outline"}
+									size="sm"
+									onClick={handleSuggest}
+								>
+									<IconWand />
+									Suggest
+								</Button>
+							</TooltipTrigger>
+							{suggestTooltip && (
+								<TooltipContent>{suggestTooltip}</TooltipContent>
+							)}
+						</Tooltip>
+					)}
 					<div className="ml-auto text-sm text-muted-foreground">
 						{rows.length} {rows.length === 1 ? "row" : "rows"}
 					</div>

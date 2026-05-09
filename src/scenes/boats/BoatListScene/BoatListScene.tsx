@@ -7,6 +7,7 @@ import { BulkUploadDrawer } from "@/components/bulk-upload-drawer";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { getSuggestedWeightRange } from "@/lib/data/boat-weight-suggestions";
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
 import type { Activities, Boat, Boats } from "@/lib/trpc/types";
@@ -14,6 +15,8 @@ import {
 	type BulkCreateBoatRow,
 	bulkCreateBoatRowSchema,
 	type CreateBoat,
+	type ManufacturerType,
+	type SeatType,
 } from "@/schemas";
 import { BoatCreateDrawer, BoatDetailsDrawer, BoatTable } from "./components";
 import { useBoatBulkColumns } from "./components/useBoatBulkColumns";
@@ -93,6 +96,20 @@ export const BoatListScene = ({
 				onClose={() => router.push(routes.boats.list())}
 				schema={bulkCreateBoatRowSchema}
 				columns={boatBulkColumns}
+				onSuggest={(row) => {
+					const suggestion = getSuggestedWeightRange(
+						row.manufacturer as ManufacturerType | undefined,
+						row.seats as SeatType | undefined,
+					);
+					if (!suggestion) return row;
+					return {
+						...row,
+						weightMin: suggestion.min,
+						weightMax: suggestion.max,
+						weightUnit: suggestion.unit,
+					};
+				}}
+				suggestTooltip="Auto-fill weight ranges from manufacturer and seats"
 				onSubmit={async (rows) => {
 					const boats: CreateBoat[] = rows.map((row) => ({
 						name: row.name,

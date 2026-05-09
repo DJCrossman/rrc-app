@@ -7,6 +7,9 @@ export const formatManufacturer = (manufacturer: Boat["manufacturer"]) => {
 	if (manufacturer === "liteboat_canada") {
 		return "Liteboat Canada";
 	}
+	if (manufacturer === "lite_boat") {
+		return "LITE Boat";
+	}
 	if (manufacturer === "swift_racing_canada") {
 		return "Swift Racing Canada";
 	}
