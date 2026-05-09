@@ -36,6 +36,52 @@ export const createActivitySchema = z.discriminatedUnion("type", [
 
 export type CreateActivity = z.infer<typeof createActivitySchema>;
 
+export const CourseType = ["course", "into_the_bay"] as const;
+
+export const COURSE_LAP_METERS: Record<(typeof CourseType)[number], number> = {
+	course: 2000,
+	into_the_bay: 2500,
+};
+
+const COURSE_PHRASE: Record<(typeof CourseType)[number], string> = {
+	course: "on the course",
+	into_the_bay: "around and into the bay",
+};
+
+export function describeLaps(
+	laps: number,
+	courseType: (typeof CourseType)[number],
+): string {
+	const lapWord = laps === 1 ? "lap" : "laps";
+	return `${laps} ${lapWord} ${COURSE_PHRASE[courseType]}`;
+}
+
+const createWaterActivityFormSchema = createWaterActivitySchema
+	.omit({ distance: true })
+	.extend({
+		laps: z.number().positive(),
+		courseType: z.enum(CourseType),
+	});
+
+export const createActivityFormSchema = z
+	.discriminatedUnion("type", [
+		createWaterActivityFormSchema,
+		createErgActivitySchema,
+	])
+	.transform((data): CreateActivity => {
+		if (data.type === "water") {
+			const { laps, courseType, ...rest } = data;
+			return {
+				...rest,
+				name: rest.name?.trim() || describeLaps(laps, courseType),
+				distance: laps * COURSE_LAP_METERS[courseType],
+			};
+		}
+		return data;
+	});
+
+export type CreateActivityFormInput = z.input<typeof createActivityFormSchema>;
+
 export const updateActivitySchema = z.discriminatedUnion("type", [
 	createWaterActivitySchema.extend({
 		id: z.string(),

@@ -72,6 +72,12 @@ const columns: ColumnDef<Activity>[] = [
 		enableSorting: true,
 	},
 	{
+		accessorKey: "athlete.name",
+		header: "Athlete",
+		cell: ({ row }) => row.original.athlete.name,
+		enableSorting: true,
+	},
+	{
 		accessorKey: "name",
 		header: "Workout",
 		cell: ({ row }) => {
@@ -92,12 +98,6 @@ const columns: ColumnDef<Activity>[] = [
 			);
 		},
 		enableHiding: false,
-		enableSorting: true,
-	},
-	{
-		accessorKey: "athlete.name",
-		header: "Athlete",
-		cell: ({ row }) => row.original.athlete.name,
 		enableSorting: true,
 	},
 	// {

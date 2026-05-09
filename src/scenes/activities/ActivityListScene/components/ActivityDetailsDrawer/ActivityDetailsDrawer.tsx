@@ -80,20 +80,34 @@ export const ActivityDetailsDrawer = ({
 							boats={boats}
 							ergs={ergs}
 							workouts={workouts}
-							defaultValues={{
-								type: activity.type,
-								name: activity.name,
-								startDate: activity.startDate,
-								timezone: activity.timezone,
-								workoutType: activity.workoutType,
-								elapsedTime: activity.elapsedTime,
-								distance: activity.distance,
-								athleteId: activity.athlete.id,
-								boatId:
-									activity.type === "water" ? activity.boat?.id : undefined,
-								ergId: activity.type === "erg" ? activity.erg?.id : undefined,
-								workoutId: activity.workout?.id,
-							}}
+							defaultValues={
+								activity.type === "water"
+									? {
+											type: "water",
+											name: activity.name,
+											startDate: activity.startDate,
+											timezone: activity.timezone,
+											workoutType: activity.workoutType,
+											elapsedTime: activity.elapsedTime,
+											athleteId: activity.athlete.id,
+											boatId: activity.boat?.id,
+											workoutId: activity.workout?.id,
+											laps: activity.distance / 2000,
+											courseType: "course",
+										}
+									: {
+											type: "erg",
+											name: activity.name,
+											startDate: activity.startDate,
+											timezone: activity.timezone,
+											workoutType: activity.workoutType,
+											elapsedTime: activity.elapsedTime,
+											distance: activity.distance,
+											athleteId: activity.athlete.id,
+											ergId: activity.erg?.id,
+											workoutId: activity.workout?.id,
+										}
+							}
 							onCancel={() => setIsEditing(false)}
 							onSubmit={async (data: CreateActivity) => {
 								await onSubmit({ id: activity.id, ...data });

@@ -5,9 +5,13 @@ import { MaximizeIcon, XIcon } from "lucide-react";
 import { DateTime } from "luxon";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { type SubmitHandler, useForm } from "react-hook-form";
+import {
+	type SubmitHandler,
+	type UseFormReturn,
+	useForm,
+} from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combo-box";
 import {
@@ -20,10 +24,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatDuration } from "@/lib/formatters";
+import { formatDuration, formatMeters } from "@/lib/formatters";
 import type { Boats, Ergs, Workouts } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
-import { type CreateActivity, createActivitySchema } from "@/schemas";
+import { getWorkoutBreakdown } from "@/scenes/workouts/WorkoutListScene/utils/getWorkoutBreakdown";
+import {
+	COURSE_LAP_METERS,
+	type CreateActivity,
+	type CreateActivityFormInput,
+	createActivityFormSchema,
+} from "@/schemas";
+
+const toCreateActivity = (input: CreateActivityFormInput): CreateActivity =>
+	createActivityFormSchema.parse(input);
 
 export type UploadErgActivityScreenshot = (
 	params: {
@@ -35,8 +48,8 @@ interface ActivityFormProps {
 	boats: Boats;
 	ergs: Ergs;
 	workouts: Workouts;
-	defaultValues?: Partial<CreateActivity>;
-	onSubmit: SubmitHandler<CreateActivity>;
+	defaultValues?: Partial<CreateActivityFormInput>;
+	onSubmit: (data: CreateActivity) => void | Promise<void>;
 	onUploadErgActivityScreenshot: UploadErgActivityScreenshot;
 	onCancel?: (() => void) | string;
 	isImageFullscreen: boolean;
@@ -58,8 +71,8 @@ export function ActivityForm({
 	const [uploadError, setUploadError] = useState<string | null>(null);
 
 	const currentMonth = DateTime.now().month;
-	const form = useForm<CreateActivity>({
-		resolver: zodResolver(createActivitySchema),
+	const form = useForm<CreateActivityFormInput>({
+		resolver: zodResolver(createActivityFormSchema, undefined, { raw: true }),
 		defaultValues: {
 			type:
 				currentMonth >= 5 && currentMonth <= 9
@@ -70,16 +83,27 @@ export function ActivityForm({
 			timezone: DateTime.now().zoneName,
 			workoutType: "distance",
 			elapsedTime: 0,
-			distance: 0,
 			athleteId: undefined,
 			boatId: undefined,
 			ergId: undefined,
 			workoutId: undefined,
+			courseType: "course",
 			...defaultValues,
 		},
 	});
 
 	const type = form.watch("type");
+	const laps = form.watch("laps");
+	const courseType = form.watch("courseType");
+
+	const visibleWorkouts = useMemo(() => {
+		const startOfToday = DateTime.now().startOf("day");
+		return workouts.filter(
+			(w) =>
+				w.activityType === type &&
+				DateTime.fromISO(w.startDate) >= startOfToday,
+		);
+	}, [workouts, type]);
 
 	useEffect(() => {
 		const handleKeyDown = (e: KeyboardEvent) => {
@@ -137,13 +161,18 @@ export function ActivityForm({
 		}
 	};
 
-	const handleSubmit: SubmitHandler<CreateActivity> = (data) => {
-		if (data.type === "water" && !data.workoutId) {
+	const handleSubmit: SubmitHandler<CreateActivityFormInput> = (values) => {
+		if (values.type === "water" && !values.workoutId) {
 			form.setError("workoutId", { message: "Please select a workout" });
 			return;
 		}
-		return onSubmit(data);
+		return onSubmit(toCreateActivity(values));
 	};
+
+	const previewDistance =
+		type === "water" && laps && courseType
+			? laps * COURSE_LAP_METERS[courseType]
+			: 0;
 
 	return (
 		<Form {...form}>
@@ -155,44 +184,7 @@ export function ActivityForm({
 					</TabsList>
 
 					<TabsContent value="water" className="space-y-8 pt-4">
-						<FormField
-							control={form.control}
-							name="workoutId"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Workout</FormLabel>
-									<FormControl>
-										<Combobox
-											value={field.value ?? ""}
-											values={workouts.map((workout) => ({
-												value: workout.id,
-												label: `${workout.description} — ${DateTime.fromISO(
-													workout.startDate,
-												).toLocaleString(DateTime.DATE_MED)}`,
-											}))}
-											searchPlaceholder="Search workouts..."
-											selectPlaceholder="Select workout..."
-											emptyText="No workouts found."
-											onValueChange={(value) => {
-												field.onChange(value);
-												const workout = workouts.find((w) => w.id === value);
-												if (workout) {
-													form.setValue("name", workout.description);
-													form.setValue("startDate", workout.startDate);
-													form.setValue("workoutType", workout.workoutType);
-													form.setValue(
-														"elapsedTime",
-														workout.elapsedTime ?? 0,
-													);
-													form.setValue("distance", workout.distance ?? 0);
-												}
-											}}
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
+						<WorkoutCombobox form={form} workouts={visibleWorkouts} />
 
 						<FormField
 							control={form.control}
@@ -219,9 +211,68 @@ export function ActivityForm({
 								</FormItem>
 							)}
 						/>
+
+						<FormField
+							control={form.control}
+							name="laps"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Laps</FormLabel>
+									<FormControl>
+										<Input
+											type="number"
+											min={0.5}
+											step={0.5}
+											value={field.value ?? ""}
+											onChange={(e) => {
+												const v = e.target.value;
+												field.onChange(v === "" ? undefined : Number(v));
+											}}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name="courseType"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Course</FormLabel>
+									<FormControl>
+										<Tabs
+											value={field.value ?? "course"}
+											onValueChange={(v) => {
+												if (v === "course" || v === "into_the_bay")
+													field.onChange(v);
+											}}
+										>
+											<TabsList className="grid w-full grid-cols-2">
+												<TabsTrigger value="course">Course</TabsTrigger>
+												<TabsTrigger value="into_the_bay">
+													Into the bay
+												</TabsTrigger>
+											</TabsList>
+										</Tabs>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<div className="space-y-1">
+							<FormLabel>Distance</FormLabel>
+							<div className="rounded-md border bg-muted/50 px-3 py-2 text-sm">
+								{previewDistance > 0 ? formatMeters(previewDistance) : "—"}
+							</div>
+						</div>
 					</TabsContent>
 
 					<TabsContent value="erg" className="space-y-8 pt-4">
+						<WorkoutCombobox form={form} workouts={visibleWorkouts} />
+
 						<fieldset className="space-y-2" disabled={isUploading}>
 							<FormLabel>Upload ERG Screenshot</FormLabel>
 							{!uploadedFile && (
@@ -368,6 +419,52 @@ export function ActivityForm({
 				/>
 			)}
 		</Form>
+	);
+}
+
+interface WorkoutComboboxProps {
+	form: UseFormReturn<CreateActivityFormInput>;
+	workouts: Workouts;
+}
+
+function WorkoutCombobox({ form, workouts }: WorkoutComboboxProps) {
+	return (
+		<FormField
+			control={form.control}
+			name="workoutId"
+			render={({ field }) => (
+				<FormItem>
+					<FormLabel>Workout</FormLabel>
+					<FormControl>
+						<Combobox
+							value={field.value ?? ""}
+							values={workouts.map((workout) => ({
+								value: workout.id,
+								label: `${getWorkoutBreakdown(workout).title} — ${DateTime.fromISO(
+									workout.startDate,
+								).toLocaleString(DateTime.DATE_MED)}`,
+							}))}
+							searchPlaceholder="Search workouts..."
+							selectPlaceholder="Select workout..."
+							emptyText="No workouts found."
+							onValueChange={(value) => {
+								field.onChange(value);
+								const workout = workouts.find((w) => w.id === value);
+								if (!workout) return;
+								form.setValue("name", getWorkoutBreakdown(workout).title);
+								form.setValue("startDate", workout.startDate);
+								form.setValue("workoutType", workout.workoutType);
+								form.setValue("elapsedTime", workout.elapsedTime ?? 0);
+								if (form.getValues("type") === "erg") {
+									form.setValue("distance", workout.distance ?? 0);
+								}
+							}}
+						/>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			)}
+		/>
 	);
 }
 
