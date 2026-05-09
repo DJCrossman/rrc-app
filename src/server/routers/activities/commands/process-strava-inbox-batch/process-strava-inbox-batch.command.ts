@@ -171,10 +171,7 @@ function mergeActivity(item: ParsedStravaItem) {
 		name: activity.name,
 		startDate: new Date(activity.start_date),
 		timezone: activity.timezone,
-		// Strava's list endpoint doesn't expose a reliable distance-vs-time
-		// indicator for rowing — `workout_type` only carries semantics for
-		// runs/rides. Default to "other" and let the user edit if needed.
-		workoutType: "other" as const,
+		workoutType: inferWorkoutType(activity.name, activity.description),
 		// Strava `elapsed_time` is in seconds; the app expects milliseconds.
 		elapsedTime: activity.elapsed_time * 1000,
 		distance: Math.round(activity.distance),
@@ -194,6 +191,20 @@ function resolveExistingId(
 	if (stravaMatch) return stravaMatch;
 	if (item.conceptTwoId === null) return undefined;
 	return byConceptTwoId.get(item.conceptTwoId.toString());
+}
+
+// Strava's `workout_type` field only carries semantics for runs/rides, not
+// rowing. Infer from the user-authored name + description: explicit distance
+// markers like "6000m" → distance; time markers like "30:00" → time. Default
+// to "time" when ambiguous (no signal, or both signals present).
+function inferWorkoutType(
+	name: string | null | undefined,
+	description: string | null | undefined,
+): "time" | "distance" {
+	const text = `${name ?? ""} ${description ?? ""}`;
+	if (/\d+\s*m\b/i.test(text)) return "distance";
+	if (/\d{1,2}:\d{2}/.test(text)) return "time";
+	return "time";
 }
 
 function isStravaOnWater(activity: StravaActivity): boolean {

@@ -38,6 +38,7 @@ export function SyncStatusProvider({
 
 	const latestBySource = pending.data?.latestBySource;
 	const [now, setNow] = useState(() => Date.now());
+	const utils = trpcClient.useUtils();
 
 	const cooldownEndsAtMap = useMemo(() => {
 		const map = new Map<SyncSource, number>();
@@ -59,7 +60,10 @@ export function SyncStatusProvider({
 		}
 		const cooldownSources = new Set<SyncSource>();
 		for (const [source, endsAt] of cooldownEndsAtMap) {
-			if (endsAt > now) cooldownSources.add(source);
+			if (endsAt > now) {
+				utils.activities.invalidate()
+				cooldownSources.add(source);
+			}
 		}
 		return {
 			runningSources,
@@ -67,7 +71,7 @@ export function SyncStatusProvider({
 			cooldownMs: COOLDOWN_MS,
 			cooldownEndsAt: (source) => cooldownEndsAtMap.get(source) ?? null,
 		};
-	}, [pending.data, cooldownEndsAtMap, now]);
+	}, [pending.data, cooldownEndsAtMap, now, utils]);
 
 	useEffect(() => {
 		let soonestEnd = Number.POSITIVE_INFINITY;

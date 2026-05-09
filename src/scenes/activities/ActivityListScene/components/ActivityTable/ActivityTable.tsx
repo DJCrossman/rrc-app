@@ -39,11 +39,13 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { useCurrentUser } from "@/hooks/useAuth";
 import { formatDurationAsTime } from "@/lib/formatters/formatDuration";
 import { formatMeters } from "@/lib/formatters/formatMeters";
 import { routes } from "@/lib/routes";
 import type { Activities, Activity } from "@/lib/trpc/types";
 import { ActivityType } from "@/schemas";
+import { SyncMenu } from "./SyncMenu";
 
 const activityTypeOptions = ["all", ...ActivityType] as const;
 const workoutTypeOptions = ["all", "distance", "time", "other"] as const;
@@ -122,6 +124,8 @@ interface ActivityTableProps {
 }
 
 export function ActivityTable({ data }: ActivityTableProps) {
+	const { user } = useCurrentUser();
+	const hasIntegration = user.stravaConnected || user.concept2Connected;
 	const [filterBy, setFilterBy] = useState<{
 		type?: (typeof ActivityType)[number] | "all";
 		workoutType?: "distance" | "time" | "other" | "all";
@@ -231,13 +235,19 @@ export function ActivityTable({ data }: ActivityTableProps) {
 					</Select>
 				</div>
 
-				<div className="flex items-center gap-2">
-					<Button asChild variant="outline" size="sm">
+				<div className="flex items-center">
+					<Button
+						asChild
+						variant="outline"
+						size="sm"
+						className={hasIntegration ? "rounded-r-none" : undefined}
+					>
 						<Link href={routes.activities.create()}>
 							<IconPlus />
 							<span className="hidden lg:inline">Add Activity</span>
 						</Link>
 					</Button>
+					<SyncMenu />
 				</div>
 			</div>
 			<div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">

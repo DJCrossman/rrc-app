@@ -10,6 +10,7 @@ export const stravaActivitySchema = z.object({
 		resource_state: z.number(),
 	}),
 	name: z.string(),
+	description: z.string().nullish(),
 	distance: z.number(),
 	moving_time: z.number(),
 	elapsed_time: z.number(),
