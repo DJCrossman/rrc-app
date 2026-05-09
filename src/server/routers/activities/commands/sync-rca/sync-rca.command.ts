@@ -91,6 +91,7 @@ export async function syncRcaCommand(
 	const seenMemberships = new Set<string>();
 	let skipped = 0;
 	const now = new Date();
+	let earliestMembershipStart: Date | null = null;
 
 	for (const item of items) {
 		const program = await getOrCreateProgram(
@@ -109,6 +110,14 @@ export async function syncRcaCommand(
 		}
 		seenPrograms.add(program.id);
 
+		const itemStart = pickRcaProgramStartDate(item);
+		if (
+			itemStart &&
+			(!earliestMembershipStart || itemStart < earliestMembershipStart)
+		) {
+			earliestMembershipStart = itemStart;
+		}
+
 		await db.membership.upsert({
 			where: {
 				athleteId_programId: {
@@ -122,11 +131,28 @@ export async function syncRcaCommand(
 		seenMemberships.add(`${athlete.id}_${program.id}`);
 	}
 
+	let updatedDateJoined: Date | null = athlete.dateJoined;
+	if (earliestMembershipStart) {
+		const newDateJoined =
+			athlete.dateJoined && athlete.dateJoined < earliestMembershipStart
+				? athlete.dateJoined
+				: earliestMembershipStart;
+		if (newDateJoined.getTime() !== athlete.dateJoined?.getTime()) {
+			await db.athlete.update({
+				where: { id: athlete.id },
+				data: { dateJoined: newDateJoined },
+			});
+			updatedDateJoined = newDateJoined;
+		}
+	}
+
 	logger.info("RCA sync done", {
 		totalItems: items.length,
 		uniquePrograms: seenPrograms.size,
 		memberships: seenMemberships.size,
 		skipped,
+		earliestMembershipStart,
+		dateJoined: updatedDateJoined,
 	});
 
 	return {
