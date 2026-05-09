@@ -13,6 +13,7 @@ This directory contains the OAuth 2.0 implementation for Concept2 Logbook integr
    CONCEPT2_CLIENT_ID=your_client_id
    CONCEPT2_CLIENT_SECRET=your_client_secret
    CONCEPT2_CALLBACK_URL=http://localhost:3000/api/v1/concept2/callback
+   INTEGRATION_TOKEN_ENCRYPTION_KEY=$(openssl rand -base64 32)
    ```
 
 3. In production, update `CONCEPT2_CALLBACK_URL` to your production domain.
@@ -23,10 +24,10 @@ This directory contains the OAuth 2.0 implementation for Concept2 Logbook integr
 
 #### 1. Initiate OAuth Flow
 ```
-GET /api/v1/concept2/auth?scope=results:read,user:read
+GET /api/v1/concept2/authorize?scope=results:read,user:read
 ```
 
-Redirects the user to Concept2's authorization page. The user will be asked to grant permission to your application.
+Redirects the user to Concept2's authorization page.
 
 **Query Parameters:**
 - `scope` (optional): Comma-separated list of OAuth scopes. Default: `results:read,user:read`
@@ -39,98 +40,24 @@ GET /api/v1/concept2/callback
 
 Handles the OAuth callback from Concept2. This endpoint:
 - Exchanges the authorization code for access and refresh tokens
-- Stores tokens securely in HTTP-only cookies
-- Redirects back to the home page
+- Fetches the Concept2 user profile
+- Persists encrypted tokens + user id to the `athlete` table via the `connectConcept2` tRPC command
+- Redirects back to `/settings/apps`
 
-**Success:** Redirects to `/`  
-**Error:** Redirects to `/?oauth_error=<error>&oauth_error_description=<description>`
-
-#### 3. Refresh Token
-```
-POST /api/v1/concept2/refresh
-```
-
-Refreshes the access token using the stored refresh token. This is automatically called by the results endpoint when the token is expired.
-
-**Response:**
-```json
-{
-  "success": true
-}
-```
-
-### Data Access
-
-#### 4. Fetch Results
-```
-GET /api/v1/concept2/results
-```
-
-Fetches workout results from Concept2. This endpoint:
-- Automatically refreshes the token if expired
-- Forwards query parameters to Concept2 API
-- Returns results in JSON format
-
-**Query Parameters:** (All optional, forwarded to Concept2 API)
-- Common parameters include pagination, date ranges, etc.
-
-**Success Response:**
-```json
-{
-  "data": [...],
-  // Additional fields from Concept2 API
-}
-```
-
-**Error Response:**
-```json
-{
-  "error": "Authentication required",
-  "auth_url": "/api/v1/concept2/auth"
-}
-```
+**Success:** Redirects to `/settings/apps`
+**Error:** Redirects to `/settings/apps?oauth_error=<error>&oauth_error_description=<description>`
 
 ## Token Management
 
-- **Access Token:** Stored in HTTP-only cookie, expires in 1 hour
-- **Refresh Token:** Stored in HTTP-only cookie, expires in 90 days
-- **Token Expiry:** Tracked separately to enable automatic refresh
-
-The results endpoint automatically refreshes expired tokens before making API calls.
+- Access and refresh tokens are AES-256-GCM encrypted with `INTEGRATION_TOKEN_ENCRYPTION_KEY` and stored on the `athlete` row (`concept2AccessToken`, `concept2RefreshToken`, `concept2TokenExpiresAt`).
+- Refresh happens server-side inside `getConcept2AccessToken` (1-hour buffer); the `athlete` row is rewritten with new ciphertext when a refresh succeeds.
+- Disconnecting nulls all `concept2*` columns.
 
 ## Security
 
-- All tokens are stored in HTTP-only cookies to prevent XSS attacks
-- Cookies are marked as `secure` in production
-- Client credentials are never exposed to the client
-- Token refresh is handled server-side
-
-## Error Handling
-
-OAuth errors are redirected to the home page with query parameters:
-- `oauth_error`: Error code from Concept2
-- `oauth_error_description`: Human-readable error description
-
-API errors return appropriate HTTP status codes:
-- `401`: Authentication required (redirect user to `/api/v1/concept2/auth`)
-- `500`: Server error
-
-## Usage Example
-
-```typescript
-// Initiate OAuth flow
-<a href="/api/v1/concept2/auth">Connect Concept2</a>
-
-// Fetch results
-const response = await fetch('/api/v1/concept2/results');
-if (response.status === 401) {
-  // Redirect user to authenticate
-  window.location.href = '/api/v1/concept2/auth';
-} else {
-  const data = await response.json();
-  console.log(data);
-}
-```
+- Tokens are never persisted in cookies — they live encrypted in the database.
+- The encryption key must be a base64-encoded 32-byte value (`openssl rand -base64 32`); rotating it invalidates all existing tokens (users must reconnect).
+- Client credentials are only used server-side.
 
 ## Scopes
 

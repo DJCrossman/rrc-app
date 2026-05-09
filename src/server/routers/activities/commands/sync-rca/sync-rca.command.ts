@@ -13,6 +13,10 @@ import {
 } from "@/schemas";
 import type { AuthenticatedContext } from "@/server/context";
 import { RcaSessionExpiredError } from "@/server/services/rca-service";
+import {
+	clearRcaCredentials,
+	getRcaSession,
+} from "../../common/get-rca-session";
 
 const logger = createLogger("sync-rca");
 
@@ -23,8 +27,9 @@ type ProgramRow = Awaited<ReturnType<DbClient["program"]["findFirst"]>>;
 
 export async function syncRcaCommand(
 	_input: undefined,
-	{ db, services, userId }: AuthenticatedContext,
+	ctx: AuthenticatedContext,
 ) {
+	const { db, services, userId } = ctx;
 	const athlete = await db.athlete.findUnique({ where: { userId } });
 	if (!athlete) {
 		throw new TRPCError({
@@ -33,17 +38,27 @@ export async function syncRcaCommand(
 		});
 	}
 
+	const session = await getRcaSession(ctx);
+	if (!session) {
+		await clearRcaCredentials(ctx);
+		throw new TRPCError({
+			code: "UNAUTHORIZED",
+			message:
+				"RCA is not connected or credentials are invalid. Please reconnect.",
+		});
+	}
+
 	const settled = await Promise.allSettled([
-		services.rca.fetchProgramMemberships(),
-		services.rca.fetchOrganizationMemberships(),
-		services.rca.fetchParticipantMemberships(),
+		services.rca.fetchProgramMemberships(session),
+		services.rca.fetchOrganizationMemberships(session),
+		services.rca.fetchParticipantMemberships(session),
 	]);
 
 	const sources: Source[] = ["program", "organization", "participant"];
 	for (const [i, result] of settled.entries()) {
 		if (result.status === "rejected") {
 			if (result.reason instanceof RcaSessionExpiredError) {
-				await services.rca.disconnect();
+				await clearRcaCredentials(ctx);
 				throw new TRPCError({
 					code: "UNAUTHORIZED",
 					message: "RCA session expired. Please reconnect.",

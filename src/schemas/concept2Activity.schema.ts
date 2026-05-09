@@ -83,7 +83,6 @@ export const concept2ActivityTypes = [
 ] as const;
 
 export const getConcept2ResultsInputSchema = z.object({
-	accessToken: z.string(),
 	searchParams: z.object({
 		from: z.string().optional(),
 		to: z.string().optional(),

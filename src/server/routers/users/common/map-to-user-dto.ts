@@ -17,8 +17,8 @@ export function mapToUserDto(user: athlete) {
 		weightInKg: user.weightInKg,
 		concept2UserId: user.concept2UserId,
 		stravaAthleteId: user.stravaAthleteId,
-		concept2Connected: user.concept2UserId !== null,
+		concept2Connected: user.concept2AccessToken !== null,
 		stravaConnected: user.stravaAthleteId !== null,
-		rcaConnected: false,
+		rcaConnected: user.rcaUsername !== null,
 	};
 }

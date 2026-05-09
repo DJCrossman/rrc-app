@@ -1,15 +1,15 @@
 import { TRPCError } from "@trpc/server";
 import { createLogger } from "@/lib/logger";
-import type { ConnectConcept2Input } from "@/schemas";
+import type { ConnectRcaInput } from "@/schemas";
 import type { AuthenticatedContext } from "@/server/context";
 import { encryptToken } from "@/server/integration-token-crypto";
 import { mapToUserDto } from "@/server/routers/users/common/map-to-user-dto";
 
-const logger = createLogger("concept2.connect");
+const logger = createLogger("rca.connect");
 
-export async function connectConcept2Command(
-	input: ConnectConcept2Input,
-	{ db, userId }: AuthenticatedContext,
+export async function connectRcaCommand(
+	input: ConnectRcaInput,
+	{ db, services, userId }: AuthenticatedContext,
 ) {
 	const athlete = await db.athlete.findUnique({ where: { userId } });
 	if (!athlete) {
@@ -19,15 +19,24 @@ export async function connectConcept2Command(
 		});
 	}
 
-	const { tokens, concept2UserId } = input;
+	const result = await services.rca.login(input);
+	if (!result.ok) {
+		logger.warn("RCA login rejected", { reason: result.reason });
+		throw new TRPCError({
+			code:
+				result.reason === "invalid_credentials"
+					? "UNAUTHORIZED"
+					: "BAD_GATEWAY",
+			message: result.reason,
+		});
+	}
+
 	const updated = await db.athlete.update({
 		where: { id: athlete.id },
 		data: {
-			concept2UserId,
-			concept2AccessToken: encryptToken(tokens.access_token),
-			concept2RefreshToken: encryptToken(tokens.refresh_token),
-			concept2TokenExpiresAt: new Date(Date.now() + tokens.expires_in * 1000),
-			concept2ConnectedAt: new Date(),
+			rcaUsername: encryptToken(input.username),
+			rcaPassword: encryptToken(input.password),
+			rcaConnectedAt: new Date(),
 		},
 	});
 	logger.info("connection saved", { athleteId: athlete.id });

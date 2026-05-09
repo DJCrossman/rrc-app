@@ -1,13 +1,9 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { envVars } from "@/lib/env";
-import type { CurrentAthlete } from "@/lib/trpc/types";
 import { createServerCaller } from "@/server/caller";
-import { getAccessToken, isTokenExpired } from "../../concept2/utils";
-import { getSession as getRcaSession } from "../../rca/utils";
 
-export async function GET(request: Request) {
+export async function GET() {
 	try {
 		const { userId } = await auth();
 
@@ -20,14 +16,7 @@ export async function GET(request: Request) {
 		const trpc = await createServerCaller();
 		const user = await trpc.users.findOrCreateUserAndAthleteByUserId();
 
-		const concept2Values = await getConcept2Values(request, trpc);
-		const rcaValues = await getRcaValues();
-
-		return NextResponse.json({
-			...user,
-			...concept2Values,
-			...rcaValues,
-		});
+		return NextResponse.json(user);
 	} catch (error) {
 		console.error("User info retrieval error:", error);
 		return NextResponse.json(
@@ -58,58 +47,4 @@ const ensureDefaultOrganizationMembership = async (userId: string) => {
 		userId,
 		role: "org:member",
 	});
-};
-
-const getConcept2Values = async (
-	request: Request,
-	trpc: Awaited<ReturnType<typeof createServerCaller>>,
-): Promise<Pick<CurrentAthlete, "concept2Connected" | "concept2UserId">> => {
-	try {
-		const cookieStore = await cookies();
-		const tokenExpired = await isTokenExpired({ cookieStore });
-		if (tokenExpired) {
-			const refreshResponse = await fetch(
-				new URL("/api/v1/concept2/refresh", request.url),
-				{ method: "POST" },
-			);
-
-			if (!refreshResponse.ok) {
-				return { concept2Connected: false, concept2UserId: null };
-			}
-		}
-
-		const accessToken = await getAccessToken({ cookieStore });
-		if (!accessToken) {
-			return { concept2Connected: false, concept2UserId: null };
-		}
-
-		const concept2UserResponse = await trpc.activities.getConcept2User({
-			accessToken,
-		});
-
-		if (concept2UserResponse.status === "rejected") {
-			return { concept2Connected: false, concept2UserId: null };
-		}
-
-		return {
-			concept2Connected: true,
-			concept2UserId: concept2UserResponse.value.id,
-		};
-	} catch (error) {
-		console.error("Concept2 values retrieval error:", error);
-		return { concept2Connected: false, concept2UserId: null };
-	}
-};
-
-const getRcaValues = async (): Promise<
-	Pick<CurrentAthlete, "rcaConnected">
-> => {
-	try {
-		const cookieStore = await cookies();
-		const session = await getRcaSession({ cookieStore });
-		return { rcaConnected: session !== null };
-	} catch (error) {
-		console.error("RCA values retrieval error:", error);
-		return { rcaConnected: false };
-	}
 };

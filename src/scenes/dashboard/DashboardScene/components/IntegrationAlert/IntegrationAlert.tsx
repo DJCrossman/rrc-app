@@ -12,10 +12,12 @@ const DISMISSED_STORAGE_KEY = "dashboard.integrationAlert.dismissed";
 
 export const IntegrationAlert = () => {
 	const { user } = useCurrentUser();
-	const [dismissed, setDismissed] = useState(false);
+	const [dismissedSignature, setDismissedSignature] = useState<string | null>(
+		null,
+	);
 
 	useEffect(() => {
-		setDismissed(window.localStorage.getItem(DISMISSED_STORAGE_KEY) === "true");
+		setDismissedSignature(window.localStorage.getItem(DISMISSED_STORAGE_KEY));
 	}, []);
 
 	const missing: string[] = [];
@@ -23,11 +25,13 @@ export const IntegrationAlert = () => {
 	if (!user.stravaConnected) missing.push("Strava");
 	if (!user.rcaConnected) missing.push("RCA");
 
-	if (missing.length === 0 || dismissed) return null;
+	const signature = missing.join(",");
+
+	if (missing.length === 0 || dismissedSignature === signature) return null;
 
 	const onDismiss = () => {
-		window.localStorage.setItem(DISMISSED_STORAGE_KEY, "true");
-		setDismissed(true);
+		window.localStorage.setItem(DISMISSED_STORAGE_KEY, signature);
+		setDismissedSignature(signature);
 	};
 
 	const missingLabel =

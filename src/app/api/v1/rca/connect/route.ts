@@ -1,8 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
-import { cookies } from "next/headers";
+import { TRPCError } from "@trpc/server";
 import { NextResponse } from "next/server";
-import { rcaLoginInputSchema } from "@/schemas";
-import { createRcaService } from "@/server/services/rca-service";
+import { connectRcaInputSchema } from "@/schemas";
+import { createServerCaller } from "@/server/caller";
 
 export async function POST(request: Request) {
 	const { userId } = await auth();
@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 	}
 
 	const body = await request.json().catch(() => null);
-	const parsed = rcaLoginInputSchema.safeParse(body);
+	const parsed = connectRcaInputSchema.safeParse(body);
 	if (!parsed.success) {
 		return NextResponse.json(
 			{ error: "Invalid request body" },
@@ -19,14 +19,15 @@ export async function POST(request: Request) {
 		);
 	}
 
-	const cookieStore = await cookies();
-	const rca = createRcaService({ cookieStore });
-	const result = await rca.login(parsed.data);
-
-	if (!result.ok) {
-		const status = result.reason === "invalid_credentials" ? 401 : 502;
-		return NextResponse.json({ error: result.reason }, { status });
+	try {
+		const caller = await createServerCaller();
+		await caller.activities.connectRca(parsed.data);
+		return NextResponse.json({ ok: true });
+	} catch (err) {
+		if (err instanceof TRPCError) {
+			const status = err.code === "UNAUTHORIZED" ? 401 : 502;
+			return NextResponse.json({ error: err.message }, { status });
+		}
+		throw err;
 	}
-
-	return NextResponse.json({ ok: true });
 }

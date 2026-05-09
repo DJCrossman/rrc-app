@@ -1,15 +1,13 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { createServerCaller } from "@/server/caller";
 import {
 	type Concept2TokenData,
+	createConcept2Service,
 	getConcept2Config,
-	saveTokens,
-} from "../utils";
+} from "@/server/services/concept2-service";
 
 export async function GET(request: Request) {
 	try {
-		const cookieStore = await cookies();
 		const { searchParams } = new URL(request.url);
 		const code = searchParams.get("code");
 		const error = searchParams.get("error");
@@ -60,22 +58,24 @@ export async function GET(request: Request) {
 		}
 
 		const tokenData: Concept2TokenData = await tokenResponse.json();
-		await saveTokens({ tokenData, cookieStore });
+
+		const concept2 = createConcept2Service();
+		const userResponse = await concept2.fetchUser(tokenData.access_token);
+		if (userResponse.status === "rejected") {
+			console.error(
+				"Failed to fetch Concept2 user after token exchange:",
+				userResponse.reason,
+			);
+			const redirectUrl = new URL("/settings/apps", request.url);
+			redirectUrl.searchParams.set("oauth_error", "user_fetch_failed");
+			return NextResponse.redirect(redirectUrl);
+		}
 
 		const caller = await createServerCaller();
-		const concept2UserResponse = await caller.activities.getConcept2User({
-			accessToken: tokenData.access_token,
+		await caller.activities.connectConcept2({
+			tokens: tokenData,
+			concept2UserId: userResponse.value.id,
 		});
-		if (concept2UserResponse.status === "fulfilled") {
-			await caller.activities.connectConcept2({
-				concept2UserId: concept2UserResponse.value.id,
-			});
-		} else {
-			console.error(
-				"Failed to fetch Concept2 user after connect:",
-				concept2UserResponse.reason,
-			);
-		}
 
 		return NextResponse.redirect(new URL("/settings/apps", request.url));
 	} catch (error) {

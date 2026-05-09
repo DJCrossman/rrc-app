@@ -34,13 +34,20 @@ model athlete {
   dateJoined      DateTime?
   heightInCm      Float?
   weightInKg      Float?
-  concept2UserId  Int?
-  stravaAthleteId String?
-  stravaAccessToken    String?
-  stravaRefreshToken   String?
-  stravaTokenExpiresAt DateTime?
-  stravaAthleteJson    Json?
-  stravaConnectedAt    DateTime?
+  concept2UserId         Int?
+  concept2AccessToken    String?
+  concept2RefreshToken   String?
+  concept2TokenExpiresAt DateTime?
+  concept2ConnectedAt    DateTime?
+  rcaUsername            String?
+  rcaPassword            String?
+  rcaConnectedAt         DateTime?
+  stravaAthleteId        String?
+  stravaAccessToken      String?
+  stravaRefreshToken     String?
+  stravaTokenExpiresAt   DateTime?
+  stravaAthleteJson      Json?
+  stravaConnectedAt      DateTime?
   memberships     membership[]
   activities      activity[]
   inboxBatches    activity_inbox[]

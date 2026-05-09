@@ -5,3 +5,6 @@ export const rcaLoginInputSchema = z.object({
 	password: z.string().min(1),
 });
 export type RcaLoginInput = z.infer<typeof rcaLoginInputSchema>;
+
+export const connectRcaInputSchema = rcaLoginInputSchema;
+export type ConnectRcaInput = z.infer<typeof connectRcaInputSchema>;

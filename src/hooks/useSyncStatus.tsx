@@ -61,7 +61,7 @@ export function SyncStatusProvider({
 		const cooldownSources = new Set<SyncSource>();
 		for (const [source, endsAt] of cooldownEndsAtMap) {
 			if (endsAt > now) {
-				utils.activities.invalidate()
+				utils.activities.invalidate();
 				cooldownSources.add(source);
 			}
 		}

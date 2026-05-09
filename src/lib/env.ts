@@ -20,6 +20,7 @@ export const envVars = z
 		SIGNUP_CODE: z.string().optional(),
 		NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID: z.string(),
 		DATABASE_URL: zServerOnly(z.string()),
+		INTEGRATION_TOKEN_ENCRYPTION_KEY: zServerOnly(z.string()),
 	})
 	/**
 	 * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
@@ -36,4 +37,6 @@ export const envVars = z
 		NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID:
 			process.env.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID,
 		DATABASE_URL: process.env.DATABASE_URL,
+		INTEGRATION_TOKEN_ENCRYPTION_KEY:
+			process.env.INTEGRATION_TOKEN_ENCRYPTION_KEY,
 	});

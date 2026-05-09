@@ -3,6 +3,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { createLogger } from "@/lib/logger";
 import type { AuthenticatedContext } from "@/server/context";
 import type { FinalizeCallback } from "@/server/procedures";
+import { getConcept2AccessToken } from "../../common/get-concept2-access-token";
 import { processConcept2InboxBatchCommand } from "../process-concept2-inbox-batch/process-concept2-inbox-batch.command";
 import type { syncConcept2ActivitiesCommand } from "./sync-concept2-activities.command";
 
@@ -23,9 +24,20 @@ export const syncConcept2ActivitiesFinalizeCallback: FinalizeCallback<
 	const { batchId } = result.value;
 	const { db, services } = ctx;
 	try {
+		const accessToken = await getConcept2AccessToken(ctx);
+		if (!accessToken) {
+			throw new TRPCError({
+				code: "UNAUTHORIZED",
+				message: "Concept2 is not connected. Please reconnect.",
+			});
+		}
 		const [ergResults, waterResults] = await Promise.allSettled([
-			services.concept2.fetchAllResults("rower").catch(raiseGatewayError),
-			services.concept2.fetchAllResults("water").catch(raiseGatewayError),
+			services.concept2
+				.fetchAllResults("rower", accessToken)
+				.catch(raiseGatewayError),
+			services.concept2
+				.fetchAllResults("water", accessToken)
+				.catch(raiseGatewayError),
 		]);
 
 		if (ergResults.status === "rejected") {

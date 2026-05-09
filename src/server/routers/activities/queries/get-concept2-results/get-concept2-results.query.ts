@@ -1,12 +1,13 @@
 import { z } from "zod";
 import { Concept2Error } from "@/app/api/v1/concept2/types";
-import { getConcept2Config } from "@/app/api/v1/concept2/utils";
 import {
 	type Concept2Activity,
 	concept2ActivitySchema,
 	type GetConcept2ResultsInput,
 } from "@/schemas";
 import type { AuthenticatedContext } from "@/server/context";
+import { getConcept2Config } from "@/server/services/concept2-service";
+import { getConcept2AccessToken } from "../../common/get-concept2-access-token";
 
 const responseSchema = z.object({
 	data: z.array(concept2ActivitySchema),
@@ -24,10 +25,21 @@ const responseSchema = z.object({
 
 export async function getConcept2ResultsQuery(
 	input: GetConcept2ResultsInput,
-	_ctx: AuthenticatedContext,
+	ctx: AuthenticatedContext,
 ): Promise<PromiseSettledResult<Concept2Activity[]>> {
-	const config = getConcept2Config();
+	const accessToken = await getConcept2AccessToken(ctx);
+	if (!accessToken) {
+		return {
+			status: "rejected",
+			reason: new Concept2Error({
+				message: "Concept2 not connected",
+				auth_url: "/api/v1/concept2/auth",
+				status: 401,
+			}),
+		};
+	}
 
+	const config = getConcept2Config();
 	const resultsUrl = new URL(`${config.baseUrl}/api/users/me/results`);
 	for (const [key, value] of Object.entries(input.searchParams)) {
 		if (value !== undefined) resultsUrl.searchParams.set(key, value);
@@ -35,7 +47,7 @@ export async function getConcept2ResultsQuery(
 
 	const resultsResponse = await fetch(resultsUrl.toString(), {
 		headers: {
-			Authorization: `Bearer ${input.accessToken}`,
+			Authorization: `Bearer ${accessToken}`,
 			Accept: "application/json",
 		},
 	});

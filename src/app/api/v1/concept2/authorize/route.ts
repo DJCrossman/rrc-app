@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getConcept2Config } from "../utils";
+import { getConcept2Config } from "@/server/services/concept2-service";
 
 export async function GET(request: Request) {
 	try {

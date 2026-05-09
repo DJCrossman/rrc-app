@@ -4,7 +4,7 @@ import { mapToUserDto } from "@/server/routers/users/common/map-to-user-dto";
 
 export async function disconnectConcept2Command(
 	_input: undefined,
-	{ db, services, userId }: AuthenticatedContext,
+	{ db, userId }: AuthenticatedContext,
 ) {
 	const athlete = await db.athlete.findUnique({ where: { userId } });
 	if (!athlete) {
@@ -16,10 +16,14 @@ export async function disconnectConcept2Command(
 
 	const updated = await db.athlete.update({
 		where: { id: athlete.id },
-		data: { concept2UserId: null },
+		data: {
+			concept2UserId: null,
+			concept2AccessToken: null,
+			concept2RefreshToken: null,
+			concept2TokenExpiresAt: null,
+			concept2ConnectedAt: null,
+		},
 	});
-
-	await services.concept2.disconnect();
 
 	return mapToUserDto(updated);
 }

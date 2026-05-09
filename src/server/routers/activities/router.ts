@@ -1,5 +1,6 @@
 import { router } from "@/server/trpc";
 import { connectConcept2Procedure } from "./commands/connect-concept2/connect-concept2.procedure";
+import { connectRcaProcedure } from "./commands/connect-rca/connect-rca.procedure";
 import { connectStravaProcedure } from "./commands/connect-strava/connect-strava.procedure";
 import { createActivityProcedure } from "./commands/create-activity/create-activity.procedure";
 import { deleteActivityProcedure } from "./commands/delete-activity/delete-activity.procedure";
@@ -36,6 +37,7 @@ export const activitiesRouter = router({
 	connectConcept2: connectConcept2Procedure,
 	disconnectConcept2: disconnectConcept2Procedure,
 	syncConcept2Activities: syncConcept2ActivitiesProcedure,
+	connectRca: connectRcaProcedure,
 	disconnectRca: disconnectRcaProcedure,
 	syncRca: syncRcaProcedure,
 	getPendingInboxBatches: getPendingInboxBatchesProcedure,

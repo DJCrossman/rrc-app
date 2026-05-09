@@ -1,24 +1,23 @@
-import type { cookies } from "next/headers";
 import { z } from "zod";
-import {
-	type Concept2TokenData,
-	clearTokens,
-	getAccessToken,
-	getConcept2Config,
-	getRefreshToken,
-	getTokenExpiry,
-	saveTokens,
-} from "@/app/api/v1/concept2/utils";
+import { Concept2Error } from "@/app/api/v1/concept2/types";
 import { createLogger } from "@/lib/logger";
-import { type Concept2Activity, concept2ActivitySchema } from "@/schemas";
-
-const REFRESH_BUFFER_MS = 60 * 60 * 1000;
+import {
+	type Concept2Activity,
+	type Concept2User,
+	concept2ActivitySchema,
+	concept2UserSchema,
+} from "@/schemas";
 
 const logger = createLogger("concept2.service");
 
-type CookieStore = Awaited<ReturnType<typeof cookies>>;
+export interface Concept2TokenData {
+	access_token: string;
+	refresh_token: string;
+	expires_in: number;
+	token_type: string;
+}
 
-const responseSchema = z.object({
+const resultsResponseSchema = z.object({
 	data: z.array(concept2ActivitySchema),
 	meta: z.object({
 		pagination: z.object({
@@ -32,144 +31,185 @@ const responseSchema = z.object({
 	}),
 });
 
+const userResponseSchema = z.object({ data: concept2UserSchema });
+
 export type Concept2Service = {
-	resolveAccessToken: () => Promise<string | null>;
-	fetchAllResults: (type: "rower" | "water") => Promise<Concept2Activity[]>;
-	disconnect: () => Promise<void>;
+	refreshTokens: (refreshToken: string) => Promise<Concept2TokenData | null>;
+	fetchAllResults: (
+		type: "rower" | "water",
+		accessToken: string,
+	) => Promise<Concept2Activity[]>;
+	fetchUser: (
+		accessToken: string,
+	) => Promise<PromiseSettledResult<Concept2User>>;
 };
 
-export function createConcept2Service({
-	cookieStore,
-}: {
-	cookieStore: CookieStore;
-}): Concept2Service {
-	async function resolveAccessToken(): Promise<string | null> {
-		const expiry = await getTokenExpiry({ cookieStore });
-		const accessToken = await getAccessToken({ cookieStore });
-		const refreshToken = await getRefreshToken({ cookieStore });
+export function createConcept2Service(): Concept2Service {
+	return { refreshTokens, fetchAllResults, fetchUser };
+}
 
-		const cookieState = {
-			hasAccessToken: !!accessToken,
-			hasRefreshToken: !!refreshToken,
-			expiry,
-			msUntilExpiry: expiry ? expiry - Date.now() : null,
-		};
+export function getConcept2Config() {
+	const clientId = process.env.CONCEPT2_CLIENT_ID;
+	const clientSecret = process.env.CONCEPT2_CLIENT_SECRET;
+	const baseUrl = process.env.CONCEPT2_BASE_URL || "https://log.concept2.com";
+	const callbackUrl =
+		process.env.CONCEPT2_CALLBACK_URL ||
+		"http://localhost:3000/api/v1/concept2/callback";
 
-		if (accessToken && expiry && Date.now() < expiry - REFRESH_BUFFER_MS) {
-			logger.info("access token reused", cookieState);
-			return accessToken;
-		}
+	if (!clientId || !clientSecret) {
+		throw new Error("Concept2 OAuth credentials not configured");
+	}
 
-		if (!refreshToken) {
-			logger.warn("refresh token missing — cannot resolve access token", {
-				...cookieState,
-				reason: accessToken
-					? "access token expired and no refresh token"
-					: "no access token and no refresh token",
-			});
-			return null;
-		}
+	return {
+		clientId,
+		clientSecret,
+		baseUrl,
+		callbackUrl,
+		authUrl: `${baseUrl}/oauth/authorize`,
+		tokenUrl: `${baseUrl}/oauth/access_token`,
+	};
+}
 
-		logger.info("attempting token refresh", cookieState);
-		const config = getConcept2Config();
-		const response = await fetch(config.tokenUrl, {
-			method: "POST",
-			headers: { "Content-Type": "application/x-www-form-urlencoded" },
-			body: new URLSearchParams({
-				grant_type: "refresh_token",
-				refresh_token: refreshToken,
-				client_id: config.clientId,
-				client_secret: config.clientSecret,
-			}),
+async function refreshTokens(
+	refreshToken: string,
+): Promise<Concept2TokenData | null> {
+	const config = getConcept2Config();
+	const response = await fetch(config.tokenUrl, {
+		method: "POST",
+		headers: { "Content-Type": "application/x-www-form-urlencoded" },
+		body: new URLSearchParams({
+			grant_type: "refresh_token",
+			refresh_token: refreshToken,
+			client_id: config.clientId,
+			client_secret: config.clientSecret,
+		}),
+	});
+
+	if (!response.ok) {
+		const errorText = await response.text().catch(() => "<unreadable>");
+		logger.error("token refresh failed", {
+			status: response.status,
+			body: errorText,
+		});
+		return null;
+	}
+	const tokenData = (await response.json()) as Concept2TokenData;
+	logger.info("token refresh succeeded", { expiresIn: tokenData.expires_in });
+	return tokenData;
+}
+
+async function fetchAllResults(
+	type: "rower" | "water",
+	accessToken: string,
+): Promise<Concept2Activity[]> {
+	logger.info("fetchAllResults start", { type });
+	const config = getConcept2Config();
+	const all: Concept2Activity[] = [];
+	let page = 1;
+	let totalPages = 1;
+
+	do {
+		const url = new URL(`${config.baseUrl}/api/users/me/results`);
+		url.searchParams.set("type", type);
+		url.searchParams.set("page", String(page));
+
+		const response = await fetch(url.toString(), {
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				Accept: "application/json",
+			},
 		});
 
 		if (!response.ok) {
-			const errorText = await response.text().catch(() => "<unreadable>");
-			logger.error("token refresh failed", {
+			const errorText = await response.text();
+			logger.error("results fetch failed", {
+				type,
+				page,
 				status: response.status,
-				body: errorText,
+				body: errorText.slice(0, 500),
 			});
-			return null;
-		}
-		const tokenData = (await response.json()) as Concept2TokenData;
-		await saveTokens({ tokenData, cookieStore });
-		logger.info("token refresh succeeded", {
-			expiresIn: tokenData.expires_in,
-		});
-		return tokenData.access_token;
-	}
-
-	async function fetchAllResults(
-		type: "rower" | "water",
-	): Promise<Concept2Activity[]> {
-		logger.info("fetchAllResults start", { type });
-		const accessToken = await resolveAccessToken();
-		if (!accessToken) {
-			logger.error("fetchAllResults aborted — no access token", { type });
-			throw new Error("Concept2 is not connected. Please reconnect.");
+			throw new Error(
+				`Concept2 results fetch failed (${response.status}): ${errorText}`,
+			);
 		}
 
-		const config = getConcept2Config();
-		const all: Concept2Activity[] = [];
-		let page = 1;
-		let totalPages = 1;
-
-		do {
-			const url = new URL(`${config.baseUrl}/api/users/me/results`);
-			url.searchParams.set("type", type);
-			url.searchParams.set("page", String(page));
-
-			const response = await fetch(url.toString(), {
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-					Accept: "application/json",
-				},
+		const parsed = resultsResponseSchema.safeParse(await response.json());
+		if (!parsed.success) {
+			logger.error("results response validation failed", {
+				type,
+				page,
+				issue: parsed.error.message,
 			});
+			throw new Error(`Invalid Concept2 response: ${parsed.error.message}`);
+		}
 
-			if (!response.ok) {
-				const errorText = await response.text();
-				logger.error("results fetch failed", {
-					type,
-					page,
-					status: response.status,
-					body: errorText.slice(0, 500),
-				});
-				throw new Error(
-					`Concept2 results fetch failed (${response.status}): ${errorText}`,
-				);
-			}
+		all.push(...parsed.data.data);
+		totalPages = parsed.data.meta.pagination.total_pages;
+		page += 1;
 
-			const parsed = responseSchema.safeParse(await response.json());
-			if (!parsed.success) {
-				logger.error("results response validation failed", {
-					type,
-					page,
-					issue: parsed.error.message,
-				});
-				throw new Error(`Invalid Concept2 response: ${parsed.error.message}`);
-			}
+		if (totalPages > 5 && page <= totalPages) {
+			await new Promise((resolve) => setTimeout(resolve, 150));
+		}
+	} while (page <= totalPages);
 
-			all.push(...parsed.data.data);
-			totalPages = parsed.data.meta.pagination.total_pages;
-			page += 1;
+	logger.info("fetchAllResults complete", {
+		type,
+		totalActivities: all.length,
+		totalPages,
+	});
+	return all;
+}
 
-			if (totalPages > 5 && page <= totalPages) {
-				await new Promise((resolve) => setTimeout(resolve, 150));
-			}
-		} while (page <= totalPages);
+async function fetchUser(
+	accessToken: string,
+): Promise<PromiseSettledResult<Concept2User>> {
+	const config = getConcept2Config();
+	const url = new URL(`${config.baseUrl}/api/users/me`);
+	const response = await fetch(url.toString(), {
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
+			Accept: "application/json",
+		},
+	});
 
-		logger.info("fetchAllResults complete", {
-			type,
-			totalActivities: all.length,
-			totalPages,
+	if (!response.ok) {
+		const errorText = await response.text().catch(() => "<unreadable>");
+		logger.error("user fetch failed", {
+			status: response.status,
+			body: errorText.slice(0, 500),
 		});
-		return all;
+		if (response.status === 401) {
+			return {
+				status: "rejected",
+				reason: new Concept2Error({
+					message: "Authentication required",
+					auth_url: "/api/v1/concept2/auth",
+					status: 401,
+				}),
+			};
+		}
+		return {
+			status: "rejected",
+			reason: new Concept2Error({
+				message: "Failed to fetch user from Concept2",
+				status: response.status,
+			}),
+		};
 	}
 
-	async function disconnect(): Promise<void> {
-		await clearTokens({ cookieStore });
-		logger.info("disconnected — cleared tokens");
+	const parsed = userResponseSchema.safeParse(await response.json());
+	if (!parsed.success) {
+		logger.error("user response validation failed", {
+			issue: parsed.error.message,
+		});
+		return {
+			status: "rejected",
+			reason: new Concept2Error({
+				message: "Failed to parse Concept2 user",
+				status: 500,
+			}),
+		};
 	}
 
-	return { resolveAccessToken, fetchAllResults, disconnect };
+	return { status: "fulfilled", value: parsed.data.data };
 }
