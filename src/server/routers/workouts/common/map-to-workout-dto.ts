@@ -11,6 +11,7 @@ export const mapToWorkoutDto = (workout: WorkoutRow) => ({
 	description: workout.description,
 	startDate: workout.startDate.toISOString(),
 	workoutType: workout.workoutType,
+	activityType: workout.activityType,
 	elapsedTime: workout.elapsedTime,
 	distance: workout.distance,
 	intervalCount: workout.intervalCount,

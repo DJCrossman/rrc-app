@@ -105,6 +105,13 @@ export async function POST(request: Request) {
 					: undefined;
 			if (intensityCategory === undefined)
 				intensityCategory = parseIntensity(description);
+			const activityType: string =
+				"activityType" in item &&
+				(item.activityType === "erg" || item.activityType === "water")
+					? item.activityType
+					: "type" in item && (item.type === "erg" || item.type === "water")
+						? item.type
+						: "erg";
 			const fragments =
 				"fragments" in item && Array.isArray(item.fragments)
 					? item.fragments
@@ -116,6 +123,7 @@ export async function POST(request: Request) {
 						? item.startDate
 						: "",
 				workoutType,
+				activityType,
 				elapsedTime,
 				distance,
 				intervalCount,

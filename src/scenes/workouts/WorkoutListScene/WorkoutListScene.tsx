@@ -4,6 +4,7 @@ import { IconPlus } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { redirect, useRouter } from "next/navigation";
 import type React from "react";
+import type { ParseDescriptionResult } from "@/app/api/v1/workouts/parse-description/route";
 import type { UploadWorkoutScreenshotResult } from "@/app/api/v1/workouts/screenshot/route";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
@@ -41,6 +42,21 @@ export const WorkoutListScene = ({
 			router.refresh();
 		},
 	});
+
+	const handleParseDescription = async (
+		description: string,
+	): Promise<ParseDescriptionResult> => {
+		const res = await fetch("/api/v1/workouts/parse-description", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ description }),
+		});
+		if (!res.ok) {
+			const body = await res.json().catch(() => ({}));
+			throw new Error(body?.error || "Failed to parse description");
+		}
+		return (await res.json()) as ParseDescriptionResult;
+	};
 
 	const currentWeek = DateTime.fromISO(currentWeekIsoDate);
 
@@ -125,6 +141,7 @@ export const WorkoutListScene = ({
 					}
 					return (await response.json()) as UploadWorkoutScreenshotResult;
 				}}
+				onParseDescription={handleParseDescription}
 				onClose={() => router.push(routes.workouts.list({ week: currentWeek }))}
 			/>
 			<WorkoutDetailsDrawer
@@ -133,6 +150,7 @@ export const WorkoutListScene = ({
 				onSubmit={async (data) => {
 					await updateWorkout.mutateAsync(data);
 				}}
+				onParseDescription={handleParseDescription}
 				onClose={() => router.push(routes.workouts.list({ week: currentWeek }))}
 				analytics={analyticMetrics}
 			/>

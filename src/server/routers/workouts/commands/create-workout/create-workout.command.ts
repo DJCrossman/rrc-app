@@ -14,6 +14,7 @@ export async function createWorkoutCommand(
 			description: input.description,
 			startDate: new Date(input.startDate),
 			workoutType: input.workoutType,
+			activityType: input.activityType,
 			elapsedTime: input.elapsedTime,
 			distance: input.distance,
 			intervalCount: input.intervalCount ?? 1,

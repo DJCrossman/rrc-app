@@ -3,6 +3,7 @@
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
+import type { ParseDescriptionResult } from "@/app/api/v1/workouts/parse-description/route";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ interface WorkoutDetailsDrawerProps {
 	workout: Workout | null;
 	onClose: () => void;
 	onSubmit: (data: UpdateWorkout) => Promise<void> | void;
+	onParseDescription: (description: string) => Promise<ParseDescriptionResult>;
 	analytics?: Pick<AnalyticMetrics, "lastTwoKm" | "lastSixKm">;
 }
 
@@ -34,6 +36,7 @@ export const WorkoutDetailsDrawer = ({
 	workout,
 	onClose,
 	onSubmit,
+	onParseDescription,
 	analytics,
 }: WorkoutDetailsDrawerProps) => {
 	const [isEditing, setIsEditing] = useState(false);
@@ -80,6 +83,9 @@ export const WorkoutDetailsDrawer = ({
 						>
 							{workout.intensityCategory}
 						</Badge>
+						<Badge variant="outline">
+							{workout.activityType === "water" ? "On Water" : "Erg"}
+						</Badge>
 					</div>
 					<div className="flex items-center gap-2">
 						<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
@@ -95,12 +101,26 @@ export const WorkoutDetailsDrawer = ({
 								workouts: [
 									{
 										description: workout.description,
-										startDate: startDate?.toISODate() || undefined,
+										startDate: workout.startDate,
+										intensityCategory: workout.intensityCategory,
+										activityType: workout.activityType,
+										workoutType: workout.workoutType,
+										elapsedTime: workout.elapsedTime ?? undefined,
+										distance: workout.distance ?? undefined,
+										intervalCount: workout.intervalCount,
+										fragments: workout.fragments?.map((f) => ({
+											rate: f.rate ?? undefined,
+											elapsedTime: f.elapsedTime ?? undefined,
+											distance: f.distance ?? undefined,
+											relativeTo: f.relativeTo as "2K" | "6K",
+											relativeSplit: f.relativeSplit,
+										})),
 									},
 								],
 							}}
 							onCancel={() => setIsEditing(false)}
 							onSubmit={handleSubmit}
+							onParseDescription={onParseDescription}
 						/>
 					) : (
 						<>
@@ -130,10 +150,10 @@ export const WorkoutDetailsDrawer = ({
 								</div>
 								<div>
 									<strong className="text-sm text-muted-foreground">
-										Start Date
+										Start
 									</strong>
 									<p className="text-base">
-										{startDate?.toLocaleString(DateTime.DATE_MED) || "N/A"}
+										{startDate?.toLocaleString(DateTime.DATETIME_MED) || "N/A"}
 									</p>
 								</div>
 								{workout.elapsedTime && (

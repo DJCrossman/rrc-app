@@ -122,6 +122,7 @@ model workout {
   description       String
   startDate         DateTime
   workoutType       WorkoutType
+  activityType      ActivityType       @default(erg)
   elapsedTime       Int?
   distance          Int?
   intervalCount     Int                @default(1)

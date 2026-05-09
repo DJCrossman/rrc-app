@@ -4,6 +4,10 @@ const intensityCategorySchema = z.enum(["C1", "C2", "C3", "C4", "C5", "C6"]);
 
 export type IntensityCategory = z.infer<typeof intensityCategorySchema>;
 
+const activityTypeSchema = z.enum(["water", "erg"]);
+
+export type WorkoutActivityType = z.infer<typeof activityTypeSchema>;
+
 export const createWorkoutFragmentSchema = z.object({
 	rate: z.number().optional(),
 	elapsedTime: z.number().optional(),
@@ -18,6 +22,7 @@ export const workoutCoreSchema = z.object({
 	description: z.string(),
 	startDate: z.string(),
 	workoutType: z.enum(["distance", "time", "other"]),
+	activityType: activityTypeSchema.default("erg"),
 	elapsedTime: z.number().optional(),
 	distance: z.number().optional(),
 	intervalCount: z.number().default(1),

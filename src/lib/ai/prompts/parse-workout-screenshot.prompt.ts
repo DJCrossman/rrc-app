@@ -21,6 +21,7 @@ Return a JSON object with a "workouts" array. Each workout has:
 - distance (number, optional): Distance in meters
 - intervalCount (number): Total number of intervals (e.g., "3x3km" = 3, "2x2km + 4x500m" = 6, steady state = 1)
 - intensityCategory (string): One of "C1", "C2", "C3", "C4", "C5", or "C6" - extract from description or default to "C6"
+- activityType (string): "erg" or "water". Use "water" when the description mentions on-water rowing (e.g. "OTW", "on water", "single", "double", "quad", "eight", "boat"); use "erg" otherwise (default).
 - fragments (array, optional): Include only when workout has specific rate or split details. Each fragment has:
   - rate (number, optional): Strokes per minute (e.g., "R20" = 20, "@ R24" = 24). Omit if rate is open/free
   - elapsedTime (number, optional): Duration of this fragment in milliseconds. Use for time-based workouts. Should sum to workout elapsedTime

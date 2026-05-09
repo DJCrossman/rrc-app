@@ -1,6 +1,7 @@
 "use client";
 
 import { IconX } from "@tabler/icons-react";
+import type { ParseDescriptionResult } from "@/app/api/v1/workouts/parse-description/route";
 import type { UploadWorkoutScreenshotResult } from "@/app/api/v1/workouts/screenshot/route";
 import {
 	Drawer,
@@ -19,12 +20,14 @@ interface WorkoutCreateDrawerProps {
 	onUploadWorkoutScreenshot?: (
 		file: File,
 	) => Promise<UploadWorkoutScreenshotResult>;
+	onParseDescription: (description: string) => Promise<ParseDescriptionResult>;
 	onClose: () => void;
 }
 
 export const WorkoutCreateDrawer = ({
 	isOpen,
 	onUploadWorkoutScreenshot,
+	onParseDescription,
 	onClose,
 	onSubmit,
 }: WorkoutCreateDrawerProps) => {
@@ -55,6 +58,7 @@ export const WorkoutCreateDrawer = ({
 						onSubmit={handleSubmit}
 						onCancel={onClose}
 						onUploadWorkoutScreenshot={onUploadWorkoutScreenshot}
+						onParseDescription={onParseDescription}
 					/>
 				</div>
 			</DrawerContent>
