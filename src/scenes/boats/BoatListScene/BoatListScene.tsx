@@ -3,19 +3,27 @@
 import { useRouter } from "next/navigation";
 import type { default as React } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
+import { BulkUploadDrawer } from "@/components/bulk-upload-drawer";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
 import type { Activities, Boat, Boats } from "@/lib/trpc/types";
+import {
+	type BulkCreateBoatRow,
+	bulkCreateBoatRowSchema,
+	type CreateBoat,
+} from "@/schemas";
 import { BoatCreateDrawer, BoatDetailsDrawer, BoatTable } from "./components";
+import { useBoatBulkColumns } from "./components/useBoatBulkColumns";
 
 interface IProps {
 	data: Boats;
 	selectedBoat: Boat | null;
 	activities?: Activities;
 	isCreateDrawerOpen: boolean;
+	isBulkCreateDrawerOpen: boolean;
 }
 
 export const BoatListScene = ({
@@ -23,10 +31,19 @@ export const BoatListScene = ({
 	selectedBoat,
 	activities = [],
 	isCreateDrawerOpen,
+	isBulkCreateDrawerOpen,
 }: IProps) => {
 	const router = useRouter();
 	const utils = trpcClient.useUtils();
+	const boatBulkColumns = useBoatBulkColumns();
 	const createBoat = trpcClient.boats.createBoat.useMutation({
+		onSuccess: async () => {
+			await utils.boats.getBoats.invalidate();
+			router.push(routes.boats.list());
+			router.refresh();
+		},
+	});
+	const bulkCreateBoats = trpcClient.boats.createBoats.useMutation({
 		onSuccess: async () => {
 			await utils.boats.getBoats.invalidate();
 			router.push(routes.boats.list());
@@ -70,6 +87,26 @@ export const BoatListScene = ({
 					await createBoat.mutateAsync(data);
 				}}
 				onClose={() => router.push(routes.boats.list())}
+			/>
+			<BulkUploadDrawer<BulkCreateBoatRow>
+				isOpen={isBulkCreateDrawerOpen}
+				onClose={() => router.push(routes.boats.list())}
+				schema={bulkCreateBoatRowSchema}
+				columns={boatBulkColumns}
+				onSubmit={async (rows) => {
+					const boats: CreateBoat[] = rows.map((row) => ({
+						name: row.name,
+						manufacturer: row.manufacturer,
+						seats: row.seats,
+						rigging: row.rigging,
+						weightRange: {
+							min: row.weightMin,
+							max: row.weightMax,
+							unit: row.weightUnit,
+						},
+					}));
+					await bulkCreateBoats.mutateAsync({ boats });
+				}}
 			/>
 			<BoatDetailsDrawer
 				isOpen={!!selectedBoat}

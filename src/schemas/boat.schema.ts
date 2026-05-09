@@ -34,6 +34,24 @@ export const createBoatSchema = z.object({
 
 export type CreateBoat = z.infer<typeof createBoatSchema>;
 
+export const bulkCreateBoatRowSchema = z.object({
+	name: z.string().min(1, { message: "Name is required" }),
+	manufacturer: z.enum(ManufacturerTypes),
+	seats: z.enum(SeatTypes),
+	rigging: z.enum(RiggingTypes),
+	weightMin: z.coerce.number(),
+	weightMax: z.coerce.number(),
+	weightUnit: z.enum(WeightUnitTypes),
+});
+
+export type BulkCreateBoatRow = z.infer<typeof bulkCreateBoatRowSchema>;
+
+export const bulkCreateBoatsSchema = z.object({
+	boats: z.array(createBoatSchema).min(1),
+});
+
+export type BulkCreateBoats = z.infer<typeof bulkCreateBoatsSchema>;
+
 export const updateBoatSchema = createBoatSchema.extend({
 	id: z.string(),
 });

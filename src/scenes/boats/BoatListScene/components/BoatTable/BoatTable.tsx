@@ -1,6 +1,11 @@
 "use client";
 
-import { IconCaretDown, IconCaretUp, IconPlus } from "@tabler/icons-react";
+import {
+	IconCaretDown,
+	IconCaretUp,
+	IconChevronDown,
+	IconPlus,
+} from "@tabler/icons-react";
 import {
 	type ColumnDef,
 	flexRender,
@@ -17,6 +22,12 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -164,13 +175,35 @@ export function BoatTable({ data }: IBoatTableProps) {
 					</SelectContent>
 				</Select>
 
-				<div className="flex items-center gap-2">
-					<Button asChild variant="outline" size="sm">
+				<div className="flex items-center">
+					<Button
+						asChild
+						variant="outline"
+						size="sm"
+						className="rounded-r-none"
+					>
 						<Link href={routes.boats.create()}>
 							<IconPlus />
 							<span className="hidden lg:inline">Add Boat</span>
 						</Link>
 					</Button>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button
+								variant="outline"
+								size="sm"
+								className="rounded-l-none border-l-0 px-2"
+								aria-label="More add options"
+							>
+								<IconChevronDown />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuItem asChild>
+								<Link href={routes.boats.bulkCreate()}>Bulk Add Boats</Link>
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
 				</div>
 			</div>
 			<div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">

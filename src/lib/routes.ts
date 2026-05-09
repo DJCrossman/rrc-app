@@ -7,6 +7,7 @@ export const routes = {
 	boats: {
 		list: () => "/boats",
 		create: () => "/boats?action=create",
+		bulkCreate: () => "/boats?action=bulkCreate",
 		view: (id: string) => `/boats?boatId=${id}`,
 	},
 	athletes: {

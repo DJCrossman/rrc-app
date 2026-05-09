@@ -4,7 +4,7 @@ import { createServerCaller } from "@/server/caller";
 
 const querySchema = z.object({
 	boatId: z.string().optional(),
-	action: z.literal("create").optional(),
+	action: z.enum(["create", "bulkCreate"]).optional(),
 });
 
 export default async function BoatsPage({
@@ -28,6 +28,7 @@ export default async function BoatsPage({
 			selectedBoat={selectedBoat}
 			activities={activities}
 			isCreateDrawerOpen={action === "create"}
+			isBulkCreateDrawerOpen={action === "bulkCreate"}
 		/>
 	);
 }
