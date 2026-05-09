@@ -38,4 +38,10 @@ describe("formatPercent", () => {
 	it("should handle very small negative percentages", () => {
 		expect(formatPercent(-0.001)).toBe("-0.1%");
 	});
+
+	it("should compact-format large percentages", () => {
+		expect(formatPercent(15)).toBe("+1.5K%");
+		expect(formatPercent(60000)).toBe("+6M%");
+		expect(formatPercent(-60000)).toBe("-6M%");
+	});
 });
