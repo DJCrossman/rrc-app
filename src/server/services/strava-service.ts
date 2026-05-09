@@ -18,6 +18,7 @@ export type StravaService = {
 	refreshTokens: typeof refreshStravaTokens;
 	fetchAllRowingActivities: typeof fetchAllRowingActivities;
 	fetchRecentRowingActivities: typeof fetchRecentRowingActivities;
+	fetchActivity: typeof fetchStravaActivity;
 	fetchAthlete: typeof fetchStravaAthlete;
 	encryptToken: typeof encryptToken;
 	decryptToken: typeof decryptToken;
@@ -28,6 +29,7 @@ export function createStravaService(): StravaService {
 		refreshTokens: refreshStravaTokens,
 		fetchAllRowingActivities,
 		fetchRecentRowingActivities,
+		fetchActivity: fetchStravaActivity,
 		fetchAthlete: fetchStravaAthlete,
 		encryptToken,
 		decryptToken,
@@ -134,6 +136,47 @@ async function fetchRecentRowingActivities(
 
 	const { rowing } = parseRowingActivities(all);
 	return rowing;
+}
+
+async function fetchStravaActivity(
+	accessToken: string,
+	activityId: number | bigint,
+): Promise<StravaActivity | null> {
+	const config = getStravaConfig();
+	const response = await fetch(
+		`${config.baseApiUrl}/activities/${activityId.toString()}`,
+		{
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				Accept: "application/json",
+			},
+		},
+	);
+
+	if (response.status === 404) {
+		logger.info("activity not found on strava", {
+			activityId: String(activityId),
+		});
+		return null;
+	}
+	if (!response.ok) {
+		const errorText = await response.text().catch(() => "<unreadable>");
+		throw new StravaServiceError({
+			message: `Strava activity fetch failed (${response.status}): ${errorText}`,
+			status: response.status,
+			authRequired: response.status === 401,
+		});
+	}
+
+	const parsed = stravaActivitySchema.safeParse(await response.json());
+	if (!parsed.success) {
+		logger.warn("activity failed schema parse", {
+			activityId: String(activityId),
+			issues: parsed.error.issues.slice(0, 5),
+		});
+		return null;
+	}
+	return parsed.data;
 }
 
 async function fetchStravaAthlete(accessToken: string): Promise<StravaUser> {
