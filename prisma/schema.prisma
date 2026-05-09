@@ -36,6 +36,11 @@ model athlete {
   weightInKg      Float?
   concept2UserId  Int?
   stravaAthleteId String?
+  stravaAccessToken    String?
+  stravaRefreshToken   String?
+  stravaTokenExpiresAt DateTime?
+  stravaAthleteJson    Json?
+  stravaConnectedAt    DateTime?
   memberships     membership[]
   activities      activity[]
   inboxBatches    activity_inbox[]

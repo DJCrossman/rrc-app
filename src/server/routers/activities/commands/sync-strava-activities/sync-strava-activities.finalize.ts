@@ -3,6 +3,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { createLogger } from "@/lib/logger";
 import type { AuthenticatedContext } from "@/server/context";
 import type { FinalizeCallback } from "@/server/procedures";
+import { getStravaAccessToken } from "../../common/get-strava-access-token";
 import { processStravaInboxBatchCommand } from "../process-strava-inbox-batch/process-strava-inbox-batch.command";
 import type { syncStravaActivitiesCommand } from "./sync-strava-activities.command";
 
@@ -17,8 +18,15 @@ export const syncStravaActivitiesFinalizeCallback: FinalizeCallback<
 	const { batchId } = result.value;
 	const { db, services } = ctx;
 	try {
+		const accessToken = await getStravaAccessToken(ctx);
+		if (!accessToken) {
+			throw new TRPCError({
+				code: "UNAUTHORIZED",
+				message: "Strava authentication required",
+			});
+		}
 		const [stravaResult] = await Promise.allSettled([
-			services.strava.fetchAllRowingActivities(),
+			services.strava.fetchAllRowingActivities(accessToken),
 		]);
 
 		if (stravaResult.status === "rejected") {

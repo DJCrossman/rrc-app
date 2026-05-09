@@ -30,7 +30,18 @@ export const getStravaAthleteInputSchema = z.object({
 });
 export type GetStravaAthleteInput = z.infer<typeof getStravaAthleteInputSchema>;
 
+export const stravaTokenDataSchema = z.object({
+	access_token: z.string(),
+	refresh_token: z.string(),
+	expires_in: z.number(),
+	expires_at: z.number(),
+	token_type: z.string(),
+	athlete: stravaUserSchema,
+});
+export type StravaTokenDataInput = z.infer<typeof stravaTokenDataSchema>;
+
 export const connectStravaInputSchema = z.object({
-	stravaAthleteId: z.string(),
+	tokens: stravaTokenDataSchema,
+	athlete: stravaUserSchema,
 });
 export type ConnectStravaInput = z.infer<typeof connectStravaInputSchema>;

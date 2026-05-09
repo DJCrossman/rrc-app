@@ -24,7 +24,7 @@ export async function createTRPCContext(_opts?: {
 	const { userId } = await auth();
 	const cookieStore = await cookies();
 	const services = {
-		strava: createStravaService({ cookieStore }),
+		strava: createStravaService(),
 		concept2: createConcept2Service({ cookieStore }),
 		rca: createRcaService({ cookieStore }),
 	};

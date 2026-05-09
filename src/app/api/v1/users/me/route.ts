@@ -6,10 +6,6 @@ import type { CurrentAthlete } from "@/lib/trpc/types";
 import { createServerCaller } from "@/server/caller";
 import { getAccessToken, isTokenExpired } from "../../concept2/utils";
 import { getSession as getRcaSession } from "../../rca/utils";
-import {
-	getAccessToken as getStravaAccessToken,
-	isTokenExpired as isStravaTokenExpired,
-} from "../../strava/utils";
 
 export async function GET(request: Request) {
 	try {
@@ -25,13 +21,11 @@ export async function GET(request: Request) {
 		const user = await trpc.users.findOrCreateUserAndAthleteByUserId();
 
 		const concept2Values = await getConcept2Values(request, trpc);
-		const stravaValues = await getStravaValues(request, trpc);
 		const rcaValues = await getRcaValues();
 
 		return NextResponse.json({
 			...user,
 			...concept2Values,
-			...stravaValues,
 			...rcaValues,
 		});
 	} catch (error) {
@@ -117,46 +111,5 @@ const getRcaValues = async (): Promise<
 	} catch (error) {
 		console.error("RCA values retrieval error:", error);
 		return { rcaConnected: false };
-	}
-};
-
-const getStravaValues = async (
-	request: Request,
-	trpc: Awaited<ReturnType<typeof createServerCaller>>,
-): Promise<Pick<CurrentAthlete, "stravaConnected" | "stravaAthleteId">> => {
-	try {
-		const cookieStore = await cookies();
-		const tokenExpired = await isStravaTokenExpired({ cookieStore });
-		if (tokenExpired) {
-			const refreshResponse = await fetch(
-				new URL("/api/v1/strava/refresh", request.url),
-				{ method: "POST" },
-			);
-
-			if (!refreshResponse.ok) {
-				return { stravaConnected: false, stravaAthleteId: null };
-			}
-		}
-
-		const accessToken = await getStravaAccessToken({ cookieStore });
-		if (!accessToken) {
-			return { stravaConnected: false, stravaAthleteId: null };
-		}
-
-		const stravaAthleteResponse = await trpc.activities.getStravaAthlete({
-			accessToken,
-		});
-
-		if (stravaAthleteResponse.status === "rejected") {
-			return { stravaConnected: false, stravaAthleteId: null };
-		}
-
-		return {
-			stravaConnected: true,
-			stravaAthleteId: stravaAthleteResponse.value.id.toString(),
-		};
-	} catch (error) {
-		console.error("Strava values retrieval error:", error);
-		return { stravaConnected: false, stravaAthleteId: null };
 	}
 };
