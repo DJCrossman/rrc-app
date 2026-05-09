@@ -32,6 +32,7 @@ const resultsResponseSchema = z.object({
 });
 
 const userResponseSchema = z.object({ data: concept2UserSchema });
+const resultResponseSchema = z.object({ data: concept2ActivitySchema });
 
 export type Concept2Service = {
 	refreshTokens: (refreshToken: string) => Promise<Concept2TokenData | null>;
@@ -39,13 +40,17 @@ export type Concept2Service = {
 		type: "rower" | "water",
 		accessToken: string,
 	) => Promise<Concept2Activity[]>;
+	fetchResult: (
+		accessToken: string,
+		resultId: number | bigint,
+	) => Promise<Concept2Activity | null>;
 	fetchUser: (
 		accessToken: string,
 	) => Promise<PromiseSettledResult<Concept2User>>;
 };
 
 export function createConcept2Service(): Concept2Service {
-	return { refreshTokens, fetchAllResults, fetchUser };
+	return { refreshTokens, fetchAllResults, fetchResult, fetchUser };
 }
 
 export function getConcept2Config() {
@@ -158,6 +163,48 @@ async function fetchAllResults(
 		totalPages,
 	});
 	return all;
+}
+
+async function fetchResult(
+	accessToken: string,
+	resultId: number | bigint,
+): Promise<Concept2Activity | null> {
+	const config = getConcept2Config();
+	const url = new URL(
+		`${config.baseUrl}/api/users/me/results/${resultId.toString()}`,
+	);
+	const response = await fetch(url.toString(), {
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
+			Accept: "application/json",
+		},
+	});
+
+	if (response.status === 404) {
+		logger.info("result not found", { resultId: String(resultId) });
+		return null;
+	}
+	if (!response.ok) {
+		const errorText = await response.text().catch(() => "<unreadable>");
+		logger.error("result fetch failed", {
+			resultId: String(resultId),
+			status: response.status,
+			body: errorText.slice(0, 500),
+		});
+		throw new Error(
+			`Concept2 result fetch failed (${response.status}): ${errorText}`,
+		);
+	}
+
+	const parsed = resultResponseSchema.safeParse(await response.json());
+	if (!parsed.success) {
+		logger.warn("result response validation failed", {
+			resultId: String(resultId),
+			issue: parsed.error.message,
+		});
+		return null;
+	}
+	return parsed.data.data;
 }
 
 async function fetchUser(
