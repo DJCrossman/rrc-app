@@ -21,6 +21,7 @@ export const IntegrationAlert = () => {
 	const missing: string[] = [];
 	if (!user.concept2Connected) missing.push("Concept2");
 	if (!user.stravaConnected) missing.push("Strava");
+	if (!user.rcaConnected) missing.push("RCA");
 
 	if (missing.length === 0 || dismissed) return null;
 
@@ -29,7 +30,10 @@ export const IntegrationAlert = () => {
 		setDismissed(true);
 	};
 
-	const missingLabel = missing.join(" and ");
+	const missingLabel =
+		missing.length <= 2
+			? missing.join(" and ")
+			: `${missing.slice(0, -1).join(", ")}, and ${missing[missing.length - 1]}`;
 
 	return (
 		<div className="px-4 lg:px-6">

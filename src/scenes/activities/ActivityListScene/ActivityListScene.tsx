@@ -16,6 +16,7 @@ import type {
 	Ergs,
 	Workouts,
 } from "@/lib/trpc/types";
+import { IntegrationAlert } from "@/scenes/dashboard/DashboardScene/components";
 import type { CreateActivity } from "@/schemas";
 import {
 	ActivityCreateDrawer,
@@ -97,6 +98,9 @@ export const ActivityListScene = ({
 				<SiteHeader breadcrumbs={[{ label: "Activities" }]} />
 				<div className="flex flex-1 flex-col">
 					<div className="@container/main flex flex-1 flex-col gap-2">
+						<div className="pt-4 md:pt-6">
+							<IntegrationAlert />
+						</div>
 						<div className="flex items-center justify-between p-4 lg:px-6">
 							<Heading as="h1">Activities</Heading>
 						</div>
