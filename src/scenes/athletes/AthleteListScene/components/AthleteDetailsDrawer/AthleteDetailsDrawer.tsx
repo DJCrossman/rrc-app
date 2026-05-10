@@ -1,7 +1,7 @@
 "use client";
 
 import { IconPencil, IconX } from "@tabler/icons-react";
-import { DateTime } from "luxon";
+import { DateTime, Interval } from "luxon";
 import { useState } from "react";
 import { ActivityTable } from "@/components/activities";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +14,14 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from "@/components/ui/table";
 import { formatRole } from "@/lib/formatters";
 import { formatGender } from "@/lib/formatters/formatGender";
 import type { Activities, Athlete } from "@/lib/trpc/types";
@@ -146,21 +154,6 @@ export const AthleteDetailsDrawer = ({
 										<strong>Gender:</strong> {formatGender(athlete)}
 									</div>
 									<div>
-										<strong>Programs:</strong>
-										<br />
-										{athlete.memberships && athlete.memberships.length > 0 ? (
-											<div className="mt-1 flex flex-wrap gap-1">
-												{athlete.memberships.map((m) => (
-													<Badge key={m.id} variant="outline">
-														{m.name}
-													</Badge>
-												))}
-											</div>
-										) : (
-											"None"
-										)}
-									</div>
-									<div>
 										<strong>Joined:</strong>
 										<br />
 										{!athlete.dateJoined
@@ -198,6 +191,40 @@ export const AthleteDetailsDrawer = ({
 										distance={6000}
 									/>
 								</div>
+							</div>
+
+							{/* Programs Section */}
+							<div className="space-y-4">
+								<h2 className="text-xl font-semibold">Programs</h2>
+								{athlete.memberships && athlete.memberships.length > 0 ? (
+									<Table>
+										<TableHeader>
+											<TableRow>
+												<TableHead className="w-27.5">Date</TableHead>
+												<TableHead>Name</TableHead>
+											</TableRow>
+										</TableHeader>
+										<TableBody>
+											{athlete.memberships.map((m) => (
+												<TableRow key={m.id}>
+													<TableCell className="align-top w-27.5">
+														{m.startDate && m.endDate
+															? Interval.fromDateTimes(
+																	DateTime.fromISO(m.startDate),
+																	DateTime.fromISO(m.endDate),
+																).toLocaleString(DateTime.DATE_MED)
+															: "—"}
+													</TableCell>
+													<TableCell className="font-medium">
+														{m.name}
+													</TableCell>
+												</TableRow>
+											))}
+										</TableBody>
+									</Table>
+								) : (
+									<p className="text-sm text-muted-foreground">No programs.</p>
+								)}
 							</div>
 
 							{/* Activities Section */}

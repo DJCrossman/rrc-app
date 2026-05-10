@@ -104,7 +104,7 @@ export function NavUser({
 							</Link>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						<Link href="/logout">
+						<Link href="/logout" prefetch={false}>
 							<DropdownMenuItem>
 								<IconLogout />
 								Log out
