@@ -29,14 +29,7 @@ export async function syncRcaCommand(
 	_input: undefined,
 	ctx: AuthenticatedContext,
 ) {
-	const { db, services, userId } = ctx;
-	const athlete = await db.athlete.findUnique({ where: { userId } });
-	if (!athlete) {
-		throw new TRPCError({
-			code: "NOT_FOUND",
-			message: "Athlete profile not found",
-		});
-	}
+	const { db, services, athlete } = ctx;
 
 	const session = await getRcaSession(ctx);
 	if (!session) {

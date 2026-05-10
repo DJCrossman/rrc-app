@@ -1,7 +1,7 @@
 import { createErgSchema } from "@/schemas";
-import { protectedProcedure } from "@/server/procedures";
+import { adminProcedure } from "@/server/common/procedures/admin.procedure";
 import { createErgCommand } from "./create-erg.command";
 
-export const createErgProcedure = protectedProcedure
+export const createErgProcedure = adminProcedure
 	.input(createErgSchema)
 	.mutation(({ ctx, input }) => createErgCommand(input, ctx));

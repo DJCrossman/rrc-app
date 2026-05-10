@@ -15,15 +15,10 @@ export async function getStravaAthleteQuery(
 	_input: GetStravaAthleteInput,
 	ctx: AuthenticatedContext,
 ): Promise<PromiseSettledResult<StravaUser>> {
-	const { db, services, userId } = ctx;
+	const { db, services, athlete } = ctx;
 	try {
-		const row = await db.athlete.findUnique({
-			where: { userId },
-			select: { id: true, stravaAthleteJson: true },
-		});
-
-		if (row?.stravaAthleteJson) {
-			const cached = stravaUserSchema.safeParse(row.stravaAthleteJson);
+		if (athlete.stravaAthleteJson) {
+			const cached = stravaUserSchema.safeParse(athlete.stravaAthleteJson);
 			if (cached.success) {
 				return { status: "fulfilled", value: cached.data };
 			}
@@ -46,12 +41,10 @@ export async function getStravaAthleteQuery(
 
 		const value = await services.strava.fetchAthlete(accessToken);
 
-		if (row) {
-			await db.athlete.update({
-				where: { id: row.id },
-				data: { stravaAthleteJson: value },
-			});
-		}
+		await db.athlete.update({
+			where: { id: athlete.id },
+			data: { stravaAthleteJson: value },
+		});
 
 		return { status: "fulfilled", value };
 	} catch (error) {

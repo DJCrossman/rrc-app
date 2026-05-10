@@ -28,7 +28,7 @@ import type { UploadErgActivityScreenshot } from "./components/ActivityForm/Acti
 interface ActivityListSceneProps {
 	data: Activities;
 	selectedActivity: Activity | null;
-	currentAthlete: Athlete;
+	currentAthlete: Athlete | null;
 	boats: Boats;
 	ergs: Ergs;
 	workouts: Workouts;

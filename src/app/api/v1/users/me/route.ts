@@ -5,18 +5,18 @@ import { createServerCaller } from "@/server/caller";
 
 export async function GET() {
 	try {
-		const { userId } = await auth();
+		const session = await auth();
 
-		if (!userId) {
+		if (!session.userId) {
 			return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 		}
 
-		await ensureDefaultOrganizationMembership(userId);
+		await ensureDefaultOrganizationMembership(session.userId);
 
-		const trpc = await createServerCaller();
-		const user = await trpc.users.findOrCreateUserAndAthleteByUserId();
+		const caller = await createServerCaller();
+		const result = await caller.users.getCurrentUser();
 
-		return NextResponse.json(user);
+		return NextResponse.json(result);
 	} catch (error) {
 		console.error("User info retrieval error:", error);
 		return NextResponse.json(

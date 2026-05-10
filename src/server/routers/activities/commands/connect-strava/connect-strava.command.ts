@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { createLogger } from "@/lib/logger";
 import type { ConnectStravaInput } from "@/schemas";
 import type { AuthenticatedContext } from "@/server/context";
@@ -8,16 +7,8 @@ const logger = createLogger("strava.connect");
 
 export async function connectStravaCommand(
 	input: ConnectStravaInput,
-	{ db, services, userId }: AuthenticatedContext,
+	{ db, services, athlete }: AuthenticatedContext,
 ) {
-	const athlete = await db.athlete.findUnique({ where: { userId } });
-	if (!athlete) {
-		throw new TRPCError({
-			code: "NOT_FOUND",
-			message: "Athlete profile not found",
-		});
-	}
-
 	const { tokens, athlete: stravaAthlete } = input;
 	const updated = await db.athlete.update({
 		where: { id: athlete.id },

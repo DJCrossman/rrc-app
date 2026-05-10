@@ -1,4 +1,5 @@
 import { activitiesRouter } from "./routers/activities/router";
+import { adminRouter } from "./routers/admin/router";
 import { analyticsRouter } from "./routers/analytics/router";
 import { athletesRouter } from "./routers/athletes/router";
 import { boatsRouter } from "./routers/boats/router";
@@ -17,6 +18,7 @@ export const appRouter = router({
 	programs: programsRouter,
 	users: usersRouter,
 	analytics: analyticsRouter,
+	admin: adminRouter,
 });
 
 export type AppRouter = typeof appRouter;

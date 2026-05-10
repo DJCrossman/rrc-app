@@ -64,7 +64,7 @@ export const AccountAppsScene = ({
 }: {
 	integrations: IntegrationApplication[];
 }) => {
-	const { user } = useCurrentUser();
+	const { user, hasAthlete } = useCurrentUser();
 	const utils = trpcClient.useUtils();
 	const queryClient = useQueryClient();
 	const { runningSources, cooldownSources } = useSyncStatus();
@@ -164,6 +164,22 @@ export const AccountAppsScene = ({
 		queryClient.invalidateQueries();
 		if (app.id === "rca") rcaSync.mutate();
 	};
+
+	if (!hasAthlete) {
+		return (
+			<div className="space-y-6">
+				<div>
+					<h2 className="text-2xl font-bold tracking-tight">
+						Connected Applications
+					</h2>
+					<p className="text-muted-foreground">
+						You're signed in as an admin and don't have a personal athlete
+						profile. Connect integrations from a member account instead.
+					</p>
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div className="space-y-6">

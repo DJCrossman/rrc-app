@@ -101,7 +101,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							[user.firstName, user.lastName.charAt(0)]
 								.filter(Boolean)
 								.join(" "),
-						phone: user.phone || "",
+						phone: user.phone,
 						avatar: "",
 					}}
 				/>

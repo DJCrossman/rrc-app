@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { CurrentUserProvider, useAuth } from "@/hooks/useAuth";
 import { SyncStatusProvider } from "@/hooks/useSyncStatus";
 
-const PUBLIC_ROUTES = new Set(["/login", "/signup"]);
+const PUBLIC_ROUTES = new Set(["/login", "/signup", "/onboarding"]);
 
 export const AuthenticatedLayout = ({
 	children,
@@ -14,7 +14,7 @@ export const AuthenticatedLayout = ({
 	const pathname = usePathname();
 	const router = useRouter();
 	const isPublicRoute = PUBLIC_ROUTES.has(pathname);
-	const { user, isPending, error, ...auth } = useAuth({
+	const { user, isAdmin, hasAthlete, isPending, error } = useAuth({
 		ensureSignedIn: !isPublicRoute,
 	});
 
@@ -29,18 +29,16 @@ export const AuthenticatedLayout = ({
 	}
 
 	if (isPending) {
-		// TODO: Show loading state
 		return null;
 	}
 	if (error) {
-		// TODO: Handle error state (e.g., show error message, redirect to login, etc.)
 		throw error;
 	}
 	if (!user) {
 		return null;
 	}
 	return (
-		<CurrentUserProvider {...auth} user={user}>
+		<CurrentUserProvider user={user} isAdmin={isAdmin} hasAthlete={hasAthlete}>
 			<SyncStatusProvider>{children}</SyncStatusProvider>
 		</CurrentUserProvider>
 	);

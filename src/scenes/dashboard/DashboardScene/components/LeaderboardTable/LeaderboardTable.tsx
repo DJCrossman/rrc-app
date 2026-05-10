@@ -65,23 +65,15 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
 		enableSorting: true,
 	},
 	{
-		accessorKey: "memberships",
-		header: "Programs",
+		accessorKey: "activeMembership",
+		header: "Program",
 		cell: ({ row }) => {
-			const items = row.original.memberships ?? [];
-			if (items.length === 0) return null;
+			const active = row.original.activeMembership;
+			if (!active) return null;
 			return (
-				<div className="flex flex-wrap gap-1">
-					{items.map((m) => (
-						<Badge
-							key={m.id}
-							variant="outline"
-							className="text-muted-foreground px-1.5"
-						>
-							{m.name}
-						</Badge>
-					))}
-				</div>
+				<Badge variant="outline" className="text-muted-foreground px-1.5">
+					{active.name}
+				</Badge>
 			);
 		},
 		enableSorting: false,

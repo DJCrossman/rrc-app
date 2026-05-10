@@ -1,8 +1,23 @@
 import { NextResponse } from "next/server";
+import { createServerCaller } from "@/server/caller";
 import { getConcept2Config } from "@/server/services/concept2-service";
 
 export async function GET(request: Request) {
 	try {
+		const caller = await createServerCaller();
+		const [currentAthleteResult] = await Promise.allSettled([
+			caller.athletes.getCurrentAthlete(),
+		]);
+
+		if (
+			currentAthleteResult.status === "rejected" ||
+			!currentAthleteResult.value
+		) {
+			const redirectUrl = new URL("/settings/apps", request.url);
+			redirectUrl.searchParams.set("oauth_error", "no_athlete");
+			return NextResponse.redirect(redirectUrl);
+		}
+
 		const { searchParams } = new URL(request.url);
 		const scope = searchParams.get("scope") || "results:read,user:read";
 

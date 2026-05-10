@@ -1,7 +1,9 @@
 import { getActivitiesInputSchema } from "@/schemas";
-import { protectedProcedure } from "@/server/procedures";
+import { authenticatedProcedure } from "@/server/common/procedures/authenticated.procedure";
 import { getActivitiesQuery } from "./get-activities.query";
 
-export const getActivitiesProcedure = protectedProcedure
+export const getActivitiesProcedure = authenticatedProcedure
 	.input(getActivitiesInputSchema.optional())
-	.query(({ ctx, input }) => getActivitiesQuery(input ?? {}, ctx));
+	.query(({ ctx, input }) =>
+		getActivitiesQuery({ ...(input ?? {}), athleteId: ctx.athlete.id }, ctx),
+	);

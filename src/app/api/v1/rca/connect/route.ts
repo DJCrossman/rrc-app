@@ -1,13 +1,23 @@
-import { auth } from "@clerk/nextjs/server";
 import { TRPCError } from "@trpc/server";
 import { NextResponse } from "next/server";
 import { connectRcaInputSchema } from "@/schemas";
 import { createServerCaller } from "@/server/caller";
 
 export async function POST(request: Request) {
-	const { userId } = await auth();
-	if (!userId) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+	const caller = await createServerCaller();
+
+	const [currentAthleteResult] = await Promise.allSettled([
+		caller.athletes.getCurrentAthlete(),
+	]);
+
+	if (
+		currentAthleteResult.status === "rejected" ||
+		!currentAthleteResult.value
+	) {
+		return NextResponse.json(
+			{ error: "Athlete account required" },
+			{ status: 400 },
+		);
 	}
 
 	const body = await request.json().catch(() => null);
@@ -20,7 +30,6 @@ export async function POST(request: Request) {
 	}
 
 	try {
-		const caller = await createServerCaller();
 		await caller.activities.connectRca(parsed.data);
 		return NextResponse.json({ ok: true });
 	} catch (err) {

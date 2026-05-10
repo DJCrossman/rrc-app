@@ -1,7 +1,9 @@
 import { createActivitySchema } from "@/schemas";
-import { protectedProcedure } from "@/server/procedures";
+import { authenticatedProcedure } from "@/server/common/procedures/authenticated.procedure";
 import { createActivityCommand } from "./create-activity.command";
 
-export const createActivityProcedure = protectedProcedure
+export const createActivityProcedure = authenticatedProcedure
 	.input(createActivitySchema)
-	.mutation(({ ctx, input }) => createActivityCommand(input, ctx));
+	.mutation(({ ctx, input }) =>
+		createActivityCommand({ ...input, athleteId: ctx.athlete.id }, ctx),
+	);

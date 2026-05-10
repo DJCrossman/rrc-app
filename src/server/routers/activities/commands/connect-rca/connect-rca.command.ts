@@ -9,16 +9,8 @@ const logger = createLogger("rca.connect");
 
 export async function connectRcaCommand(
 	input: ConnectRcaInput,
-	{ db, services, userId }: AuthenticatedContext,
+	{ db, services, athlete }: AuthenticatedContext,
 ) {
-	const athlete = await db.athlete.findUnique({ where: { userId } });
-	if (!athlete) {
-		throw new TRPCError({
-			code: "NOT_FOUND",
-			message: "Athlete profile not found",
-		});
-	}
-
 	const result = await services.rca.login(input);
 	if (!result.ok) {
 		logger.warn("RCA login rejected", { reason: result.reason });

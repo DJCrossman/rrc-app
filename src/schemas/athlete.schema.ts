@@ -26,6 +26,8 @@ export const athleteProfileSchema = z.object({
 	weightInKg: z.number().optional(),
 });
 
+export type AthleteProfile = z.infer<typeof athleteProfileSchema>;
+
 export const createAthleteSchema = athleteProfileSchema.extend({
 	programId: z.string().optional(),
 });
@@ -43,6 +45,26 @@ export const updateAthleteSchema = athleteProfileSchema.extend({
 });
 
 export type UpdateAthlete = z.infer<typeof updateAthleteSchema>;
+
+/**
+ * Onboarding form input. A subset of the athlete profile — we don't ask
+ * the user for `dateJoined` (set to now() server-side) and `email`
+ * comes from the Clerk session, not the form.
+ */
+export const completeOnboardingSchema = z.object({
+	firstName: z.string().min(1),
+	lastName: z.string().min(1),
+	nickname: z.string().optional(),
+	phone: phoneNumberSchema,
+	gender: z.enum(GenderTypes),
+	dateOfBirth: z.string().refine((date) => new Date(date) <= new Date(), {
+		message: "Date of birth must be in the past",
+	}),
+	heightInCm: z.number().optional(),
+	weightInKg: z.number().optional(),
+});
+
+export type CompleteOnboarding = z.infer<typeof completeOnboardingSchema>;
 
 export const getAthleteByIdInputSchema = z.object({
 	id: z.string().optional(),

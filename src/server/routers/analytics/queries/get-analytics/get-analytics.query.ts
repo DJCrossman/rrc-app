@@ -4,12 +4,9 @@ import { mapToAthleteDto } from "@/server/routers/athletes/common/map-to-athlete
 
 export async function getAnalyticsQuery(
 	_input: undefined,
-	{ db, userId }: AuthenticatedContext,
+	{ db, athlete }: AuthenticatedContext,
 ) {
-	const athlete = await db.athlete.findUnique({
-		where: { userId },
-	});
-	const athleteId = athlete?.id;
+	const athleteId = athlete.id;
 
 	const now = DateTime.now();
 	const currStart = now.startOf("month").toJSDate();

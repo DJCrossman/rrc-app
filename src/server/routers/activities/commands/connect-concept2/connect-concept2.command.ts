@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { createLogger } from "@/lib/logger";
 import type { ConnectConcept2Input } from "@/schemas";
 import type { AuthenticatedContext } from "@/server/context";
@@ -9,16 +8,8 @@ const logger = createLogger("concept2.connect");
 
 export async function connectConcept2Command(
 	input: ConnectConcept2Input,
-	{ db, userId }: AuthenticatedContext,
+	{ db, athlete }: AuthenticatedContext,
 ) {
-	const athlete = await db.athlete.findUnique({ where: { userId } });
-	if (!athlete) {
-		throw new TRPCError({
-			code: "NOT_FOUND",
-			message: "Athlete profile not found",
-		});
-	}
-
 	const { tokens, concept2UserId } = input;
 	const updated = await db.athlete.update({
 		where: { id: athlete.id },

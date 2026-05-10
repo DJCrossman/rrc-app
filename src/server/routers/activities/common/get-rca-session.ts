@@ -5,13 +5,12 @@ import type { RcaSessionData } from "@/server/services/rca-service";
 
 const logger = createLogger("rca.session");
 
-const sessionCache = new WeakMap<
-	Pick<AuthenticatedContext, "db" | "userId" | "services">,
-	Promise<RcaSessionData | null>
->();
+type RcaCtx = Pick<AuthenticatedContext, "db" | "athlete" | "services">;
+
+const sessionCache = new WeakMap<RcaCtx, Promise<RcaSessionData | null>>();
 
 export async function getRcaSession(
-	ctx: Pick<AuthenticatedContext, "db" | "userId" | "services">,
+	ctx: RcaCtx,
 	{ forceRefresh = false }: { forceRefresh?: boolean } = {},
 ): Promise<RcaSessionData | null> {
 	if (!forceRefresh) {
@@ -23,21 +22,15 @@ export async function getRcaSession(
 	return promise;
 }
 
-async function loadSession(
-	ctx: Pick<AuthenticatedContext, "db" | "userId" | "services">,
-): Promise<RcaSessionData | null> {
-	const { db, userId, services } = ctx;
-	const row = await db.athlete.findUnique({
-		where: { userId },
-		select: { rcaUsername: true, rcaPassword: true },
-	});
-	if (!row?.rcaUsername || !row.rcaPassword) {
+async function loadSession(ctx: RcaCtx): Promise<RcaSessionData | null> {
+	const { athlete, services } = ctx;
+	if (!athlete.rcaUsername || !athlete.rcaPassword) {
 		logger.info("no RCA credentials stored");
 		return null;
 	}
 	const credentials = {
-		username: decryptToken(row.rcaUsername),
-		password: decryptToken(row.rcaPassword),
+		username: decryptToken(athlete.rcaUsername),
+		password: decryptToken(athlete.rcaPassword),
 	};
 	const result = await services.rca.login(credentials);
 	if (!result.ok) {
@@ -50,10 +43,10 @@ async function loadSession(
 
 export async function clearRcaCredentials({
 	db,
-	userId,
-}: Pick<AuthenticatedContext, "db" | "userId">): Promise<void> {
+	athlete,
+}: Pick<AuthenticatedContext, "db" | "athlete">): Promise<void> {
 	await db.athlete.update({
-		where: { userId },
+		where: { id: athlete.id },
 		data: {
 			rcaUsername: null,
 			rcaPassword: null,

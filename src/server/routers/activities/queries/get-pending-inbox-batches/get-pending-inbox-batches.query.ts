@@ -9,19 +9,8 @@ const SOURCES: IntegrationSource[] = ["strava", "concept2"];
 
 export async function getPendingInboxBatchesQuery(
 	_input: undefined,
-	{ db, userId }: AuthenticatedContext,
+	{ db, athlete }: AuthenticatedContext,
 ) {
-	const athlete = await db.athlete.findUnique({
-		where: { userId },
-		select: { id: true },
-	});
-	if (!athlete) {
-		return {
-			data: [],
-			latestBySource: {} as Record<IntegrationSource, string | null>,
-		};
-	}
-
 	const now = new Date();
 	await db.activity_inbox.updateMany({
 		where: {

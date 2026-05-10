@@ -17,7 +17,21 @@ interface IProps {
 }
 
 export const AccountSettingsScene = ({ onUpdateProfile }: IProps) => {
-	const { user } = useCurrentUser();
+	const { user, hasAthlete } = useCurrentUser();
+
+	if (!hasAthlete) {
+		return (
+			<Card>
+				<CardHeader>
+					<CardTitle>My Account</CardTitle>
+					<CardDescription>
+						You're signed in as an admin and don't have a personal athlete
+						profile. Manage athletes via the Athletes page.
+					</CardDescription>
+				</CardHeader>
+			</Card>
+		);
+	}
 
 	return (
 		<Card>

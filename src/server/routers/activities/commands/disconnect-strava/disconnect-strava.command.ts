@@ -1,4 +1,3 @@
-import { TRPCError } from "@trpc/server";
 import { Prisma } from "@/generated/prisma/client";
 import { createLogger } from "@/lib/logger";
 import type { AuthenticatedContext } from "@/server/context";
@@ -8,16 +7,8 @@ const logger = createLogger("strava.disconnect");
 
 export async function disconnectStravaCommand(
 	_input: undefined,
-	{ db, userId }: AuthenticatedContext,
+	{ db, athlete }: AuthenticatedContext,
 ) {
-	const athlete = await db.athlete.findUnique({ where: { userId } });
-	if (!athlete) {
-		throw new TRPCError({
-			code: "NOT_FOUND",
-			message: "Athlete profile not found",
-		});
-	}
-
 	const updated = await db.athlete.update({
 		where: { id: athlete.id },
 		data: {

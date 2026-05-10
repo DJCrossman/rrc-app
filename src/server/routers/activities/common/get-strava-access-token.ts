@@ -7,43 +7,32 @@ const logger = createLogger("strava.access-token");
 
 export async function getStravaAccessToken({
 	db,
-	userId,
+	athlete,
 	services,
-}: Pick<AuthenticatedContext, "db" | "userId" | "services">): Promise<
+}: Pick<AuthenticatedContext, "db" | "athlete" | "services">): Promise<
 	string | null
 > {
-	const row = await db.athlete.findUnique({
-		where: { userId },
-		select: {
-			id: true,
-			stravaAccessToken: true,
-			stravaRefreshToken: true,
-			stravaTokenExpiresAt: true,
-		},
-	});
-	if (!row) return null;
-
-	const expiry = row.stravaTokenExpiresAt?.getTime() ?? null;
+	const expiry = athlete.stravaTokenExpiresAt?.getTime() ?? null;
 	const tokenState = {
-		hasAccessToken: !!row.stravaAccessToken,
-		hasRefreshToken: !!row.stravaRefreshToken,
+		hasAccessToken: !!athlete.stravaAccessToken,
+		hasRefreshToken: !!athlete.stravaRefreshToken,
 		expiry,
 		msUntilExpiry: expiry ? expiry - Date.now() : null,
 	};
 
 	if (
-		row.stravaAccessToken &&
+		athlete.stravaAccessToken &&
 		expiry &&
 		Date.now() < expiry - REFRESH_BUFFER_MS
 	) {
 		logger.info("access token reused", tokenState);
-		return services.strava.decryptToken(row.stravaAccessToken);
+		return services.strava.decryptToken(athlete.stravaAccessToken);
 	}
 
-	if (!row.stravaRefreshToken) {
+	if (!athlete.stravaRefreshToken) {
 		logger.warn("refresh token missing — cannot resolve access token", {
 			...tokenState,
-			reason: row.stravaAccessToken
+			reason: athlete.stravaAccessToken
 				? "access token expired and no refresh token"
 				: "no access token and no refresh token",
 		});
@@ -52,12 +41,12 @@ export async function getStravaAccessToken({
 
 	logger.info("attempting token refresh", tokenState);
 	const refreshed = await services.strava.refreshTokens(
-		services.strava.decryptToken(row.stravaRefreshToken),
+		services.strava.decryptToken(athlete.stravaRefreshToken),
 	);
 	if (!refreshed) return null;
 
 	await db.athlete.update({
-		where: { id: row.id },
+		where: { id: athlete.id },
 		data: {
 			stravaAccessToken: services.strava.encryptToken(refreshed.access_token),
 			stravaRefreshToken: services.strava.encryptToken(refreshed.refresh_token),

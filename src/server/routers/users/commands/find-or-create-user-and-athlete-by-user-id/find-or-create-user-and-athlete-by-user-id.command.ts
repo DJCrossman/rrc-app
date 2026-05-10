@@ -1,55 +1,42 @@
 import { clerkClient } from "@clerk/nextjs/server";
-import type { AuthenticatedContext } from "@/server/context";
+import { db } from "@/lib/db";
 import { mapToUserDto } from "@/server/routers/users/common/map-to-user-dto";
 
-const DEFAULT_PHONE_NUMBER = "+13065550123";
-const DEFAULT_GENDER = "nonbinary" as const;
-const DEFAULT_DATE_OF_BIRTH = new Date("1900-01-01T00:00:00.000Z");
+export async function findOrLinkUserAthlete({
+	userId,
+	isAdmin,
+}: {
+	userId: string;
+	isAdmin: boolean;
+}) {
+	const expectedRole = isAdmin ? "admin" : "member";
 
-export async function findOrCreateUserAndAthleteByUserIdCommand(
-	_input: undefined,
-	{ db, userId }: AuthenticatedContext,
-) {
-	const existingUser = await db.athlete.findUnique({ where: { userId } });
-	if (existingUser) {
-		return mapToUserDto(existingUser);
+	const existing = await db.athlete.findUnique({ where: { userId } });
+	if (existing) {
+		if (existing.role !== expectedRole) {
+			const synced = await db.athlete.update({
+				where: { id: existing.id },
+				data: { role: expectedRole },
+			});
+			return mapToUserDto(synced);
+		}
+		return mapToUserDto(existing);
 	}
 
 	const client = await clerkClient();
 	const clerkUser = await client.users.getUser(userId);
 	const email = clerkUser.primaryEmailAddress?.emailAddress ?? null;
-	const emailLocalPart = clerkUser.primaryEmailAddress?.emailAddress
-		?.split("@")[0]
-		?.trim();
-	const fallbackName = clerkUser.username?.trim() || emailLocalPart || "Member";
-	const firstName = clerkUser.firstName?.trim() || fallbackName;
-	const lastName = clerkUser.lastName?.trim() || "RRC";
-	const nickname = clerkUser.firstName?.trim() || fallbackName;
 
 	if (email) {
 		const existingByEmail = await db.athlete.findUnique({ where: { email } });
 		if (existingByEmail) {
 			const linked = await db.athlete.update({
 				where: { id: existingByEmail.id },
-				data: { userId },
+				data: { userId, role: expectedRole },
 			});
 			return mapToUserDto(linked);
 		}
 	}
 
-	const createdUser = await db.athlete.create({
-		data: {
-			userId,
-			firstName,
-			lastName,
-			nickname,
-			email,
-			phone: clerkUser.primaryPhoneNumber?.phoneNumber || DEFAULT_PHONE_NUMBER,
-			gender: DEFAULT_GENDER,
-			dateOfBirth: DEFAULT_DATE_OF_BIRTH,
-			dateJoined: new Date(),
-		},
-	});
-
-	return mapToUserDto(createdUser);
+	return null;
 }

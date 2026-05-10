@@ -11,7 +11,7 @@ import { routes } from "@/lib/routes";
 const DISMISSED_STORAGE_KEY = "dashboard.integrationAlert.dismissed";
 
 export const IntegrationAlert = () => {
-	const { user } = useCurrentUser();
+	const { user, hasAthlete } = useCurrentUser();
 	const [dismissedSignature, setDismissedSignature] = useState<string | null>(
 		null,
 	);
@@ -19,6 +19,8 @@ export const IntegrationAlert = () => {
 	useEffect(() => {
 		setDismissedSignature(window.localStorage.getItem(DISMISSED_STORAGE_KEY));
 	}, []);
+
+	if (!hasAthlete) return null;
 
 	const missing: string[] = [];
 	if (!user.concept2Connected) missing.push("Concept2");

@@ -8,43 +8,32 @@ const logger = createLogger("concept2.access-token");
 
 export async function getConcept2AccessToken({
 	db,
-	userId,
+	athlete,
 	services,
-}: Pick<AuthenticatedContext, "db" | "userId" | "services">): Promise<
+}: Pick<AuthenticatedContext, "db" | "athlete" | "services">): Promise<
 	string | null
 > {
-	const row = await db.athlete.findUnique({
-		where: { userId },
-		select: {
-			id: true,
-			concept2AccessToken: true,
-			concept2RefreshToken: true,
-			concept2TokenExpiresAt: true,
-		},
-	});
-	if (!row) return null;
-
-	const expiry = row.concept2TokenExpiresAt?.getTime() ?? null;
+	const expiry = athlete.concept2TokenExpiresAt?.getTime() ?? null;
 	const tokenState = {
-		hasAccessToken: !!row.concept2AccessToken,
-		hasRefreshToken: !!row.concept2RefreshToken,
+		hasAccessToken: !!athlete.concept2AccessToken,
+		hasRefreshToken: !!athlete.concept2RefreshToken,
 		expiry,
 		msUntilExpiry: expiry ? expiry - Date.now() : null,
 	};
 
 	if (
-		row.concept2AccessToken &&
+		athlete.concept2AccessToken &&
 		expiry &&
 		Date.now() < expiry - REFRESH_BUFFER_MS
 	) {
 		logger.info("access token reused", tokenState);
-		return decryptToken(row.concept2AccessToken);
+		return decryptToken(athlete.concept2AccessToken);
 	}
 
-	if (!row.concept2RefreshToken) {
+	if (!athlete.concept2RefreshToken) {
 		logger.warn("refresh token missing — cannot resolve access token", {
 			...tokenState,
-			reason: row.concept2AccessToken
+			reason: athlete.concept2AccessToken
 				? "access token expired and no refresh token"
 				: "no access token and no refresh token",
 		});
@@ -53,12 +42,12 @@ export async function getConcept2AccessToken({
 
 	logger.info("attempting token refresh", tokenState);
 	const refreshed = await services.concept2.refreshTokens(
-		decryptToken(row.concept2RefreshToken),
+		decryptToken(athlete.concept2RefreshToken),
 	);
 	if (!refreshed) return null;
 
 	await db.athlete.update({
-		where: { id: row.id },
+		where: { id: athlete.id },
 		data: {
 			concept2AccessToken: encryptToken(refreshed.access_token),
 			concept2RefreshToken: encryptToken(refreshed.refresh_token),

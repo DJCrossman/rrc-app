@@ -1,7 +1,7 @@
 import { updateBoatSchema } from "@/schemas";
-import { protectedProcedure } from "@/server/procedures";
+import { adminProcedure } from "@/server/common/procedures/admin.procedure";
 import { updateBoatCommand } from "./update-boat.command";
 
-export const updateBoatProcedure = protectedProcedure
+export const updateBoatProcedure = adminProcedure
 	.input(updateBoatSchema)
 	.mutation(({ ctx, input }) => updateBoatCommand(input, ctx));
