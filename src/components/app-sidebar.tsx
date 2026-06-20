@@ -12,6 +12,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import type * as React from "react";
+import { FeedbackButton } from "@/components/feedback-button";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -94,6 +95,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				/>
 			</SidebarContent>
 			<SidebarFooter>
+				<FeedbackButton />
 				<NavUser
 					user={{
 						name:
