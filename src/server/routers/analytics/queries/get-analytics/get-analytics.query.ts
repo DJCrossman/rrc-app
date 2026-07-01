@@ -67,8 +67,12 @@ export async function getAnalyticsQuery(
 		}
 	}
 
+	// Sunday that starts the current week. Luxon weekday is Mon=1…Sun=7, so
+	// `weekday % 7` is the number of days since Sunday (Sun→0), which keeps today
+	// in the row even when today is Sunday.
+	const weekStart = now.minus({ days: now.weekday % 7 }).startOf("day");
 	const weekDays = Array.from({ length: 7 }, (_, i) => {
-		const date = now.minus({ days: 6 - i }).startOf("day");
+		const date = weekStart.plus({ days: i });
 		const isoDate = date.toISODate() ?? "";
 		return {
 			date: isoDate,
