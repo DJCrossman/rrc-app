@@ -44,5 +44,8 @@ next-env.d.ts
 .playwright-mcp/
 /src/generated/prisma
 
-# test examples 
+# test examples
 /examples
+
+# docker instance env files (generated per instance; contain secrets)
+/docker/env/*.env

@@ -1,0 +1,17 @@
+# Keep the build context small — the dev image only needs package.json + bun.lockb,
+# and these are provided by volumes / the bind mount at runtime anyway.
+node_modules
+.next
+out
+build
+src/generated
+docker/env
+.instances.json
+.git
+.github
+coverage
+*.log
+.DS_Store
+.playwright-mcp
+.claude
+.vscode

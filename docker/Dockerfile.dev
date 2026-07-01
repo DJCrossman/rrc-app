@@ -1,0 +1,28 @@
+# Dev image for running an RRC app instance with hot reload.
+#
+# The app source is bind-mounted at runtime (see docker-compose.yml), so this
+# image only carries the toolchain + a baked dependency layer. The entrypoint
+# (re)installs deps, generates the Prisma client, runs migrations, and starts
+# the Next.js dev server. See docker/dev-entrypoint.sh.
+
+# Pinned to the host's Bun version. Debian (glibc), NOT alpine (musl): lightningcss
+# (Tailwind 4) and the Prisma engines ship glibc prebuilds. On Apple Silicon this
+# resolves to the linux/arm64 variant automatically — do not force --platform.
+FROM oven/bun:1.3.3-debian
+
+# Prisma's schema/migration engine needs OpenSSL + CA certs present.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		openssl ca-certificates \
+	&& rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Dependency layer: only the manifests, so this rebuilds only when deps change.
+# The full source arrives via the bind mount at runtime — never COPY it here.
+# NOT --frozen-lockfile: bun.lockb is resolved on the host (darwin) and must add
+# linux-native optional deps (lightningcss, etc.) when installing in this image.
+COPY package.json bun.lockb ./
+RUN bun install
+
+# The entrypoint lives in the bind-mounted source at /app/docker/dev-entrypoint.sh.
+ENTRYPOINT ["bash", "docker/dev-entrypoint.sh"]
