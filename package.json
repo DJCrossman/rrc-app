@@ -21,9 +21,7 @@
 		"db:migrate:deploy": "bunx --bun prisma migrate deploy",
 		"db:migrate:reset": "bunx --bun prisma migrate reset",
 		"db:branch:create": "bun run scripts/db-branch-create.ts",
-		"db:branch:reset": "bun run scripts/db-branch-reset.ts",
-		"strava:webhook:setup": "bun run scripts/strava-webhook-setup.ts",
-		"strava:webhook:list": "bun run scripts/strava-webhook-list.ts"
+		"db:branch:reset": "bun run scripts/db-branch-reset.ts"
 	},
 	"dependencies": {
 		"@clerk/nextjs": "^6.37.1",
