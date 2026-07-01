@@ -1,6 +1,6 @@
 import { protectedProcedure } from "@/server/procedures";
-import { getErgsQuery } from "./get-ergs.query";
+import { getErgsInputSchema, getErgsQuery } from "./get-ergs.query";
 
-export const getErgsProcedure = protectedProcedure.query(({ ctx }) =>
-	getErgsQuery(undefined, ctx),
-);
+export const getErgsProcedure = protectedProcedure
+	.input(getErgsInputSchema.optional())
+	.query(({ ctx, input = {} }) => getErgsQuery(input, ctx));

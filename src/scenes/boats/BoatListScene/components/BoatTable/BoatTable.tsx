@@ -6,20 +6,18 @@ import {
 	IconChevronDown,
 	IconPlus,
 } from "@tabler/icons-react";
+import { keepPreviousData } from "@tanstack/react-query";
 import {
 	type ColumnDef,
 	flexRender,
 	getCoreRowModel,
-	getFacetedRowModel,
-	getFacetedUniqueValues,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
+	type PaginationState,
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { DataTablePagination } from "@/components/data-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,10 +49,13 @@ import {
 	formatWeightRange,
 } from "@/lib/formatters";
 import { routes } from "@/lib/routes";
-import type { Boat, Boats } from "@/lib/trpc/types";
+import { trpcClient } from "@/lib/trpc/client";
+import type { Boat, BoatsResult } from "@/lib/trpc/types";
 import { SeatTypes } from "@/schemas";
 
+const DEFAULT_PAGE_SIZE = 20;
 const boatSizes = ["all", ...SeatTypes] as const;
+const sortColumns = ["name", "manufacturer", "seats", "rigging"] as const;
 
 const columns: ColumnDef<Boat>[] = [
 	{
@@ -97,54 +98,54 @@ const columns: ColumnDef<Boat>[] = [
 		accessorKey: "meters",
 		header: () => <div className="w-full">Meters</div>,
 		cell: ({ row }) => formatMeters(row.original.meters),
-		enableSorting: true,
+		enableSorting: false,
 	},
 	{
 		accessorKey: "weightRange",
-		header: () => <div className="w-full">Meters</div>,
+		header: () => <div className="w-full">Weight</div>,
 		cell: ({ row }) => formatWeightRange(row.original.weightRange),
-		sortingFn: (a, b) =>
-			a.original.weightRange.max - b.original.weightRange.max,
-		enableSorting: true,
+		enableSorting: false,
 	},
 ];
 
 interface IBoatTableProps {
-	data: Boats;
+	initialData: BoatsResult;
 }
 
-export function BoatTable({ data }: IBoatTableProps) {
-	const [filterBy, setFilterBy] = useState<{
-		seats?: Boat["seats"] | "all";
-	}>({ seats: "all" });
-	const [sorting, setSorting] = useState<SortingState>([]);
-	const [pagination, setPagination] = useState({
+export function BoatTable({ initialData }: IBoatTableProps) {
+	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
-		pageSize: 10,
+		pageSize: DEFAULT_PAGE_SIZE,
 	});
+	const [sorting, setSorting] = useState<SortingState>([]);
+	const [seats, setSeats] = useState<(typeof SeatTypes)[number] | undefined>(
+		undefined,
+	);
 
-	const filteredData = useMemo(() => {
-		if (filterBy.seats === "all") return data;
-		return data.filter((item) => item.seats === filterBy.seats);
-	}, [data, filterBy]);
+	const sort = sorting[0];
+	const { data } = trpcClient.boats.getBoats.useQuery(
+		{
+			page: pagination.pageIndex + 1,
+			pageSize: pagination.pageSize,
+			sortBy: sortColumns.find((column) => column === sort?.id),
+			order: sort ? (sort.desc ? "desc" : "asc") : undefined,
+			seats,
+		},
+		{ initialData, placeholderData: keepPreviousData },
+	);
 
 	const table = useReactTable({
-		data: filteredData,
+		data: data.data,
 		columns,
-		state: {
-			sorting,
-			pagination,
-		},
+		state: { pagination, sorting },
 		getRowId: (row) => row.id.toString(),
-		enableRowSelection: true,
-		onSortingChange: setSorting,
+		manualPagination: true,
+		manualSorting: true,
+		pageCount: data.totalPages,
+		rowCount: data.totalCount,
 		onPaginationChange: setPagination,
+		onSortingChange: setSorting,
 		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 
 	return (
@@ -154,22 +155,21 @@ export function BoatTable({ data }: IBoatTableProps) {
 					View
 				</Label>
 				<Select
-					defaultValue="outline"
-					value={filterBy.seats}
+					value={seats ?? "all"}
 					onValueChange={(value) => {
-						setFilterBy((prev) => ({
-							...prev,
-							seats: boatSizes.find((i) => i === value) || "all",
-						}));
+						setSeats(SeatTypes.find((size) => size === value));
+						setPagination((prev) => ({ ...prev, pageIndex: 0 }));
 					}}
 				>
 					<SelectTrigger className="flex w-fit" size="sm" id="view-selector">
 						<SelectValue placeholder="Select a view" />
 					</SelectTrigger>
 					<SelectContent>
-						{boatSizes.map((seats) => (
-							<SelectItem key={seats} value={seats}>
-								{seats === "all" ? "All Boats" : formatSeatSetup({ seats })}
+						{boatSizes.map((size) => (
+							<SelectItem key={size} value={size}>
+								{size === "all"
+									? "All Boats"
+									: formatSeatSetup({ seats: size })}
 							</SelectItem>
 						))}
 					</SelectContent>
@@ -266,8 +266,9 @@ export function BoatTable({ data }: IBoatTableProps) {
 				</div>
 				<div className="flex items-center justify-between px-4">
 					<div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-						{table.getFilteredRowModel().rows.length} of {data.length} boats.
+						{data.totalCount} boats.
 					</div>
+					<DataTablePagination table={table} />
 				</div>
 			</div>
 		</div>

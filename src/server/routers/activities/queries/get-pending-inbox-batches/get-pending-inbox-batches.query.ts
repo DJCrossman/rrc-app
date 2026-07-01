@@ -1,4 +1,5 @@
 import type { IntegrationSource } from "@/generated/prisma/client";
+import { paginate } from "@/lib/pagination";
 import type { AuthenticatedContext } from "@/server/context";
 import { mapToInboxDto } from "../../common/map-to-inbox-dto";
 
@@ -37,13 +38,19 @@ export async function getPendingInboxBatchesQuery(
 		},
 	});
 
-	const [rows, ...latestPerSource] = await Promise.all([
+	const [rows, totalCount, ...latestPerSource] = await Promise.all([
 		db.activity_inbox.findMany({
 			where: {
 				athleteId: athlete.id,
 				status: { in: ["pending", "running"] },
 			},
 			orderBy: { receivedAt: "desc" },
+		}),
+		db.activity_inbox.count({
+			where: {
+				athleteId: athlete.id,
+				status: { in: ["pending", "running"] },
+			},
 		}),
 		...SOURCES.map((source) =>
 			db.activity_inbox.findFirst({
@@ -60,5 +67,6 @@ export async function getPendingInboxBatchesQuery(
 		if (entry) latestBySource[entry.source] = entry.receivedAt.toISOString();
 	}
 
-	return { data: rows.map(mapToInboxDto), latestBySource };
+	const data = rows.map(mapToInboxDto);
+	return { ...paginate({ data, totalCount }), latestBySource };
 }

@@ -4,6 +4,7 @@ export * from "./boat.schema";
 export * from "./concept2Activity.schema";
 export * from "./concept2User.schema";
 export * from "./erg.schema.";
+export * from "./pagination.schema";
 export * from "./phoneNumber.schema";
 export * from "./rcaMembership.schema";
 export * from "./rcaUser.schema";

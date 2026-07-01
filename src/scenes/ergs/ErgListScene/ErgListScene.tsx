@@ -8,18 +8,18 @@ import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
-import type { Activities, Erg, Ergs } from "@/lib/trpc/types";
+import type { Activities, Erg, ErgsResult } from "@/lib/trpc/types";
 import { ErgCreateDrawer, ErgDetailsDrawer, ErgTable } from "./components";
 
 interface IProps {
-	data: Ergs;
+	initialData: ErgsResult;
 	selectedErg: Erg | null;
 	activities?: Activities;
 	isCreateDrawerOpen: boolean;
 }
 
 export const ErgListScene = ({
-	data,
+	initialData,
 	selectedErg,
 	activities = [],
 	isCreateDrawerOpen,
@@ -59,7 +59,7 @@ export const ErgListScene = ({
 							<Heading as="h1">ERGs</Heading>
 						</div>
 						<div className="flex flex-col gap-4 md:gap-6">
-							<ErgTable data={data} />
+							<ErgTable initialData={initialData} />
 						</div>
 					</div>
 				</div>

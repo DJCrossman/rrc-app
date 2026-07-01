@@ -1,6 +1,6 @@
 import { protectedProcedure } from "@/server/procedures";
-import { getAthletesQuery } from "./get-athletes.query";
+import { getAthletesInputSchema, getAthletesQuery } from "./get-athletes.query";
 
-export const getAthletesProcedure = protectedProcedure.query(({ ctx }) =>
-	getAthletesQuery(undefined, ctx),
-);
+export const getAthletesProcedure = protectedProcedure
+	.input(getAthletesInputSchema.optional())
+	.query(({ ctx, input = {} }) => getAthletesQuery(input, ctx));

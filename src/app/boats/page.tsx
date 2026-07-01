@@ -14,17 +14,19 @@ export default async function BoatsPage({
 }) {
 	const { boatId, action } = querySchema.parse(await searchParams);
 	const caller = await createServerCaller();
-	const [{ data }, { data: activities }, selectedBoat] = await Promise.all([
-		caller.boats.getBoats(),
-		boatId
-			? caller.activities.getActivities({ boatId })
-			: Promise.resolve({ data: [] }),
-		boatId ? caller.boats.getBoatById({ id: boatId }) : null,
-	]);
+	const [boatsResponse, { data: activities }, selectedBoat] = await Promise.all(
+		[
+			caller.boats.getBoats(),
+			boatId
+				? caller.activities.getActivities({ boatId })
+				: Promise.resolve({ data: [] }),
+			boatId ? caller.boats.getBoatById({ id: boatId }) : null,
+		],
+	);
 
 	return (
 		<BoatListScene
-			data={data}
+			initialData={boatsResponse}
 			selectedBoat={selectedBoat}
 			activities={activities}
 			isCreateDrawerOpen={action === "create"}

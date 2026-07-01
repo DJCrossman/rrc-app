@@ -9,7 +9,7 @@ import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
-import type { Activities, Athlete, Athletes } from "@/lib/trpc/types";
+import type { Activities, Athlete, AthletesResult } from "@/lib/trpc/types";
 import { type CreateAthlete, createAthleteSchema } from "@/schemas";
 import type { AthleteStats } from "@/schemas/athlete.schema";
 import {
@@ -20,7 +20,7 @@ import {
 import { useAthleteBulkColumns } from "./components/useAthleteBulkColumns";
 
 interface IProps {
-	data: Athletes;
+	initialData: AthletesResult;
 	selectedAthlete: Athlete | null;
 	activities?: Activities;
 	athleteStats: AthleteStats | null;
@@ -29,7 +29,7 @@ interface IProps {
 }
 
 export const AthleteListScene = ({
-	data,
+	initialData,
 	selectedAthlete,
 	activities = [],
 	athleteStats,
@@ -79,7 +79,7 @@ export const AthleteListScene = ({
 							<Heading as="h1">Athletes</Heading>
 						</div>
 						<div className="flex flex-col gap-4 md:gap-6">
-							<AthleteTable data={data} />
+							<AthleteTable initialData={initialData} />
 						</div>
 					</div>
 				</div>

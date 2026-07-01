@@ -23,7 +23,7 @@ export default async function ActivitiesPage({
 	] = await Promise.all([
 		Promise.allSettled([
 			caller.athletes.getCurrentAthlete(),
-			caller.activities.getActivities({}),
+			caller.activities.getActivities(),
 			caller.activities.getActivityById({ id: activityId }),
 		]),
 		caller.boats.getBoats(),
@@ -34,17 +34,19 @@ export default async function ActivitiesPage({
 	const currentAthlete =
 		currentAthleteResult.status === "fulfilled"
 			? currentAthleteResult.value
-			: null;
-	const activities =
-		activitiesResult.status === "fulfilled" ? activitiesResult.value.data : [];
+			: undefined;
+	const activitiesResponse =
+		activitiesResult.status === "fulfilled"
+			? activitiesResult.value
+			: undefined;
 	const selectedActivity =
 		selectedActivityResult.status === "fulfilled"
-			? selectedActivityResult.value
-			: null;
+			? (selectedActivityResult.value ?? undefined)
+			: undefined;
 
 	return (
 		<ActivityListScene
-			data={activities}
+			initialData={activitiesResponse}
 			selectedActivity={selectedActivity}
 			currentAthlete={currentAthlete}
 			boats={boats}

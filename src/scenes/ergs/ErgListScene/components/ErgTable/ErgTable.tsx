@@ -1,20 +1,18 @@
 "use client";
 
 import { IconCaretDown, IconCaretUp, IconPlus } from "@tabler/icons-react";
+import { keepPreviousData } from "@tanstack/react-query";
 import {
 	type ColumnDef,
 	flexRender,
 	getCoreRowModel,
-	getFacetedRowModel,
-	getFacetedUniqueValues,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
+	type PaginationState,
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
 import Link from "next/link";
 import { useState } from "react";
+import { DataTablePagination } from "@/components/data-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -28,7 +26,16 @@ import {
 } from "@/components/ui/table";
 import { formatMeters } from "@/lib/formatters";
 import { routes } from "@/lib/routes";
-import type { Erg, Ergs } from "@/lib/trpc/types";
+import { trpcClient } from "@/lib/trpc/client";
+import type { Erg, ErgsResult } from "@/lib/trpc/types";
+
+const DEFAULT_PAGE_SIZE = 20;
+const sortColumns = [
+	"name",
+	"manufacturer",
+	"serialNumber",
+	"firmwareVersion",
+] as const;
 
 const columns: ColumnDef<Erg>[] = [
 	{
@@ -70,38 +77,44 @@ const columns: ColumnDef<Erg>[] = [
 		accessorKey: "meters",
 		header: () => <div className="w-full">Total Meters</div>,
 		cell: ({ row }) => formatMeters(row.original.meters),
-		enableSorting: true,
+		enableSorting: false,
 	},
 ];
 
 interface IErgTableProps {
-	data: Ergs;
+	initialData: ErgsResult;
 }
 
-export function ErgTable({ data }: IErgTableProps) {
-	const [sorting, setSorting] = useState<SortingState>([]);
-	const [pagination, setPagination] = useState({
+export function ErgTable({ initialData }: IErgTableProps) {
+	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
-		pageSize: 10,
+		pageSize: DEFAULT_PAGE_SIZE,
 	});
+	const [sorting, setSorting] = useState<SortingState>([]);
+
+	const sort = sorting[0];
+	const { data } = trpcClient.ergs.getErgs.useQuery(
+		{
+			page: pagination.pageIndex + 1,
+			pageSize: pagination.pageSize,
+			sortBy: sortColumns.find((column) => column === sort?.id),
+			order: sort ? (sort.desc ? "desc" : "asc") : undefined,
+		},
+		{ initialData, placeholderData: keepPreviousData },
+	);
 
 	const table = useReactTable({
-		data,
+		data: data.data,
 		columns,
-		state: {
-			sorting,
-			pagination,
-		},
+		state: { pagination, sorting },
 		getRowId: (row) => row.id.toString(),
-		enableRowSelection: true,
-		onSortingChange: setSorting,
+		manualPagination: true,
+		manualSorting: true,
+		pageCount: data.totalPages,
+		rowCount: data.totalCount,
 		onPaginationChange: setPagination,
+		onSortingChange: setSorting,
 		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 
 	return (
@@ -109,7 +122,7 @@ export function ErgTable({ data }: IErgTableProps) {
 			<div className="flex items-center justify-between p-4 lg:px-6">
 				<div className="flex items-center gap-2">
 					<Label className="text-sm font-medium">
-						Total ERGs: {data.length}
+						Total ERGs: {data.totalCount}
 					</Label>
 				</div>
 				<Button size="sm" asChild>
@@ -158,10 +171,7 @@ export function ErgTable({ data }: IErgTableProps) {
 					<TableBody>
 						{table.getRowModel().rows?.length ? (
 							table.getRowModel().rows.map((row) => (
-								<TableRow
-									key={row.id}
-									data-state={row.getIsSelected() && "selected"}
-								>
+								<TableRow key={row.id}>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
 											{flexRender(
@@ -185,29 +195,11 @@ export function ErgTable({ data }: IErgTableProps) {
 					</TableBody>
 				</Table>
 			</div>
-			<div className="flex items-center justify-between space-x-2 py-4 px-4 lg:px-6">
-				<div className="text-sm text-muted-foreground">
-					{table.getFilteredSelectedRowModel().rows.length} of{" "}
-					{table.getFilteredRowModel().rows.length} row(s) selected.
+			<div className="flex items-center justify-between px-4 py-4 lg:px-6">
+				<div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
+					{data.totalCount} {data.totalCount === 1 ? "erg" : "ergs"}
 				</div>
-				<div className="space-x-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.previousPage()}
-						disabled={!table.getCanPreviousPage()}
-					>
-						Previous
-					</Button>
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => table.nextPage()}
-						disabled={!table.getCanNextPage()}
-					>
-						Next
-					</Button>
-				</div>
+				<DataTablePagination table={table} />
 			</div>
 		</div>
 	);

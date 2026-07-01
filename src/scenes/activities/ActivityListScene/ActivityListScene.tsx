@@ -9,7 +9,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
 import type {
-	Activities,
+	ActivitiesResult,
 	Activity,
 	Athlete,
 	Boats,
@@ -26,9 +26,9 @@ import {
 import type { UploadErgActivityScreenshot } from "./components/ActivityForm/ActivityForm";
 
 interface ActivityListSceneProps {
-	data: Activities;
-	selectedActivity: Activity | null;
-	currentAthlete: Athlete | null;
+	initialData?: ActivitiesResult;
+	selectedActivity?: Activity;
+	currentAthlete?: Athlete;
 	boats: Boats;
 	ergs: Ergs;
 	workouts: Workouts;
@@ -59,7 +59,13 @@ const uploadErgActivityScreenshot: UploadErgActivityScreenshot = async ({
 };
 
 export const ActivityListScene = ({
-	data,
+	initialData = {
+		data: [],
+		totalCount: 0,
+		page: 1,
+		pageSize: 20,
+		totalPages: 1,
+	},
 	selectedActivity,
 	currentAthlete,
 	boats,
@@ -98,14 +104,12 @@ export const ActivityListScene = ({
 				<SiteHeader breadcrumbs={[{ label: "Activities" }]} />
 				<div className="flex flex-1 flex-col">
 					<div className="@container/main flex flex-1 flex-col gap-2">
-						<div className="pt-4 md:pt-6">
-							<IntegrationAlert />
-						</div>
+						<IntegrationAlert />
 						<div className="flex items-center justify-between p-4 lg:px-6">
 							<Heading as="h1">Activities</Heading>
 						</div>
 						<div className="flex flex-col gap-4 md:gap-6">
-							<ActivityTable data={data} />
+							<ActivityTable initialData={initialData} />
 						</div>
 					</div>
 				</div>

@@ -14,7 +14,7 @@ export default async function ErgsPage({
 }) {
 	const { ergId, action } = querySchema.parse(await searchParams);
 	const caller = await createServerCaller();
-	const [{ data }, { data: activities }, selectedErg] = await Promise.all([
+	const [ergsResponse, { data: activities }, selectedErg] = await Promise.all([
 		caller.ergs.getErgs(),
 		ergId
 			? caller.activities.getActivities({ ergId })
@@ -24,7 +24,7 @@ export default async function ErgsPage({
 
 	return (
 		<ErgListScene
-			data={data}
+			initialData={ergsResponse}
 			selectedErg={selectedErg}
 			activities={activities}
 			isCreateDrawerOpen={action === "create"}

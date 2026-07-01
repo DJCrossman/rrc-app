@@ -4,4 +4,4 @@ import { getStravaAthleteQuery } from "./get-strava-athlete.query";
 
 export const getStravaAthleteProcedure = protectedProcedure
 	.input(getStravaAthleteInputSchema.optional())
-	.query(({ ctx, input }) => getStravaAthleteQuery(input ?? {}, ctx));
+	.query(({ ctx, input = {} }) => getStravaAthleteQuery(input, ctx));

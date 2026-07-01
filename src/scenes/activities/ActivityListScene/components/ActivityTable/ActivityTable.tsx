@@ -7,21 +7,19 @@ import {
 	IconSailboat2,
 	IconTreadmill,
 } from "@tabler/icons-react";
+import { keepPreviousData } from "@tanstack/react-query";
 import {
 	type ColumnDef,
 	flexRender,
 	getCoreRowModel,
-	getFacetedRowModel,
-	getFacetedUniqueValues,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
+	type PaginationState,
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
 import { DateTime } from "luxon";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { DataTablePagination } from "@/components/data-table-pagination";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -43,12 +41,15 @@ import { useCurrentUser } from "@/hooks/useAuth";
 import { formatDurationAsTime } from "@/lib/formatters/formatDuration";
 import { formatMeters } from "@/lib/formatters/formatMeters";
 import { routes } from "@/lib/routes";
-import type { Activities, Activity } from "@/lib/trpc/types";
-import { ActivityType } from "@/schemas";
+import { trpcClient } from "@/lib/trpc/client";
+import type { ActivitiesResult, Activity } from "@/lib/trpc/types";
+import { ActivityType, WorkoutType } from "@/schemas";
 import { SyncMenu } from "./SyncMenu";
 
+const DEFAULT_PAGE_SIZE = 20;
 const activityTypeOptions = ["all", ...ActivityType] as const;
-const workoutTypeOptions = ["all", "distance", "time", "other"] as const;
+const workoutTypeOptions = ["all", ...WorkoutType] as const;
+const sortColumns = ["startDate", "name", "type"] as const;
 
 const columns: ColumnDef<Activity>[] = [
 	{
@@ -61,6 +62,7 @@ const columns: ColumnDef<Activity>[] = [
 				<IconTreadmill className="h-4 w-4" />
 			),
 		enableHiding: false,
+		enableSorting: true,
 	},
 	{
 		accessorKey: "startDate",
@@ -75,7 +77,7 @@ const columns: ColumnDef<Activity>[] = [
 		accessorKey: "athlete.name",
 		header: "Athlete",
 		cell: ({ row }) => row.original.athlete.name,
-		enableSorting: true,
+		enableSorting: false,
 	},
 	{
 		accessorKey: "name",
@@ -115,58 +117,58 @@ const columns: ColumnDef<Activity>[] = [
 			}
 			return formatMeters(row.original.distance);
 		},
-		enableSorting: true,
+		enableSorting: false,
 	},
 ];
 
 interface ActivityTableProps {
-	data: Activities;
+	initialData: ActivitiesResult;
 }
 
-export function ActivityTable({ data }: ActivityTableProps) {
+export function ActivityTable({ initialData }: ActivityTableProps) {
 	const { user } = useCurrentUser();
 	const hasIntegration = user.stravaConnected || user.concept2Connected;
-	const [filterBy, setFilterBy] = useState<{
-		type?: (typeof ActivityType)[number] | "all";
-		workoutType?: "distance" | "time" | "other" | "all";
-	}>({ type: "all", workoutType: "all" });
+
+	const [pagination, setPagination] = useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: DEFAULT_PAGE_SIZE,
+	});
 	const [sorting, setSorting] = useState<SortingState>([
 		{ id: "startDate", desc: true },
 	]);
-	const [pagination, setPagination] = useState({
-		pageIndex: 0,
-		pageSize: 100,
-	});
+	const [type, setType] = useState<(typeof ActivityType)[number] | undefined>(
+		undefined,
+	);
+	const [workoutType, setWorkoutType] = useState<
+		(typeof WorkoutType)[number] | undefined
+	>(undefined);
 
-	const filteredData = useMemo(() => {
-		return data.filter((item) => {
-			if (filterBy.type && filterBy.type !== "all") {
-				if (item.type !== filterBy.type) return false;
-			}
-			if (filterBy.workoutType && filterBy.workoutType !== "all") {
-				if (item.workoutType !== filterBy.workoutType) return false;
-			}
-			return true;
-		});
-	}, [data, filterBy]);
+	const sort = sorting[0];
+	const { data } = trpcClient.activities.getActivities.useQuery(
+		{
+			page: pagination.pageIndex + 1,
+			pageSize: pagination.pageSize,
+			sortBy: sortColumns.find((column) => column === sort?.id),
+			order: sort ? (sort.desc ? "desc" : "asc") : undefined,
+			type,
+			workoutType,
+		},
+		{ initialData, placeholderData: keepPreviousData },
+	);
 
 	const table = useReactTable({
-		data: filteredData,
+		data: data.data,
 		columns,
-		state: {
-			sorting,
-			pagination,
-		},
+		state: { pagination, sorting },
 		getRowId: (row) => row.id.toString(),
-		enableRowSelection: true,
-		onSortingChange: setSorting,
+		manualPagination: true,
+		manualSorting: true,
+		enableSortingRemoval: false,
+		pageCount: data.totalPages,
+		rowCount: data.totalCount,
 		onPaginationChange: setPagination,
+		onSortingChange: setSorting,
 		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 
 	return (
@@ -177,24 +179,21 @@ export function ActivityTable({ data }: ActivityTableProps) {
 						Activity Type
 					</Label>
 					<Select
-						defaultValue="all"
-						value={filterBy.type}
+						value={type ?? "all"}
 						onValueChange={(value) => {
-							setFilterBy((prev) => ({
-								...prev,
-								type: activityTypeOptions.find((i) => i === value) || "all",
-							}));
+							setType(ActivityType.find((option) => option === value));
+							setPagination((prev) => ({ ...prev, pageIndex: 0 }));
 						}}
 					>
 						<SelectTrigger className="flex w-fit" size="sm" id="type-selector">
 							<SelectValue placeholder="Select activity type" />
 						</SelectTrigger>
 						<SelectContent>
-							{activityTypeOptions.map((type) => (
-								<SelectItem key={type} value={type}>
-									{type === "all"
+							{activityTypeOptions.map((option) => (
+								<SelectItem key={option} value={option}>
+									{option === "all"
 										? "All Types"
-										: type === "water"
+										: option === "water"
 											? "Water"
 											: "ERG"}
 								</SelectItem>
@@ -205,14 +204,10 @@ export function ActivityTable({ data }: ActivityTableProps) {
 						Workout Type
 					</Label>
 					<Select
-						defaultValue="all"
-						value={filterBy.workoutType}
+						value={workoutType ?? "all"}
 						onValueChange={(value) => {
-							setFilterBy((prev) => ({
-								...prev,
-								workoutType:
-									workoutTypeOptions.find((i) => i === value) || "all",
-							}));
+							setWorkoutType(WorkoutType.find((option) => option === value));
+							setPagination((prev) => ({ ...prev, pageIndex: 0 }));
 						}}
 					>
 						<SelectTrigger
@@ -223,12 +218,11 @@ export function ActivityTable({ data }: ActivityTableProps) {
 							<SelectValue placeholder="Select workout type" />
 						</SelectTrigger>
 						<SelectContent>
-							{workoutTypeOptions.map((workoutType) => (
-								<SelectItem key={workoutType} value={workoutType}>
-									{workoutType === "all"
+							{workoutTypeOptions.map((option) => (
+								<SelectItem key={option} value={option}>
+									{option === "all"
 										? "All Workout Types"
-										: workoutType.charAt(0).toUpperCase() +
-											workoutType.slice(1)}
+										: option.charAt(0).toUpperCase() + option.slice(1)}
 								</SelectItem>
 							))}
 						</SelectContent>
@@ -262,6 +256,11 @@ export function ActivityTable({ data }: ActivityTableProps) {
 												key={header.id}
 												colSpan={header.colSpan}
 												onClick={header.column.getToggleSortingHandler()}
+												className={
+													header.column.getCanSort()
+														? "cursor-pointer select-none"
+														: undefined
+												}
 											>
 												<div className="flex items-center gap-2">
 													{header.isPlaceholder
@@ -310,9 +309,10 @@ export function ActivityTable({ data }: ActivityTableProps) {
 				</div>
 				<div className="flex items-center justify-between px-4">
 					<div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-						{table.getFilteredRowModel().rows.length} of {data.length}{" "}
-						activities.
+						{data.totalCount}{" "}
+						{data.totalCount === 1 ? "activity" : "activities"}
 					</div>
+					<DataTablePagination table={table} />
 				</div>
 			</div>
 		</div>

@@ -4,4 +4,4 @@ import { getStravaActivitiesQuery } from "./get-strava-activities.query";
 
 export const getStravaActivitiesProcedure = protectedProcedure
 	.input(getStravaActivitiesInputSchema.optional())
-	.query(({ ctx, input }) => getStravaActivitiesQuery(input ?? {}, ctx));
+	.query(({ ctx, input = {} }) => getStravaActivitiesQuery(input, ctx));

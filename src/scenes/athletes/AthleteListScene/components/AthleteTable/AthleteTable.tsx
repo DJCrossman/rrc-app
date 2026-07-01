@@ -7,21 +7,19 @@ import {
 	IconCircleCheck,
 	IconPlus,
 } from "@tabler/icons-react";
+import { keepPreviousData } from "@tanstack/react-query";
 import {
 	type ColumnDef,
 	flexRender,
 	getCoreRowModel,
-	getFacetedRowModel,
-	getFacetedUniqueValues,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
+	type PaginationState,
 	type SortingState,
 	useReactTable,
 } from "@tanstack/react-table";
 import { DateTime } from "luxon";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { DataTablePagination } from "@/components/data-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,8 +47,10 @@ import {
 } from "@/components/ui/table";
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
-import type { Athlete, Athletes } from "@/lib/trpc/types";
+import type { Athlete, AthletesResult } from "@/lib/trpc/types";
 
+const DEFAULT_PAGE_SIZE = 20;
+const sortColumns = ["dateJoined"] as const;
 const activeMembershipOptions = ["all", "true", "false"] as const;
 
 const columns: ColumnDef<Athlete>[] = [
@@ -63,20 +63,16 @@ const columns: ColumnDef<Athlete>[] = [
 			</Link>
 		),
 		enableHiding: false,
-		enableSorting: true,
+		enableSorting: false,
 	},
 	{
 		accessorKey: "activeMembership",
 		header: "Active",
-		sortingFn: (rowA, rowB) => {
-			const a = rowA.getValue("activeMembership") ? 1 : 0;
-			const b = rowB.getValue("activeMembership") ? 1 : 0;
-			return a - b;
-		},
 		cell: ({ row }) =>
 			row.original.activeMembership ? (
 				<IconCircleCheck size={16} className="text-green-500" />
 			) : null,
+		enableSorting: false,
 	},
 	{
 		id: "program",
@@ -101,23 +97,35 @@ const columns: ColumnDef<Athlete>[] = [
 				month: "short",
 				year: "numeric",
 			}),
+		enableSorting: true,
 	},
 ];
 
 interface IAthleteTableProps {
-	data: Athletes;
+	initialData: AthletesResult;
 }
 
-export function AthleteTable({ data }: IAthleteTableProps) {
-	const [filterBy, setFilterBy] = useState<{
-		programIds: string[];
-		isActive?: "true" | "false" | "all";
-	}>({ programIds: [], isActive: "all" });
-	const [sorting, setSorting] = useState<SortingState>([]);
-	const [pagination, setPagination] = useState({
+export function AthleteTable({ initialData }: IAthleteTableProps) {
+	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
-		pageSize: 100,
+		pageSize: DEFAULT_PAGE_SIZE,
 	});
+	const [sorting, setSorting] = useState<SortingState>([]);
+	const [programIds, setProgramIds] = useState<string[]>([]);
+	const [isActive, setIsActive] = useState<boolean | undefined>(undefined);
+
+	const sort = sorting[0];
+	const { data } = trpcClient.athletes.getAthletes.useQuery(
+		{
+			page: pagination.pageIndex + 1,
+			pageSize: pagination.pageSize,
+			sortBy: sortColumns.find((column) => column === sort?.id),
+			order: sort ? (sort.desc ? "desc" : "asc") : undefined,
+			programIds: programIds.length ? programIds : undefined,
+			isActive,
+		},
+		{ initialData, placeholderData: keepPreviousData },
+	);
 
 	const programsQuery = trpcClient.programs.getPrograms.useQuery();
 	const programOptions: Option[] = useMemo(
@@ -129,43 +137,22 @@ export function AthleteTable({ data }: IAthleteTableProps) {
 		[programsQuery.data],
 	);
 	const selectedProgramOptions = useMemo(
-		() => programOptions.filter((o) => filterBy.programIds.includes(o.value)),
-		[programOptions, filterBy.programIds],
+		() => programOptions.filter((o) => programIds.includes(o.value)),
+		[programOptions, programIds],
 	);
 
-	const filteredData = useMemo(() => {
-		return data.filter((item) => {
-			if (filterBy.programIds.length > 0) {
-				const memberships = item.memberships ?? [];
-				const matches = memberships.some((m) =>
-					filterBy.programIds.includes(m.programId),
-				);
-				if (!matches) return false;
-			}
-			if (filterBy.isActive !== undefined && filterBy.isActive !== "all") {
-				return !!item.activeMembership === (filterBy.isActive === "true");
-			}
-			return true;
-		});
-	}, [data, filterBy]);
-
 	const table = useReactTable({
-		data: filteredData,
+		data: data.data,
 		columns,
-		state: {
-			sorting,
-			pagination,
-		},
+		state: { pagination, sorting },
 		getRowId: (row) => row.id.toString(),
-		enableRowSelection: true,
-		onSortingChange: setSorting,
+		manualPagination: true,
+		manualSorting: true,
+		pageCount: data.totalPages,
+		rowCount: data.totalCount,
 		onPaginationChange: setPagination,
+		onSortingChange: setSorting,
 		getCoreRowModel: getCoreRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 
 	return (
@@ -180,25 +167,19 @@ export function AthleteTable({ data }: IAthleteTableProps) {
 						placeholder="All Programs"
 						options={programOptions}
 						value={selectedProgramOptions}
-						onChange={(opts) =>
-							setFilterBy((prev) => ({
-								...prev,
-								programIds: opts.map((o) => o.value),
-							}))
-						}
+						onChange={(opts) => {
+							setProgramIds(opts.map((o) => o.value));
+							setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+						}}
 					/>
 					<Label htmlFor="active-membership-selector" className="sr-only">
 						Active Membership
 					</Label>
 					<Select
-						defaultValue="all"
-						value={filterBy.isActive?.toString()}
+						value={isActive === undefined ? "all" : isActive ? "true" : "false"}
 						onValueChange={(value) => {
-							setFilterBy((prev) => ({
-								...prev,
-								isActive:
-									activeMembershipOptions.find((i) => i === value) || "all",
-							}));
+							setIsActive(value === "all" ? undefined : value === "true");
+							setPagination((prev) => ({ ...prev, pageIndex: 0 }));
 						}}
 					>
 						<SelectTrigger
@@ -315,8 +296,9 @@ export function AthleteTable({ data }: IAthleteTableProps) {
 				</div>
 				<div className="flex items-center justify-between px-4">
 					<div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-						{table.getFilteredRowModel().rows.length} of {data.length} athletes.
+						{data.totalCount} athletes.
 					</div>
+					<DataTablePagination table={table} />
 				</div>
 			</div>
 		</div>

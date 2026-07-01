@@ -10,7 +10,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getSuggestedWeightRange } from "@/lib/data/boat-weight-suggestions";
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
-import type { Activities, Boat, Boats } from "@/lib/trpc/types";
+import type { Activities, Boat, BoatsResult } from "@/lib/trpc/types";
 import {
 	type BulkCreateBoatRow,
 	bulkCreateBoatRowSchema,
@@ -22,7 +22,7 @@ import { BoatCreateDrawer, BoatDetailsDrawer, BoatTable } from "./components";
 import { useBoatBulkColumns } from "./components/useBoatBulkColumns";
 
 interface IProps {
-	data: Boats;
+	initialData: BoatsResult;
 	selectedBoat: Boat | null;
 	activities?: Activities;
 	isCreateDrawerOpen: boolean;
@@ -30,7 +30,7 @@ interface IProps {
 }
 
 export const BoatListScene = ({
-	data,
+	initialData,
 	selectedBoat,
 	activities = [],
 	isCreateDrawerOpen,
@@ -79,7 +79,7 @@ export const BoatListScene = ({
 							<Heading as="h1">Boats</Heading>
 						</div>
 						<div className="flex flex-col gap-4 md:gap-6">
-							<BoatTable data={data} />
+							<BoatTable initialData={initialData} />
 						</div>
 					</div>
 				</div>

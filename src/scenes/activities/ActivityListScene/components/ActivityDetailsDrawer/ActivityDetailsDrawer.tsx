@@ -23,7 +23,7 @@ import {
 
 interface ActivityDetailsDrawerProps {
 	isOpen: boolean;
-	activity: Activity | null;
+	activity?: Activity;
 	boats: Boats;
 	ergs: Ergs;
 	workouts: Workouts;

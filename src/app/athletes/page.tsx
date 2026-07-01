@@ -14,19 +14,23 @@ export default async function AthletesPage({
 }) {
 	const { athleteId, action } = querySchema.parse(await searchParams);
 	const caller = await createServerCaller();
-	const [{ data }, { data: activities }, selectedAthlete, athleteStats] =
-		await Promise.all([
-			caller.athletes.getAthletes(),
-			athleteId
-				? caller.activities.getActivities({ athleteId })
-				: Promise.resolve({ data: [] }),
-			caller.athletes.getAthleteById({ id: athleteId }),
-			athleteId ? caller.athletes.getAthleteStats({ athleteId }) : null,
-		]);
+	const [
+		athletesResponse,
+		{ data: activities },
+		selectedAthlete,
+		athleteStats,
+	] = await Promise.all([
+		caller.athletes.getAthletes(),
+		athleteId
+			? caller.activities.getActivities({ athleteId })
+			: Promise.resolve({ data: [] }),
+		caller.athletes.getAthleteById({ id: athleteId }),
+		athleteId ? caller.athletes.getAthleteStats({ athleteId }) : null,
+	]);
 
 	return (
 		<AthleteListScene
-			data={data}
+			initialData={athletesResponse}
 			selectedAthlete={selectedAthlete}
 			activities={activities}
 			athleteStats={athleteStats}
