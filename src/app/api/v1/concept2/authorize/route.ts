@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
+import { resolveOAuthReturnPath } from "@/lib/oauth-return";
 import { createServerCaller } from "@/server/caller";
 import { getConcept2Config } from "@/server/services/concept2-service";
 
 export async function GET(request: Request) {
+	const { searchParams } = new URL(request.url);
+	const returnTo = resolveOAuthReturnPath(searchParams.get("returnTo"));
+
 	try {
 		const caller = await createServerCaller();
 		const [currentAthleteResult] = await Promise.allSettled([
@@ -13,12 +17,11 @@ export async function GET(request: Request) {
 			currentAthleteResult.status === "rejected" ||
 			!currentAthleteResult.value
 		) {
-			const redirectUrl = new URL("/settings/apps", request.url);
+			const redirectUrl = new URL(returnTo, request.url);
 			redirectUrl.searchParams.set("oauth_error", "no_athlete");
 			return NextResponse.redirect(redirectUrl);
 		}
 
-		const { searchParams } = new URL(request.url);
 		const scope = searchParams.get("scope") || "results:read,user:read";
 
 		const config = getConcept2Config();
@@ -28,6 +31,7 @@ export async function GET(request: Request) {
 		authUrl.searchParams.set("redirect_uri", config.callbackUrl);
 		authUrl.searchParams.set("response_type", "code");
 		authUrl.searchParams.set("scope", scope);
+		authUrl.searchParams.set("state", returnTo);
 
 		return NextResponse.redirect(authUrl.toString());
 	} catch (error) {

@@ -1,11 +1,11 @@
 "use client";
 
-import { IconBrandStrava } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
+import { ApplicationIcon } from "@/components/integrations/application-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,14 +34,14 @@ export type IntegrationApplication =
 	| {
 			id: SyncSource;
 			name: string;
-			description: string;
+			description: ReactNode;
 			authType: "oauth";
 			authUrl: string;
 	  }
 	| {
 			id: SyncSource;
 			name: string;
-			description: string;
+			description: ReactNode;
 			authType: "credentials";
 			connectUrl: string;
 	  };
@@ -412,33 +412,4 @@ const CredentialsForm = ({
 			</Button>
 		</form>
 	);
-};
-
-const ApplicationIcon = ({ id }: { id: string }) => {
-	switch (id) {
-		case "concept2":
-			return (
-				<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
-					<span className="text-2xl font-bold">C2</span>
-				</div>
-			);
-		case "strava":
-			return (
-				<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#FC4C02]">
-					<IconBrandStrava className="h-8 w-8 text-white" />
-				</div>
-			);
-		case "rca":
-			return (
-				<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#C8102E]">
-					<span className="text-lg font-bold text-white">RCA</span>
-				</div>
-			);
-		default:
-			return (
-				<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
-					<span className="text-2xl font-bold">?</span>
-				</div>
-			);
-	}
 };

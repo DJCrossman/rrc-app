@@ -14,15 +14,24 @@ export const AuthenticatedLayout = ({
 	const pathname = usePathname();
 	const router = useRouter();
 	const isPublicRoute = PUBLIC_ROUTES.has(pathname);
-	const { user, isAdmin, hasAthlete, isPending, error } = useAuth({
-		ensureSignedIn: !isPublicRoute,
-	});
+	const { user, isAdmin, hasAthlete, authenticated, isPending, error } =
+		useAuth({
+			ensureSignedIn: !isPublicRoute,
+		});
 
 	useEffect(() => {
-		if (!isPending && !user && !isPublicRoute) {
-			router.replace("/login");
+		if (isPending || isPublicRoute) {
+			return;
 		}
-	}, [isPending, isPublicRoute, router, user]);
+		if (!authenticated) {
+			router.replace("/login");
+			return;
+		}
+		// Members without a profile go through onboarding; invited admins skip it.
+		if (!hasAthlete && !isAdmin) {
+			router.replace("/onboarding");
+		}
+	}, [authenticated, hasAthlete, isAdmin, isPending, isPublicRoute, router]);
 
 	if (isPublicRoute) {
 		return children;
@@ -34,7 +43,7 @@ export const AuthenticatedLayout = ({
 	if (error) {
 		throw error;
 	}
-	if (!user) {
+	if (!authenticated || !user) {
 		return null;
 	}
 	return (

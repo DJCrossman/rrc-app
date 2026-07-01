@@ -10,6 +10,7 @@ type AuthBase = {
 	isPending: boolean;
 	isAdmin: boolean;
 	hasAthlete: boolean;
+	authenticated: boolean;
 };
 
 type UseAuthResult = AuthBase & { user: CurrentAthlete | null };
@@ -20,10 +21,13 @@ type AuthMeResponse = {
 	hasAthlete: boolean;
 };
 
-const DEFAULT_RESPONSE: AuthMeResponse = {
+type AuthState = AuthMeResponse & { authenticated: boolean };
+
+const SIGNED_OUT_STATE: AuthState = {
 	user: null,
 	isAdmin: false,
 	hasAthlete: false,
+	authenticated: false,
 };
 
 export function useAuth(opts?: { ensureSignedIn?: boolean }): UseAuthResult {
@@ -31,20 +35,17 @@ export function useAuth(opts?: { ensureSignedIn?: boolean }): UseAuthResult {
 	const { data, error, isPending, fetchStatus } = useQuery({
 		queryKey: generateQueryKey({ type: "currentUser" }),
 		enabled: ensureSignedIn,
-		queryFn: async (): Promise<AuthMeResponse> => {
+		queryFn: async (): Promise<AuthState> => {
 			const response = await fetch("/api/v1/users/me");
 			if (response.status === 401) {
-				if (ensureSignedIn) {
-					throw new Error("User is not signed in.");
-				}
-				return DEFAULT_RESPONSE;
+				return SIGNED_OUT_STATE;
 			}
 			if (!response.ok) {
 				const errorBody: { message?: string } = await response.json();
 				throw new Error(errorBody.message ?? "Failed to fetch user data");
 			}
-			const data: AuthMeResponse = await response.json();
-			return data;
+			const body: AuthMeResponse = await response.json();
+			return { ...body, authenticated: true };
 		},
 	});
 
@@ -52,6 +53,7 @@ export function useAuth(opts?: { ensureSignedIn?: boolean }): UseAuthResult {
 		user: data?.user ?? null,
 		isAdmin: data?.isAdmin ?? false,
 		hasAthlete: data?.hasAthlete ?? false,
+		authenticated: data?.authenticated ?? false,
 		error,
 		isPending: isPending && fetchStatus !== "idle",
 	};

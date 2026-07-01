@@ -1,10 +1,12 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { isDefaultOrgAdmin } from "@/server/clerk/default-organization";
 
 const isPublicRoute = createRouteMatcher([
 	"/login(.*)",
 	"/signup(.*)",
+	"/onboarding(.*)",
 	"/api/(.*)",
 	"/trpc/(.*)",
 ]);
@@ -18,16 +20,12 @@ export default clerkMiddleware(async (auth, req) => {
 		unauthenticatedUrl: new URL("/login", req.url).toString(),
 	});
 
-	if (req.nextUrl.pathname.startsWith("/onboarding")) {
-		return;
-	}
-
 	const session = await auth();
 	if (!session.userId) {
 		return;
 	}
 
-	if (session.has({ role: "org:admin" })) {
+	if (await isDefaultOrgAdmin(session.userId)) {
 		return;
 	}
 

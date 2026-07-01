@@ -1,3 +1,4 @@
+import { RowingCanadaDescription } from "@/components/integrations/rowing-canada-description";
 import {
 	AccountAppsScene,
 	type IntegrationApplication,
@@ -23,8 +24,7 @@ const IntegrationApplications: IntegrationApplication[] = [
 	{
 		id: "rca",
 		name: "Rowing Canada",
-		description:
-			"Connect your Rowing Canada membership to sync registration data",
+		description: <RowingCanadaDescription />,
 		authType: "credentials",
 		connectUrl: "/api/v1/rca/connect",
 	},

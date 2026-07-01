@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
+import { isDefaultOrgAdmin } from "@/server/clerk/default-organization";
 import type { AthleteRow } from "@/server/routers/athletes/common/map-to-athlete-dto";
 import { createConcept2Service } from "../services/concept2-service";
 import { createRcaService } from "../services/rca-service";
@@ -58,7 +59,7 @@ export async function createTRPCContext(_opts?: {
 		return { user: null, db, services };
 	}
 
-	const isAdmin = session.has({ role: "org:admin" });
+	const isAdmin = await isDefaultOrgAdmin(session.userId);
 
 	return {
 		user: { id: session.userId, isAdmin },
