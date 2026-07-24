@@ -271,15 +271,17 @@ export function BulkUploadDrawer<TRow>({
 					</Button>
 					{onSuggest && (
 						<Tooltip open={hasRowErrors || undefined}>
-							<TooltipTrigger asChild>
-								<Button
-									variant={hasRowErrors ? "default" : "outline"}
-									size="sm"
-									onClick={handleSuggest}
-								>
-									<IconWand />
-									Suggest
-								</Button>
+							<TooltipTrigger
+								render={
+									<Button
+										variant={hasRowErrors ? "default" : "outline"}
+										size="sm"
+										onClick={handleSuggest}
+									/>
+								}
+							>
+								<IconWand />
+								Suggest
 							</TooltipTrigger>
 							{suggestTooltip && (
 								<TooltipContent>{suggestTooltip}</TooltipContent>

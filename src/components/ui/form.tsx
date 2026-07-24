@@ -1,8 +1,8 @@
 'use client';
 
+import { mergeProps } from '@base-ui/react/merge-props';
+import { useRender } from '@base-ui/react/use-render';
 import { DevTool } from '@hookform/devtools';
-import * as LabelPrimitive from '@radix-ui/react-label';
-import { Slot } from '@radix-ui/react-slot';
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import {
@@ -162,7 +162,7 @@ function FormLabel({
   isRequired,
   children,
   ...props
-}: React.ComponentProps<typeof LabelPrimitive.Root> & {
+}: React.ComponentProps<typeof Label> & {
   isRequired?: boolean;
 }) {
   const { error, formItemId } = useFormField();
@@ -185,23 +185,26 @@ function FormLabel({
   );
 }
 
-function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
+function FormControl({ children, ...props }: React.ComponentProps<'div'>) {
   const { error, formItemId, formDescriptionId, formMessageId } =
     useFormField();
+  const child = React.isValidElement(children) ? children : undefined;
 
-  return (
-    <Slot
-      data-slot="form-control"
-      id={formItemId}
-      aria-describedby={
-        !error
+  return useRender({
+    defaultTagName: 'div',
+    render: child,
+    props: mergeProps<'div'>(
+      {
+        'data-slot': 'form-control',
+        id: formItemId,
+        'aria-describedby': !error
           ? `${formDescriptionId}`
-          : `${formDescriptionId} ${formMessageId}`
-      }
-      aria-invalid={!!error}
-      {...props}
-    />
-  );
+          : `${formDescriptionId} ${formMessageId}`,
+        'aria-invalid': !!error,
+      } as React.ComponentProps<'div'>,
+      child ? props : { ...props, children },
+    ),
+  });
 }
 
 function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {

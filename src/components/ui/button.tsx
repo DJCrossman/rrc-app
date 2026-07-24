@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Slot } from "@radix-ui/react-slot"
+import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
@@ -41,19 +41,32 @@ function Button({
   variant,
   size,
   asChild = false,
+  children,
+  nativeButton,
+  render,
   ...props
-}: React.ComponentProps<"button"> &
+}: Omit<ButtonPrimitive.Props, "className"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    className?: string
   }) {
-  const Comp = asChild ? Slot : "button"
+  // TODO(base-ui): remove asChild shim after consumer sweep
+  const asChildElement =
+    asChild && React.isValidElement(children) ? children : undefined
 
   return (
-    <Comp
+    <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      render={asChildElement ?? render}
+      nativeButton={
+        nativeButton ??
+        (asChildElement ? asChildElement.type === "button" : undefined)
+      }
       {...props}
-    />
+    >
+      {asChildElement ? undefined : children}
+    </ButtonPrimitive>
   )
 }
 
