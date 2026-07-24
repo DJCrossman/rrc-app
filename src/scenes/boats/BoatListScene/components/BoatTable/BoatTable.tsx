@@ -188,20 +188,24 @@ export function BoatTable({ initialData }: IBoatTableProps) {
 						</Link>
 					</Button>
 					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
-								variant="outline"
-								size="sm"
-								className="rounded-l-none border-l-0 px-2"
-								aria-label="More add options"
-							>
-								<IconChevronDown />
-							</Button>
-						</DropdownMenuTrigger>
+						<DropdownMenuTrigger
+							render={
+								<Button
+									variant="outline"
+									size="sm"
+									className="rounded-l-none border-l-0 px-2"
+									aria-label="More add options"
+								>
+									<IconChevronDown />
+								</Button>
+							}
+						/>
 						<DropdownMenuContent align="end">
-							<DropdownMenuItem asChild>
-								<Link href={routes.boats.bulkCreate()}>Bulk Add Boats</Link>
-							</DropdownMenuItem>
+							<DropdownMenuItem
+								render={
+									<Link href={routes.boats.bulkCreate()}>Bulk Add Boats</Link>
+								}
+							/>
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>

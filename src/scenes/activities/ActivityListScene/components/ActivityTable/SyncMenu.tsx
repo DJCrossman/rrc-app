@@ -49,16 +49,18 @@ export function SyncMenu() {
 
 	return (
 		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<Button
-					variant="outline"
-					size="sm"
-					className="rounded-l-none border-l-0 px-2"
-					aria-label="Sync activities"
-				>
-					<IconChevronDown />
-				</Button>
-			</DropdownMenuTrigger>
+			<DropdownMenuTrigger
+				render={
+					<Button
+						variant="outline"
+						size="sm"
+						className="rounded-l-none border-l-0 px-2"
+						aria-label="Sync activities"
+					>
+						<IconChevronDown />
+					</Button>
+				}
+			/>
 			<DropdownMenuContent align="end">
 				{user.stravaConnected && (
 					<SyncMenuItem
@@ -67,7 +69,7 @@ export function SyncMenu() {
 						syncing={isSyncing("strava")}
 						coolingDown={cooldownSources.has("strava")}
 						disabled={isLocked("strava")}
-						onSelect={() => startSync("strava")}
+						onClick={() => startSync("strava")}
 					/>
 				)}
 				{user.concept2Connected && (
@@ -77,7 +79,7 @@ export function SyncMenu() {
 						syncing={isSyncing("concept2")}
 						coolingDown={cooldownSources.has("concept2")}
 						disabled={isLocked("concept2")}
-						onSelect={() => startSync("concept2")}
+						onClick={() => startSync("concept2")}
 					/>
 				)}
 			</DropdownMenuContent>
@@ -90,17 +92,17 @@ function SyncMenuItem({
 	syncing,
 	coolingDown,
 	disabled,
-	onSelect,
+	onClick,
 }: {
 	label: string;
 	source: SyncSource;
 	syncing: boolean;
 	coolingDown: boolean;
 	disabled: boolean;
-	onSelect: () => void;
+	onClick: () => void;
 }) {
 	return (
-		<DropdownMenuItem disabled={disabled} onSelect={onSelect}>
+		<DropdownMenuItem disabled={disabled} onClick={onClick}>
 			{syncing ? (
 				<>
 					<Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -11,10 +11,10 @@ export const intensityColorMap = {
 } satisfies Record<IntensityCategory, string>;
 
 export const intensityActiveSelectorMap = {
-	C1: "data-[state=on]:bg-intensity-100 data-[state=on]:text-white",
-	C2: "data-[state=on]:bg-intensity-200 data-[state=on]:text-white",
-	C3: "data-[state=on]:bg-intensity-300 data-[state=on]:text-foreground",
-	C4: "data-[state=on]:bg-intensity-400 data-[state=on]:text-foreground",
-	C5: "data-[state=on]:bg-intensity-500 data-[state=on]:text-foreground",
-	C6: "data-[state=on]:bg-intensity-600 data-[state=on]:text-foreground",
+	C1: "data-pressed:bg-intensity-100 data-pressed:text-white",
+	C2: "data-pressed:bg-intensity-200 data-pressed:text-white",
+	C3: "data-pressed:bg-intensity-300 data-pressed:text-foreground",
+	C4: "data-pressed:bg-intensity-400 data-pressed:text-foreground",
+	C5: "data-pressed:bg-intensity-500 data-pressed:text-foreground",
+	C6: "data-pressed:bg-intensity-600 data-pressed:text-foreground",
 } satisfies Record<IntensityCategory, string>;

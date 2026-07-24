@@ -48,19 +48,22 @@ export const DateInput = ({ value, onChange, ...props }: DateInputProps) => {
   const drawerContainer = useDrawerContentContainer();
   return (
     <Popover>
-      <PopoverTrigger asChild>
-        <Input
-          {...props}
-          type="date"
-          className={cn(
-            isSafari ? 'safari-date' : '',
-            !hasNativeSupport ? 'unsupported-date' : '',
-            props.className,
-          )}
-          value={value ?? ''}
-          onChange={onChange}
-        />
-      </PopoverTrigger>
+      <PopoverTrigger
+        nativeButton={false}
+        render={
+          <Input
+            {...props}
+            type="date"
+            className={cn(
+              isSafari ? 'safari-date' : '',
+              !hasNativeSupport ? 'unsupported-date' : '',
+              props.className,
+            )}
+            value={value ?? ''}
+            onChange={onChange}
+          />
+        }
+      />
       {!hasNativeSupport && (
         <PopoverContent
           className="w-auto p-0"
