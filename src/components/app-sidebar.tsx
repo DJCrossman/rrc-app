@@ -36,23 +36,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton
-							asChild
 							className="data-[slot=sidebar-menu-button]:p-1.5!"
-						>
-							<Link
-								href={envVars.NEXT_PUBLIC_HOME_URL}
-								className="flex items-center gap-2 font-medium"
-							>
-								<Image
-									src="/logo.png"
-									alt="Regina Rowing Club Logo"
-									width={24}
-									height={24}
+							render={
+								<Link
+									href={envVars.NEXT_PUBLIC_HOME_URL}
+									className="flex items-center gap-2 font-medium"
 								/>
-								<span className="text-base font-semibold">
-									Regina Rowing Club
-								</span>
-							</Link>
+							}
+						>
+							<Image
+								src="/logo.png"
+								alt="Regina Rowing Club Logo"
+								width={24}
+								height={24}
+							/>
+							<span className="text-base font-semibold">
+								Regina Rowing Club
+							</span>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>

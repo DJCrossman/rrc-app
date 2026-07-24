@@ -174,8 +174,11 @@ export function AthleteForm({
 				/>
 				<div className="flex justify-between gap-4">
 					{typeof cancelLinkOrAction === "string" && (
-						<Button variant="outline" asChild>
-							<Link href={cancelLinkOrAction}>Cancel</Link>
+						<Button
+							variant="outline"
+							render={<Link href={cancelLinkOrAction} />}
+						>
+							Cancel
 						</Button>
 					)}
 					{typeof cancelLinkOrAction === "function" && (

@@ -40,32 +40,26 @@ function Button({
   className,
   variant,
   size,
-  asChild = false,
   children,
   nativeButton,
   render,
   ...props
 }: Omit<ButtonPrimitive.Props, "className"> &
   VariantProps<typeof buttonVariants> & {
-    asChild?: boolean
     className?: string
   }) {
-  // TODO(base-ui): remove asChild shim after consumer sweep
-  const asChildElement =
-    asChild && React.isValidElement(children) ? children : undefined
-
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
-      render={asChildElement ?? render}
+      render={render}
       nativeButton={
         nativeButton ??
-        (asChildElement ? asChildElement.type === "button" : undefined)
+        (React.isValidElement(render) ? render.type === "button" : undefined)
       }
       {...props}
     >
-      {asChildElement ? undefined : children}
+      {children}
     </ButtonPrimitive>
   )
 }

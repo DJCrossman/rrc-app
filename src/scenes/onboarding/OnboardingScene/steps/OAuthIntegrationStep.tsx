@@ -124,9 +124,7 @@ export function OAuthIntegrationStep({
 						<Button type="button" variant="outline" onClick={onSkip}>
 							Skip for now
 						</Button>
-						<Button asChild>
-							<a href={authorizeUrl}>Connect {config.name}</a>
-						</Button>
+						<Button render={<a href={authorizeUrl}>Connect {config.name}</a>} />
 					</div>
 				)}
 			</div>

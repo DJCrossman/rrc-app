@@ -36,12 +36,10 @@ export function NavMain({
 							<SidebarMenuButton
 								tooltip={item.title}
 								isActive={isActivePath(pathname, item.url)}
-								asChild
+								render={<Link href={item.url} />}
 							>
-								<Link href={item.url}>
-									{item.icon && <item.icon />}
-									<span>{item.title}</span>
-								</Link>
+								{item.icon && <item.icon />}
+								<span>{item.title}</span>
 							</SidebarMenuButton>
 							{item.badge && (
 								<SidebarMenuBadge className="h-4 min-w-0 rounded-full bg-sidebar-primary px-1.5 text-[10px] font-semibold text-sidebar-primary-foreground peer-hover/menu-button:text-sidebar-primary-foreground peer-data-[active=true]/menu-button:text-sidebar-primary-foreground peer-data-[size=default]/menu-button:top-2">

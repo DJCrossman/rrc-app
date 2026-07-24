@@ -182,15 +182,13 @@ export function BoatTable({ initialData }: IBoatTableProps) {
 
 				<div className="flex items-center">
 					<Button
-						asChild
 						variant="outline"
 						size="sm"
 						className="rounded-r-none"
+						render={<Link href={routes.boats.create()} />}
 					>
-						<Link href={routes.boats.create()}>
-							<IconPlus />
-							<span className="hidden lg:inline">Add Boat</span>
-						</Link>
+						<IconPlus />
+						<span className="hidden lg:inline">Add Boat</span>
 					</Button>
 					<DropdownMenu>
 						<DropdownMenuTrigger

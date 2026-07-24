@@ -477,8 +477,8 @@ const CancelButton = ({
 
 	if (typeof cancelLinkOrAction === "string") {
 		return (
-			<Button variant="outline" asChild>
-				<Link href={cancelLinkOrAction}>Cancel</Link>
+			<Button variant="outline" render={<Link href={cancelLinkOrAction} />}>
+				Cancel
 			</Button>
 		);
 	}

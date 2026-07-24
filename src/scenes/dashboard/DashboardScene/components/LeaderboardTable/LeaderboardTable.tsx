@@ -208,11 +208,13 @@ export function LeaderboardTable({
 				/>
 
 				<div className="flex items-center gap-2">
-					<Button asChild variant="outline" size="sm">
-						<Link href={routes.activities.create()}>
-							<IconPlus />
-							<span className="hidden lg:inline">Track Activity</span>
-						</Link>
+					<Button
+						variant="outline"
+						size="sm"
+						render={<Link href={routes.activities.create()} />}
+					>
+						<IconPlus />
+						<span className="hidden lg:inline">Track Activity</span>
 					</Button>
 				</div>
 			</div>

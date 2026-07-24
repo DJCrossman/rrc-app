@@ -249,15 +249,13 @@ export function ActivityTable({ initialData }: ActivityTableProps) {
 
 				<div className="flex items-center">
 					<Button
-						asChild
 						variant="outline"
 						size="sm"
 						className={hasIntegration ? "rounded-r-none" : undefined}
+						render={<Link href={routes.activities.create()} />}
 					>
-						<Link href={routes.activities.create()}>
-							<IconPlus />
-							<span className="hidden lg:inline">Add Activity</span>
-						</Link>
+						<IconPlus />
+						<span className="hidden lg:inline">Add Activity</span>
 					</Button>
 					<SyncMenu />
 				</div>

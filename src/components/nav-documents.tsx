@@ -43,11 +43,9 @@ export function NavDocuments({
 			<SidebarMenu>
 				{items.map((item) => (
 					<SidebarMenuItem key={item.name}>
-						<SidebarMenuButton asChild>
-							<Link href={item.url}>
-								<item.icon />
-								<span>{item.name}</span>
-							</Link>
+						<SidebarMenuButton render={<Link href={item.url} />}>
+							<item.icon />
+							<span>{item.name}</span>
 						</SidebarMenuButton>
 						<DropdownMenu>
 							<DropdownMenuTrigger

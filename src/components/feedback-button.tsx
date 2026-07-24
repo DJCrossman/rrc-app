@@ -12,12 +12,14 @@ export function FeedbackButton() {
 	return (
 		<SidebarMenu>
 			<SidebarMenuItem>
-				<SidebarMenuButton asChild>
-					<a href={GOOGLE_FORM_URL} target="_blank" rel="noopener noreferrer">
-						<IconMessage />
-						<span>Feedback</span>
-					</a>
-				</SidebarMenuButton>
+				<SidebarMenuButton
+					render={
+						<a href={GOOGLE_FORM_URL} target="_blank" rel="noopener noreferrer">
+							<IconMessage />
+							<span>Feedback</span>
+						</a>
+					}
+				/>
 			</SidebarMenuItem>
 		</SidebarMenu>
 	);

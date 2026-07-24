@@ -498,7 +498,6 @@ const sidebarMenuButtonVariants = cva(
 );
 
 function SidebarMenuButton({
-  asChild = false,
   isActive = false,
   variant = 'default',
   size = 'default',
@@ -508,16 +507,10 @@ function SidebarMenuButton({
   render,
   ...props
 }: useRender.ComponentProps<'button'> & {
-  asChild?: boolean;
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof TooltipContent>;
 } & VariantProps<typeof sidebarMenuButtonVariants>) {
   const { isMobile, state } = useSidebar();
-
-  // TODO(base-ui): remove asChild shim after consumer sweep
-  const asChildElement =
-    asChild && React.isValidElement(children) ? children : undefined;
-  const renderTarget = asChildElement ?? render;
 
   const button = useRender({
     defaultTagName: 'button',
@@ -528,11 +521,11 @@ function SidebarMenuButton({
         'data-size': size,
         'data-active': isActive,
         className: cn(sidebarMenuButtonVariants({ variant, size }), className),
-        children: asChildElement ? undefined : children,
+        children,
       } as React.ComponentProps<'button'>,
       props,
     ),
-    render: tooltip ? <TooltipTrigger render={renderTarget} /> : renderTarget,
+    render: tooltip ? <TooltipTrigger render={render} /> : render,
   });
 
   if (!tooltip) {

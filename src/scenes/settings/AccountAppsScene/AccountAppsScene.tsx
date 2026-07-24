@@ -227,8 +227,11 @@ export const AccountAppsScene = ({
 							</CardContent>
 							<CardFooter className="gap-2">
 								{!isConnected && app.authType === "oauth" && (
-									<Button asChild className="w-full">
-										<Link href={app.authUrl}>Connect</Link>
+									<Button
+										className="w-full"
+										render={<Link href={app.authUrl} />}
+									>
+										Connect
 									</Button>
 								)}
 								{isConnected && (

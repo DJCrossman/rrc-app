@@ -125,11 +125,9 @@ export function ErgTable({ initialData }: IErgTableProps) {
 						Total ERGs: {data.totalCount}
 					</Label>
 				</div>
-				<Button size="sm" asChild>
-					<Link href={routes.ergs.create()}>
-						<IconPlus className="h-4 w-4 mr-2" />
-						Add ERG
-					</Link>
+				<Button size="sm" render={<Link href={routes.ergs.create()} />}>
+					<IconPlus className="h-4 w-4 mr-2" />
+					Add ERG
 				</Button>
 			</div>
 			<div className="rounded-md border mx-4 lg:mx-6">
