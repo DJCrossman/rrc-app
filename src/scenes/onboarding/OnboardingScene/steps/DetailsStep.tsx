@@ -159,6 +159,10 @@ export function DetailsStep({
 								<FormLabel>Gender</FormLabel>
 								<FormControl>
 									<Select
+										items={GenderTypes.map((gender) => ({
+											value: gender,
+											label: formatGender({ ...form.getValues(), gender }),
+										}))}
 										onValueChange={field.onChange}
 										defaultValue={field.value}
 									>

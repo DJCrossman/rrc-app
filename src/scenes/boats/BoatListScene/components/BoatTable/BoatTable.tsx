@@ -155,6 +155,11 @@ export function BoatTable({ initialData }: IBoatTableProps) {
 					View
 				</Label>
 				<Select
+					items={boatSizes.map((size) => ({
+						value: size,
+						label:
+							size === "all" ? "All Boats" : formatSeatSetup({ seats: size }),
+					}))}
 					value={seats ?? "all"}
 					onValueChange={(value) => {
 						setSeats(SeatTypes.find((size) => size === value));

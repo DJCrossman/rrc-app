@@ -115,6 +115,13 @@ export function BoatForm({
 								<FormLabel>Seats</FormLabel>
 								<FormControl>
 									<Select
+										items={SeatTypes.map((seat) => ({
+											value: seat,
+											label: formatSeatSetup({
+												seats: seat,
+												rigging: form.watch("rigging"),
+											}),
+										}))}
 										onValueChange={field.onChange}
 										defaultValue={field.value}
 									>
@@ -146,6 +153,10 @@ export function BoatForm({
 								<FormLabel>Rigging</FormLabel>
 								<FormControl>
 									<Select
+										items={RiggingTypes.map((rigging) => ({
+											value: rigging,
+											label: rigging.charAt(0).toUpperCase() + rigging.slice(1),
+										}))}
 										onValueChange={field.onChange}
 										defaultValue={field.value}
 									>
@@ -212,6 +223,10 @@ export function BoatForm({
 							<FormLabel>Weight Unit</FormLabel>
 							<FormControl>
 								<Select
+									items={WeightUnitTypes.map((unit) => ({
+										value: unit,
+										label: unit.charAt(0).toUpperCase() + unit.slice(1),
+									}))}
 									onValueChange={(data) => {
 										if (data === "kilogram") {
 											// convert to kilogram

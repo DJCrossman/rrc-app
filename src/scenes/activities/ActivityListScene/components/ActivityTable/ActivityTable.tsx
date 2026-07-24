@@ -181,6 +181,15 @@ export function ActivityTable({ initialData }: ActivityTableProps) {
 						Activity Type
 					</Label>
 					<Select
+						items={activityTypeOptions.map((option) => ({
+							value: option,
+							label:
+								option === "all"
+									? "All Types"
+									: option === "water"
+										? "Water"
+										: "ERG",
+						}))}
 						value={type ?? "all"}
 						onValueChange={(value) => {
 							setType(ActivityType.find((option) => option === value));
@@ -206,6 +215,13 @@ export function ActivityTable({ initialData }: ActivityTableProps) {
 						Workout Type
 					</Label>
 					<Select
+						items={workoutTypeOptions.map((option) => ({
+							value: option,
+							label:
+								option === "all"
+									? "All Workout Types"
+									: option.charAt(0).toUpperCase() + option.slice(1),
+						}))}
 						value={workoutType ?? "all"}
 						onValueChange={(value) => {
 							setWorkoutType(WorkoutType.find((option) => option === value));

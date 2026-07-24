@@ -46,6 +46,12 @@ const chartConfig: Record<
 	},
 };
 
+const timeRangeItems = {
+	three_months: "Last 3 months",
+	thirty_days: "Last 30 days",
+	seven_days: "Last 7 days",
+};
+
 interface IProps {
 	data: MetersTimeSeries;
 	scopeLabel?: string;
@@ -112,6 +118,7 @@ export function MetersTimeSeriesChart({
 						<ToggleGroupItem value="seven_days">Last 7 days</ToggleGroupItem>
 					</ToggleGroup>
 					<Select
+						items={timeRangeItems}
 						value={timeRange}
 						onValueChange={(value) => {
 							if (value) setTimeRange(value);

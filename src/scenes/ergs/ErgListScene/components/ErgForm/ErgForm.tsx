@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { type CreateErg, createErgSchema } from "@/schemas";
 
+const manufacturerItems = { concept2: "Concept2" };
+
 interface ErgFormProps {
 	onSubmit: SubmitHandler<CreateErg>;
 	onCancel?: (() => void) | string;
@@ -67,7 +69,11 @@ export function ErgForm({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Manufacturer</FormLabel>
-							<Select onValueChange={field.onChange} defaultValue={field.value}>
+							<Select
+								items={manufacturerItems}
+								onValueChange={field.onChange}
+								defaultValue={field.value}
+							>
 								<FormControl>
 									<SelectTrigger>
 										<SelectValue placeholder="Select manufacturer" />

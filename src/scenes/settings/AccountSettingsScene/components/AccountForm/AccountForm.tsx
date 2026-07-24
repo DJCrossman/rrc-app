@@ -122,6 +122,13 @@ export function AccountForm({
 							<FormLabel>Gender</FormLabel>
 							<FormControl>
 								<Select
+									items={GenderTypes.map((gender) => ({
+										value: gender,
+										label: formatGender({
+											dateOfBirth: form.getValues().dateOfBirth ?? "",
+											gender,
+										}),
+									}))}
 									onValueChange={field.onChange}
 									defaultValue={field.value}
 								>

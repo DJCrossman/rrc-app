@@ -279,6 +279,15 @@ export function MemberTable({ initialData }: IMemberTableProps) {
 						Active Membership
 					</Label>
 					<Select
+						items={activeMembershipOptions.map((membership) => ({
+							value: membership,
+							label:
+								membership === "all"
+									? "Active & Inactive"
+									: membership === "true"
+										? "Active"
+										: "Inactive",
+						}))}
 						value={isActive === undefined ? "all" : isActive ? "true" : "false"}
 						onValueChange={(value) => {
 							setIsActive(value === "all" ? undefined : value === "true");
