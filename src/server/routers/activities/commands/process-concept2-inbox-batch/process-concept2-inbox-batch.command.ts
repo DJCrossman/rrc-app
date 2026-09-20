@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import type { Prisma, PrismaClient } from "@/generated/prisma/client";
 import { createLogger } from "@/lib/logger";
 import { type Concept2Activity, concept2ActivitySchema } from "@/schemas";
@@ -141,10 +142,17 @@ async function getExistingActivities({
 function mergeActivity(item: ParsedConcept2Item) {
 	const { activity, conceptTwoId } = item;
 	const type: "water" | "erg" = activity.type === "water" ? "water" : "erg";
+	const timezone = activity.timezone ?? "UTC";
+	// Concept2 dates are SQL-style with no offset, so parse them in an explicit
+	// zone rather than letting the runtime assume its own. `date_utc` is
+	// nullable; `date` is local to the result's timezone.
+	const startDate = activity.date_utc
+		? DateTime.fromSQL(activity.date_utc, { zone: "utc" })
+		: DateTime.fromSQL(activity.date, { zone: timezone });
 	return {
 		name: `${type === "erg" ? "Erg" : "On-water"} row`,
-		startDate: new Date(activity.date_utc),
-		timezone: activity.timezone,
+		startDate: startDate.toJSDate(),
+		timezone,
 		workoutType: mapWorkoutType(activity.workout_type),
 		// Concept2 `time` is in deciseconds (tenths of seconds);
 		// the app expects milliseconds.

@@ -4,8 +4,9 @@ import { createLogger } from "@/lib/logger";
 import {
 	type Concept2WebhookEvent,
 	concept2WebhookEventSchema,
-	processConcept2WebhookEventCommand,
-} from "@/server/routers/activities/commands/process-concept2-webhook-event/process-concept2-webhook-event.command";
+	getConcept2WebhookUserId,
+} from "@/schemas";
+import { processConcept2WebhookEventCommand } from "@/server/routers/activities/commands/process-concept2-webhook-event/process-concept2-webhook-event.command";
 import { createConcept2Service } from "@/server/services/concept2-service";
 import { createRcaService } from "@/server/services/rca-service";
 import { createStravaService } from "@/server/services/strava-service";
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
 	const parsed = concept2WebhookEventSchema.safeParse(parsedJson);
 	if (!parsed.success) {
 		logger.warn("rejecting event — schema mismatch", {
-			issues: parsed.error.issues.slice(0, 5),
+			issues: parsed.error.issues.slice(0, 10),
 		});
 		return NextResponse.json({ error: "bad_event" }, { status: 400 });
 	}
@@ -36,7 +37,7 @@ export async function POST(request: Request) {
 	const event: Concept2WebhookEvent = parsed.data;
 	logger.info("event received", {
 		type: event.type,
-		userId: event.user_id,
+		userId: getConcept2WebhookUserId(event) ?? null,
 		resultId: event.result?.id ?? event.result_id ?? null,
 	});
 
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
 			const message = err instanceof Error ? err.message : String(err);
 			logger.error("event processing failed", {
 				type: event.type,
-				userId: event.user_id,
+				userId: getConcept2WebhookUserId(event) ?? null,
 				resultId: event.result?.id ?? event.result_id ?? null,
 				error: message,
 			});
