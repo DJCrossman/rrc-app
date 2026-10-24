@@ -3,6 +3,7 @@ import { createLogger } from "@/lib/logger";
 import { type Concept2WebhookEvent, getConcept2WebhookUserId } from "@/schemas";
 import type { Context } from "@/server/context";
 import { getConcept2AccessTokenForAthlete } from "../../common/get-concept2-access-token-for-athlete";
+import { removeActivitySource } from "../../common/remove-activity-source";
 import { processConcept2InboxBatchCommand } from "../process-concept2-inbox-batch/process-concept2-inbox-batch.command";
 
 const logger = createLogger("concept2.webhook");
@@ -44,18 +45,17 @@ export async function processConcept2WebhookEventCommand(
 	}
 
 	if (event.type === "result-deleted") {
-		const result = await db.activity.deleteMany({
-			where: {
-				athleteId: athlete.id,
-				conceptTwoId: BigInt(resultId),
-			},
+		const result = await removeActivitySource(db, {
+			athleteId: athlete.id,
+			source: "concept2",
+			externalId: resultId,
 		});
 		logger.info("activity deleted", {
 			athleteId: athlete.id,
 			conceptTwoId: resultId,
-			deleted: result.count,
+			...result,
 		});
-		return { handled: true, kind: "deleted" as const, deleted: result.count };
+		return { handled: true, kind: "deleted" as const, ...result };
 	}
 
 	// result-added | result-updated — the inlined result is trimmed (no stroke,
@@ -93,16 +93,15 @@ export async function processConcept2WebhookEventCommand(
 	if (!activity) {
 		// Fetch returned 404 and the event carried no body — Concept2 considers
 		// the result gone, so mirror by removing our local copy if any.
-		const result = await db.activity.deleteMany({
-			where: {
-				athleteId: athlete.id,
-				conceptTwoId: BigInt(resultId),
-			},
+		const result = await removeActivitySource(db, {
+			athleteId: athlete.id,
+			source: "concept2",
+			externalId: resultId,
 		});
 		logger.info("result unavailable — removed local copy", {
 			athleteId: athlete.id,
 			conceptTwoId: resultId,
-			deleted: result.count,
+			...result,
 		});
 		return { handled: true, kind: "removed_unavailable" as const };
 	}
