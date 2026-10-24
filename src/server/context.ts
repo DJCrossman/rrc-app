@@ -7,4 +7,5 @@ export {
 	type RequestContext as Context,
 	type SessionUser,
 	type UnauthenticatedContext,
+	type ViewerContext,
 } from "./common/context";

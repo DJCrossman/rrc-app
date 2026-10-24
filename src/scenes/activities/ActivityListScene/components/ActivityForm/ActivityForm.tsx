@@ -27,7 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDuration, formatMeters } from "@/lib/formatters";
 import type { Boats, Ergs, Workouts } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
-import { getWorkoutBreakdown } from "@/scenes/workouts/WorkoutListScene/utils/getWorkoutBreakdown";
+import { getWorkoutBreakdown } from "@/lib/workouts/getWorkoutBreakdown";
 import {
 	COURSE_LAP_METERS,
 	type CreateActivity,

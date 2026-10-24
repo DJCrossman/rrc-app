@@ -12,6 +12,11 @@ import { routes } from "@/lib/routes";
 const SETTING_TABS = [
 	{ label: "My Account", value: "account", href: routes.settings.account() },
 	{ label: "My Applications", value: "apps", href: routes.settings.apps() },
+	{
+		label: "Notifications",
+		value: "notifications",
+		href: routes.settings.notifications(),
+	},
 ];
 
 export default function SettingsLayout({ children }: React.PropsWithChildren) {
@@ -40,7 +45,7 @@ export default function SettingsLayout({ children }: React.PropsWithChildren) {
 						</div>
 						<div className="flex flex-col gap-4 md:gap-6">
 							<Tabs value={currentTab.value} className="w-full p-4">
-								<TabsList className="grid w-full max-w-md grid-cols-2">
+								<TabsList className="grid w-full max-w-lg grid-cols-3">
 									{SETTING_TABS.map((tab) => (
 										<TabsTrigger
 											key={tab.value}

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { isDefaultOrgAdmin } from "@/server/clerk/default-organization";
 import type { AthleteRow } from "@/server/routers/athletes/common/map-to-athlete-dto";
 import { createConcept2Service } from "../services/concept2-service";
+import { createPushService } from "../services/push-service";
 import { createRcaService } from "../services/rca-service";
 import { createStravaService } from "../services/strava-service";
 
@@ -12,6 +13,7 @@ type BaseContext = {
 		strava: ReturnType<typeof createStravaService>;
 		concept2: ReturnType<typeof createConcept2Service>;
 		rca: ReturnType<typeof createRcaService>;
+		push: ReturnType<typeof createPushService>;
 	};
 };
 
@@ -40,6 +42,11 @@ export type AdminContext = BaseContext & {
 	athlete: ContextAthlete | null;
 };
 
+export type ViewerContext = BaseContext & {
+	user: SessionUser;
+	athlete: ContextAthlete | null;
+};
+
 export type OnboardingContext = BaseContext & {
 	user: SessionUser;
 	athlete: null;
@@ -53,6 +60,7 @@ export async function createTRPCContext(_opts?: {
 		strava: createStravaService(),
 		concept2: createConcept2Service(),
 		rca: createRcaService(),
+		push: createPushService({ db }),
 	};
 
 	if (!session.userId) {

@@ -38,7 +38,7 @@ export function OnboardingProgress({
 						</div>
 						<span
 							className={cn(
-								"whitespace-nowrap text-xs",
+								"text-xs leading-tight",
 								isCurrent
 									? "font-medium text-foreground"
 									: "text-muted-foreground",

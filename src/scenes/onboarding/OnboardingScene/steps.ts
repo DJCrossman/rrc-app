@@ -4,6 +4,7 @@ export type OnboardingStepId =
 	| "rca"
 	| "concept2"
 	| "strava"
+	| "notifications"
 	| "done";
 
 export interface OnboardingStepDef {
@@ -17,6 +18,7 @@ export const ONBOARDING_STEPS: OnboardingStepDef[] = [
 	{ id: "rca", title: "Rowing Canada" },
 	{ id: "concept2", title: "Concept2" },
 	{ id: "strava", title: "Strava" },
+	{ id: "notifications", title: "Notifications" },
 	{ id: "done", title: "All set" },
 ];
 

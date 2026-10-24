@@ -21,6 +21,9 @@ export const envVars = z
 		NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID: z.string(),
 		DATABASE_URL: zServerOnly(z.string()),
 		INTEGRATION_TOKEN_ENCRYPTION_KEY: zServerOnly(z.string()),
+		NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY: z.string().optional(),
+		WEB_PUSH_PRIVATE_KEY: z.string().optional(),
+		WEB_PUSH_SUBJECT: z.string().default("mailto:reginarowing@crossman.io"),
 	})
 	/**
 	 * You can't destruct `process.env` as a regular object in the Next.js edge runtimes (e.g.
@@ -39,4 +42,8 @@ export const envVars = z
 		DATABASE_URL: process.env.DATABASE_URL,
 		INTEGRATION_TOKEN_ENCRYPTION_KEY:
 			process.env.INTEGRATION_TOKEN_ENCRYPTION_KEY,
+		NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY:
+			process.env.NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY,
+		WEB_PUSH_PRIVATE_KEY: process.env.WEB_PUSH_PRIVATE_KEY,
+		WEB_PUSH_SUBJECT: process.env.WEB_PUSH_SUBJECT,
 	});
