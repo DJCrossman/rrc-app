@@ -2,21 +2,10 @@ import { Prisma, type PrismaClient } from "@/generated/prisma/client";
 import { concept2ActivitySchema, stravaActivitySchema } from "@/schemas";
 import { mapConcept2Activity } from "../commands/process-concept2-inbox-batch/process-concept2-inbox-batch.command";
 import { mapStravaActivity } from "../commands/process-strava-inbox-batch/process-strava-inbox-batch.command";
-import { lockAthleteActivities } from "./cross-source-activity";
-
-function parseStored<T>({
-	schema,
-	raw,
-}: {
-	schema: { safeParse: (raw: unknown) => { success: boolean; data?: T } };
-	raw: Prisma.JsonValue;
-}): T | undefined {
-	if (!raw) return undefined;
-	const normalized = JSON.parse(
-		JSON.stringify(raw, (_key, value) => (value === null ? undefined : value)),
-	);
-	return schema.safeParse(normalized).data;
-}
+import {
+	lockAthleteActivities,
+	parseStoredJson,
+} from "./cross-source-activity";
 
 /**
  * Removes one integration's copy of an activity. A row that only that
@@ -57,7 +46,7 @@ export async function removeActivitySource({
 			// A Strava row can carry a Concept2 id before that result has
 			// arrived; only keep the row when Concept2 data is actually there.
 			if (source === "strava" && row.conceptTwoData !== null) {
-				const remaining = parseStored({
+				const remaining = parseStoredJson({
 					schema: concept2ActivitySchema,
 					raw: row.conceptTwoData,
 				});
@@ -71,7 +60,7 @@ export async function removeActivitySource({
 				});
 				unlinked += 1;
 			} else if (source === "concept2" && row.stravaId !== null) {
-				const remaining = parseStored({
+				const remaining = parseStoredJson({
 					schema: stravaActivitySchema,
 					raw: row.stravaData,
 				});

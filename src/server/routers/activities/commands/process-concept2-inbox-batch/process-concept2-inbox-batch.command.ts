@@ -1,13 +1,20 @@
 import { DateTime } from "luxon";
 import type { Prisma } from "@/generated/prisma/client";
 import { createLogger } from "@/lib/logger";
-import { type Concept2Activity, concept2ActivitySchema } from "@/schemas";
+import {
+	type Concept2Activity,
+	concept2ActivitySchema,
+	stravaActivitySchema,
+} from "@/schemas";
 import type { AuthenticatedContext } from "@/server/context";
 import {
 	type CrossSourceShape,
+	concept2MatchShape,
 	crossSourceWindow,
 	findCrossSourceMatch,
 	lockAthleteActivities,
+	parseStoredJson,
+	stravaMatchShape,
 } from "../../common/cross-source-activity";
 
 const logger = createLogger("inbox.processor.concept2");
@@ -62,7 +69,13 @@ export async function processConcept2InboxBatchCommand(
 				const data = mergeActivity(item);
 				const existing =
 					byConceptTwoId.get(item.conceptTwoId.toString()) ??
-					takeCrossSourceMatch({ data, pool: stravaOnly });
+					takeCrossSourceMatch({
+						shape: concept2MatchShape({
+							startDate: data.startDate,
+							result: item.activity,
+						}),
+						pool: stravaOnly,
+					});
 
 				if (existing) {
 					await tx.activity.update({
@@ -164,13 +177,7 @@ async function getExistingActivities({
 					items.map((i) => mergeActivity(i).startDate),
 				),
 			},
-			select: {
-				id: true,
-				stravaId: true,
-				startDate: true,
-				elapsedTime: true,
-				distance: true,
-			},
+			select: { id: true, stravaId: true, startDate: true, stravaData: true },
 		}),
 	]);
 
@@ -178,17 +185,40 @@ async function getExistingActivities({
 		if (row.conceptTwoId !== null)
 			byConceptTwoId.set(row.conceptTwoId.toString(), row);
 	}
-	return { byConceptTwoId, stravaOnly };
+	return {
+		byConceptTwoId,
+		stravaOnly: stravaOnly.flatMap((row) => {
+			const activity = parseStoredJson({
+				schema: stravaActivitySchema.pick({
+					elapsed_time: true,
+					distance: true,
+					name: true,
+				}),
+				raw: row.stravaData,
+			});
+			if (!activity) return [];
+			return [
+				{
+					id: row.id,
+					stravaId: row.stravaId,
+					...stravaMatchShape({
+						startDate: row.startDate,
+						activity,
+					}),
+				},
+			];
+		}),
+	};
 }
 
 function takeCrossSourceMatch({
-	data,
+	shape,
 	pool,
 }: {
-	data: CrossSourceShape;
+	shape: CrossSourceShape;
 	pool: StravaOnlyActivity[];
 }): ExistingActivity | undefined {
-	const match = findCrossSourceMatch({ target: data, candidates: pool });
+	const match = findCrossSourceMatch({ target: shape, candidates: pool });
 	if (match) pool.splice(pool.indexOf(match), 1);
 	return match;
 }

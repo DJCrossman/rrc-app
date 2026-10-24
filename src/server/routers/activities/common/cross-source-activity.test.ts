@@ -1,99 +1,170 @@
 import { describe, expect, it } from "vitest";
 import {
+	concept2MatchShape,
 	findCrossSourceMatch,
 	getConceptTwoIdFromStrava,
+	stravaMatchShape,
 } from "./cross-source-activity";
 
-const minutes = (n: number) => n * 60 * 1000;
-const at = (iso: string) => new Date(iso);
+// Real Concept2 ↔ Strava pairs from production. Concept2 stamps the finish
+// time; Strava the start.
+const pairs = [
+	{
+		title: "v15:00/3:01r...4 row",
+		concept2: {
+			date: "2026-10-24T14:17:00Z",
+			time: 19500,
+			rest_time: 7220,
+			distance: 7497,
+		},
+		strava: {
+			start: "2026-10-24T13:32:29Z",
+			elapsed_time: 2669,
+			distance: 7645,
+		},
+	},
+	{
+		title: "Warm up",
+		concept2: { date: "2026-10-24T13:28:00Z", time: 4547, distance: 1505 },
+		strava: {
+			start: "2026-10-24T13:20:25Z",
+			elapsed_time: 455,
+			distance: 1505,
+		},
+	},
+	{
+		title: "3x20:00/2:00r row",
+		concept2: {
+			date: "2026-10-23T13:16:00Z",
+			time: 36000,
+			rest_time: 3600,
+			distance: 13436,
+		},
+		strava: {
+			start: "2026-10-23T12:10:00Z",
+			elapsed_time: 3841,
+			distance: 13553,
+		},
+	},
+	{
+		title: "2x21:00/2:00r row",
+		concept2: { date: "2026-10-14T13:08:00Z", time: 27600, distance: 9648 },
+		strava: {
+			start: "2026-10-14T12:22:01Z",
+			elapsed_time: 2641,
+			distance: 9626,
+		},
+	},
+	{
+		title: "Warm up",
+		concept2: { date: "2026-10-14T12:22:00Z", time: 9000, distance: 3322 },
+		strava: {
+			start: "2026-10-14T12:07:00Z",
+			elapsed_time: 900,
+			distance: 3322,
+		},
+	},
+	{
+		title: "30:00 row",
+		concept2: { date: "2026-10-11T22:09:00Z", time: 18000, distance: 6801 },
+		strava: {
+			start: "2026-10-11T21:39:00Z",
+			elapsed_time: 1800,
+			distance: 6801,
+		},
+	},
+	{
+		title: "v3:00/2:00r...6 row",
+		concept2: { date: "2026-09-30T12:45:00Z", time: 18000, distance: 6107 },
+		strava: {
+			start: "2026-09-30T12:15:02Z",
+			elapsed_time: 1798,
+			distance: 6091,
+		},
+	},
+];
+
+const concept2Shapes = pairs.map(({ concept2 }) => ({
+	id: concept2.date,
+	...concept2MatchShape({
+		startDate: new Date(concept2.date),
+		result: concept2,
+	}),
+}));
+const stravaShape = ({ title, strava }: (typeof pairs)[number]) =>
+	stravaMatchShape({
+		startDate: new Date(strava.start),
+		activity: { ...strava, name: title },
+	});
 
 describe("findCrossSourceMatch", () => {
-	// Strava's copy of a Concept2 interval piece: includes rest time/distance.
-	const strava = {
-		startDate: at("2026-10-23T14:00:00Z"),
-		elapsedTime: minutes(64),
-		distance: 13_553,
-	};
-
-	it("pairs a Concept2 result that starts with the Strava activity", () => {
-		const concept2 = {
-			id: "c2",
-			startDate: at("2026-10-23T14:00:00Z"),
-			elapsedTime: minutes(60),
-			distance: 13_436,
-		};
-		expect(
-			findCrossSourceMatch({ target: strava, candidates: [concept2] }),
-		).toBe(concept2);
-	});
-
-	it("pairs a Concept2 result stamped at the end of the piece", () => {
-		const concept2 = {
-			id: "c2",
-			startDate: at("2026-10-23T15:04:00Z"),
-			elapsedTime: minutes(60),
-			distance: 13_436,
-		};
-		expect(
-			findCrossSourceMatch({ target: strava, candidates: [concept2] }),
-		).toBe(concept2);
-	});
-
-	it("tells a warm-up apart from the main piece rowed right after it", () => {
-		const warmup = {
-			id: "warmup",
-			startDate: at("2026-10-14T13:45:00Z"),
-			elapsedTime: minutes(15),
-			distance: 3_322,
-		};
-		const main = {
-			id: "main",
-			startDate: at("2026-10-14T14:00:00Z"),
-			elapsedTime: minutes(44),
-			distance: 9_648,
-		};
-		const stravaMain = {
-			startDate: at("2026-10-14T14:00:30Z"),
-			elapsedTime: minutes(44),
-			distance: 9_626,
-		};
-		const stravaWarmup = {
-			startDate: at("2026-10-14T13:45:00Z"),
-			elapsedTime: minutes(15),
-			distance: 3_322,
-		};
-		expect(
-			findCrossSourceMatch({ target: stravaMain, candidates: [warmup, main] }),
-		).toBe(main);
+	it.each(pairs)("pairs $title with its Concept2 result", (pair) => {
 		expect(
 			findCrossSourceMatch({
-				target: stravaWarmup,
-				candidates: [warmup, main],
-			}),
-		).toBe(warmup);
+				target: stravaShape(pair),
+				candidates: concept2Shapes,
+			})?.id,
+		).toBe(pair.concept2.date);
 	});
 
-	it("rejects candidates too far apart in time", () => {
-		const concept2 = {
-			id: "c2",
-			startDate: at("2026-10-23T18:00:00Z"),
-			elapsedTime: minutes(60),
-			distance: 13_436,
-		};
+	it("uses the title's rest to bridge the final rest Strava drops", () => {
+		const pair = pairs[2];
 		expect(
-			findCrossSourceMatch({ target: strava, candidates: [concept2] }),
+			findCrossSourceMatch({
+				target: stravaShape({ ...pair, title: "Morning Row" }),
+				candidates: concept2Shapes,
+			}),
 		).toBeUndefined();
 	});
 
-	it("rejects candidates with a different distance", () => {
-		const concept2 = {
-			id: "c2",
-			startDate: at("2026-10-23T14:00:00Z"),
-			elapsedTime: minutes(60),
-			distance: 6_000,
+	it("never pairs the same workout rowed on another day", () => {
+		const pair = pairs[5];
+		const nextDay = {
+			...pair,
+			strava: { ...pair.strava, start: "2026-10-12T21:39:00Z" },
 		};
 		expect(
-			findCrossSourceMatch({ target: strava, candidates: [concept2] }),
+			findCrossSourceMatch({
+				target: stravaShape(nextDay),
+				candidates: concept2Shapes,
+			}),
+		).toBeUndefined();
+	});
+
+	it("tells two equal-distance pieces in one session apart by length", () => {
+		const first = {
+			id: "first",
+			...concept2MatchShape({
+				startDate: new Date("2026-11-01T12:07:00Z"),
+				result: { time: 4200, distance: 2000 },
+			}),
+		};
+		const second = {
+			id: "second",
+			...concept2MatchShape({
+				startDate: new Date("2026-11-01T12:20:00Z"),
+				result: { time: 4290, distance: 2000 },
+			}),
+		};
+		const target = stravaMatchShape({
+			startDate: new Date("2026-11-01T12:12:00Z"),
+			activity: { name: "2000m row", elapsed_time: 429, distance: 2000 },
+		});
+		expect(
+			findCrossSourceMatch({ target, candidates: [first, second] })?.id,
+		).toBe("second");
+	});
+
+	it("rejects candidates with a different distance", () => {
+		const pair = pairs[5];
+		expect(
+			findCrossSourceMatch({
+				target: stravaShape({
+					...pair,
+					strava: { ...pair.strava, distance: 5000 },
+				}),
+				candidates: concept2Shapes,
+			}),
 		).toBeUndefined();
 	});
 });

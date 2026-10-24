@@ -1,13 +1,20 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { createLogger } from "@/lib/logger";
-import { type StravaActivity, stravaActivitySchema } from "@/schemas";
+import {
+	concept2ActivitySchema,
+	type StravaActivity,
+	stravaActivitySchema,
+} from "@/schemas";
 import type { AuthenticatedContext } from "@/server/context";
 import {
 	type CrossSourceShape,
+	concept2MatchShape,
 	crossSourceWindow,
 	findCrossSourceMatch,
 	getConceptTwoIdFromStrava,
 	lockAthleteActivities,
+	parseStoredJson,
+	stravaMatchShape,
 } from "../../common/cross-source-activity";
 
 const logger = createLogger("inbox.processor.strava");
@@ -62,7 +69,13 @@ export async function processStravaInboxBatchCommand(
 				const existing =
 					resolveExistingId({ item, byStravaId, byConceptTwoId }) ??
 					(item.conceptTwoId === null
-						? takeCrossSourceMatch({ data, pool: concept2Only })
+						? takeCrossSourceMatch({
+								shape: stravaMatchShape({
+									startDate: data.startDate,
+									activity: item.activity,
+								}),
+								pool: concept2Only,
+							})
 						: undefined);
 
 				if (existing) {
@@ -189,12 +202,7 @@ async function getExistingActivities({
 					items.map((i) => new Date(i.activity.start_date)),
 				),
 			},
-			select: {
-				id: true,
-				startDate: true,
-				elapsedTime: true,
-				distance: true,
-			},
+			select: { id: true, startDate: true, conceptTwoData: true },
 		}),
 	]);
 
@@ -207,21 +215,38 @@ async function getExistingActivities({
 	return {
 		byStravaId,
 		byConceptTwoId,
-		concept2Only: concept2Only.map((row) => ({
-			...row,
-			hasConcept2Data: true,
-		})),
+		concept2Only: concept2Only.flatMap((row) => {
+			const result = parseStoredJson({
+				schema: concept2ActivitySchema.pick({
+					time: true,
+					rest_time: true,
+					distance: true,
+				}),
+				raw: row.conceptTwoData,
+			});
+			if (!result) return [];
+			return [
+				{
+					id: row.id,
+					hasConcept2Data: true,
+					...concept2MatchShape({
+						startDate: row.startDate,
+						result,
+					}),
+				},
+			];
+		}),
 	};
 }
 
 function takeCrossSourceMatch({
-	data,
+	shape,
 	pool,
 }: {
-	data: CrossSourceShape;
+	shape: CrossSourceShape;
 	pool: Concept2OnlyActivity[];
 }): ExistingActivity | undefined {
-	const match = findCrossSourceMatch({ target: data, candidates: pool });
+	const match = findCrossSourceMatch({ target: shape, candidates: pool });
 	if (match) pool.splice(pool.indexOf(match), 1);
 	return match;
 }
