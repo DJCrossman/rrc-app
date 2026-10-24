@@ -17,8 +17,8 @@
  * together. `down` is a pause that keeps the branch.
  */
 
-import { basename, isAbsolute, join, resolve } from "node:path";
 import { spawn } from "bun";
+import { basename, isAbsolute, join, resolve } from "node:path";
 import {
 	branchExists,
 	connectionStrings,
@@ -154,9 +154,7 @@ function nextFreePort(reg: Registry, requested?: number): number {
 	const used = new Set(Object.values(reg).map((r) => r.port));
 	if (requested !== undefined) {
 		if (used.has(requested)) {
-			console.error(
-				`❌ Port ${requested} is already used by another instance.`,
-			);
+			console.error(`❌ Port ${requested} is already used by another instance.`);
 			process.exit(1);
 		}
 		return requested;
@@ -283,7 +281,10 @@ function composeEnv(rec: InstanceRecord): Record<string, string> {
 	return { INSTANCE: rec.name, APP_PORT: String(rec.port) };
 }
 
-async function compose(rec: InstanceRecord, args: string[]): Promise<number> {
+async function compose(
+	rec: InstanceRecord,
+	args: string[],
+): Promise<number> {
 	return inherit(["docker", "compose", "-p", project(rec.name), ...args], {
 		cwd: rec.projectDir,
 		env: composeEnv(rec),
