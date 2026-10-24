@@ -1,8 +1,22 @@
 import type { DateTime } from "luxon";
+import type { ScheduleTypeFilter } from "@/schemas";
+
+type ScheduleRouteParams = {
+	week?: DateTime<true>;
+	type?: ScheduleTypeFilter;
+	group?: string;
+};
 
 export const routes = {
 	dashboard: {
 		home: () => "/",
+	},
+	schedule: {
+		list: (params: ScheduleRouteParams = {}) => toScheduleUrl(params),
+		create: (params: ScheduleRouteParams = {}) =>
+			toScheduleUrl({ ...params, action: "create" }),
+		view: ({ id, ...params }: ScheduleRouteParams & { id: string }) =>
+			toScheduleUrl({ ...params, eventId: id }),
 	},
 	boats: {
 		list: () => "/boats",
@@ -26,37 +40,29 @@ export const routes = {
 		create: () => "/activities?action=create",
 		view: (id: string) => `/activities?activityId=${id}`,
 	},
-	workouts: {
-		list: ({ week }: { week?: DateTime<true> } = {}) => {
-			const params = new URLSearchParams();
-			if (week) {
-				params.append("week", week.toISODate());
-			}
-			const queryString = params.toString();
-			if (queryString) {
-				return `/workouts?${queryString}`;
-			}
-			return "/workouts";
-		},
-		create: ({ week }: { week?: DateTime<true> } = {}) => {
-			const params = new URLSearchParams({ action: "create" });
-			if (week) {
-				params.append("week", week.toISODate());
-			}
-			return `/workouts?${params.toString()}`;
-		},
-		view: ({ id, week }: { id: string; week?: DateTime<true> }) => {
-			const params = new URLSearchParams({ workoutId: id });
-			if (week) {
-				params.append("week", week.toISODate());
-			}
-			const queryString = params.toString();
-			return `/workouts?${queryString}`;
-		},
-	},
 	settings: {
 		account: () => "/settings/account",
 		apps: () => "/settings/apps",
 		notifications: () => "/settings/notifications",
 	},
 };
+
+function toScheduleUrl({
+	week,
+	type,
+	group,
+	eventId,
+	action,
+}: ScheduleRouteParams & {
+	eventId?: string;
+	action?: "create";
+}) {
+	const params = new URLSearchParams();
+	if (week) params.set("week", week.toISODate());
+	if (type && type !== "all") params.set("type", type);
+	if (group) params.set("group", group);
+	if (eventId) params.set("eventId", eventId);
+	if (action) params.set("action", action);
+	const queryString = params.toString();
+	return queryString ? `/schedule?${queryString}` : "/schedule";
+}

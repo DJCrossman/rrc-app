@@ -32,3 +32,10 @@ export type Analytics = RouterOutputs["analytics"]["getAnalytics"];
 export type AnalyticMetrics = Analytics["analyticMetrics"];
 export type MetersTimeSeries = Analytics["metersTimeSeries"];
 export type Leaderboard = RouterOutputs["analytics"]["getLeaderboard"]["data"];
+
+export type ScheduleWeek = RouterOutputs["schedule"]["getWeek"];
+export type ScheduleDay = ScheduleWeek["days"][number];
+export type ScheduleEvent = ScheduleDay["events"][number];
+export type EventResponses = RouterOutputs["schedule"]["getResponses"];
+export type EventResponsePerson = EventResponses["going"][number];
+export type UpcomingSchedule = RouterOutputs["schedule"]["getUpcoming"];

@@ -42,6 +42,11 @@ export type AdminContext = BaseContext & {
 	athlete: ContextAthlete | null;
 };
 
+export type ViewerContext = BaseContext & {
+	user: SessionUser;
+	athlete: ContextAthlete | null;
+};
+
 export type OnboardingContext = BaseContext & {
 	user: SessionUser;
 	athlete: null;

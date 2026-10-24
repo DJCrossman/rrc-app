@@ -2,8 +2,8 @@
 
 import {
 	IconActivity,
+	IconCalendarEvent,
 	IconDashboard,
-	IconFolder,
 	IconSailboat2,
 	// TODO: Re-enable ERGs navigation
 	// IconTreadmill,
@@ -66,6 +66,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							icon: IconDashboard,
 						},
 						{
+							title: "Schedule",
+							url: routes.schedule.list(),
+							icon: IconCalendarEvent,
+						},
+						{
 							title: "Boats",
 							url: routes.boats.list(),
 							icon: IconSailboat2,
@@ -85,11 +90,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							title: "Activities",
 							url: routes.activities.list(),
 							icon: IconActivity,
-						},
-						{
-							title: "Training Plan",
-							url: routes.workouts.list(),
-							icon: IconFolder,
 						},
 					]}
 				/>
