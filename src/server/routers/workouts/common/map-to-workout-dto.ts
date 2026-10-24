@@ -1,6 +1,9 @@
 import type { Prisma } from "@/generated/prisma/client";
 
-export const workoutInclude = { fragments: true } as const;
+export const workoutInclude = {
+	fragments: true,
+	event: { select: { id: true } },
+} as const;
 
 export type WorkoutRow = Prisma.workoutGetPayload<{
 	include: typeof workoutInclude;
@@ -16,6 +19,7 @@ export const mapToWorkoutDto = (workout: WorkoutRow) => ({
 	distance: workout.distance,
 	intervalCount: workout.intervalCount,
 	intensityCategory: workout.intensityCategory,
+	eventId: workout.event?.id ?? null,
 	fragments: workout.fragments.map((f) => ({
 		id: f.id,
 		workoutId: f.workoutId,

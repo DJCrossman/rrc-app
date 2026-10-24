@@ -47,10 +47,12 @@ const columns: ColumnDef<Activity>[] = [
 		accessorKey: "name",
 		header: "Workout",
 		cell: ({ row }) => {
-			if (row.original.workout) {
+			if (row.original.workout?.eventId) {
 				return (
 					<Link
-						href={routes.workouts.view({ id: row.original.workout.id })}
+						href={routes.schedule.view({
+							id: row.original.workout.eventId,
+						})}
 						className="hover:underline"
 					>
 						{row.original.name}

@@ -49,6 +49,8 @@ model athlete {
   stravaAthleteJson      Json?
   stravaConnectedAt      DateTime?
   memberships     membership[]
+  createdEvents   event[]          @relation("eventCreatedBy")
+  eventRsvps      event_rsvp[]
   activities      activity[]
   inboxBatches    activity_inbox[]
   createdAt       DateTime         @default(now())
@@ -141,6 +143,7 @@ model workout {
   intensityCategory IntensityCategory
   fragments         workout_fragment[]
   activities        activity[]
+  event             event?
 }
 
 model workout_fragment {
@@ -224,4 +227,75 @@ model activity_inbox {
 
   @@index([athleteId, status])
   @@index([status, receivedAt])
+}
+
+// ── Event ─────────────────────────────────────────────────────────────────────
+
+enum EventType {
+  training
+  regatta
+  volunteer
+}
+
+enum EventAudience {
+  club
+  groups
+}
+
+enum RsvpStatus {
+  yes
+  maybe
+  no
+}
+
+model event {
+  id             String        @id @default(dbgenerated("generate_id('evt_'::text)"))
+  type           EventType
+  title          String
+  description    String?
+  startAt        DateTime
+  endAt          DateTime?
+  allDay         Boolean       @default(false)
+  timezone       String        @default("America/Regina")
+  location       String?
+  workoutId      String?       @unique
+  audience       EventAudience @default(club)
+  volunteerSpots Int?
+  createdById    String?
+  workout        workout?      @relation(fields: [workoutId], references: [id], onDelete: SetNull)
+  createdBy      athlete?      @relation("eventCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  groups         event_group[]
+  rsvps          event_rsvp[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@index([startAt])
+}
+
+model event_group {
+  id      String @id @default(dbgenerated("generate_id('evtgrp_'::text)"))
+  eventId String
+  groupId String
+  event   event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, groupId])
+}
+
+model event_rsvp {
+  id        String     @id @default(dbgenerated("generate_id('rsvp_'::text)"))
+  eventId   String
+  athleteId String
+  status    RsvpStatus
+  event     event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  athlete   athlete    @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  updatedAt DateTime   @updatedAt
+
+  @@unique([eventId, athleteId])
+}
+
+model calendar_token {
+  id        String   @id @default(dbgenerated("generate_id('caltok_'::text)"))
+  userId    String   @unique
+  token     String   @unique
+  createdAt DateTime @default(now())
 }

@@ -9,6 +9,7 @@ export * from "./pagination.schema";
 export * from "./phoneNumber.schema";
 export * from "./rcaMembership.schema";
 export * from "./rcaUser.schema";
+export * from "./schedule.schema";
 export * from "./stravaActivity.schema";
 export * from "./stravaUser.schema";
 export * from "./workouts.schema";
