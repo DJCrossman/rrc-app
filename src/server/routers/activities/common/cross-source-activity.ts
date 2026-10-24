@@ -1,8 +1,21 @@
 import type { Prisma } from "@/generated/prisma/client";
 
 // A Concept2 result that the Logbook also pushes to Strava arrives twice — once
-// per webhook — and Strava's copy carries no reliable pointer back to the
-// Concept2 result id. Pair them on time and distance instead.
+// per webhook. Strava's copy normally names the result in its upload file; when
+// it doesn't (manual uploads, other apps), pair them on time and distance.
+
+/**
+ * The Concept2 result id behind a Strava activity uploaded by the Logbook,
+ * which arrives as `device_name: "Concept2"`, `external_id: "122038081.fit"`.
+ */
+export function getConceptTwoIdFromStrava(activity: {
+	device_name?: string | null;
+	external_id?: string | null;
+}): bigint | null {
+	if (!activity.device_name?.toLowerCase().startsWith("concept2")) return null;
+	const match = activity.external_id?.match(/^(\d+)(?:\.fit)?$/i);
+	return match ? BigInt(match[1]) : null;
+}
 
 // Concept2 dates are minute-precision and may mark either the start or the end
 // of the piece, so allow a few minutes of slack against either boundary.

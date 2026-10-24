@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { findCrossSourceMatch } from "./cross-source-activity";
+import {
+	findCrossSourceMatch,
+	getConceptTwoIdFromStrava,
+} from "./cross-source-activity";
 
 const minutes = (n: number) => n * 60 * 1000;
 const at = (iso: string) => new Date(iso);
@@ -77,5 +80,35 @@ describe("findCrossSourceMatch", () => {
 			distance: 6_000,
 		};
 		expect(findCrossSourceMatch(strava, [concept2])).toBeUndefined();
+	});
+});
+
+describe("getConceptTwoIdFromStrava", () => {
+	it("reads the result id from a Logbook upload", () => {
+		expect(
+			getConceptTwoIdFromStrava({
+				device_name: "Concept2",
+				external_id: "122038081.fit",
+			}),
+		).toBe(BigInt(122038081));
+	});
+
+	it("ignores uploads from other devices", () => {
+		expect(
+			getConceptTwoIdFromStrava({
+				device_name: "Garmin Forerunner",
+				external_id: "122038081.fit",
+			}),
+		).toBeNull();
+	});
+
+	it("ignores external ids that aren't a result id", () => {
+		expect(
+			getConceptTwoIdFromStrava({
+				device_name: "Concept2",
+				external_id: "garmin_push_12345",
+			}),
+		).toBeNull();
+		expect(getConceptTwoIdFromStrava({ device_name: "Concept2" })).toBeNull();
 	});
 });

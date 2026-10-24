@@ -108,10 +108,7 @@ export async function connectionStrings(
 	name: string,
 	env: NeonEnv,
 ): Promise<ConnectionStrings> {
-	const pooled = await runNeon(
-		["connection-string", name, "--pooled"],
-		env,
-	);
+	const pooled = await runNeon(["connection-string", name, "--pooled"], env);
 	if (pooled.exitCode !== 0) process.exit(pooled.exitCode);
 
 	const unpooled = await runNeon(["connection-string", name], env);
@@ -130,7 +127,10 @@ export async function resetBranch(name: string, env: NeonEnv): Promise<number> {
 }
 
 /** Delete a branch entirely. */
-export async function deleteBranch(name: string, env: NeonEnv): Promise<number> {
+export async function deleteBranch(
+	name: string,
+	env: NeonEnv,
+): Promise<number> {
 	const { exitCode } = await runNeon(["branches", "delete", name], env);
 	return exitCode;
 }

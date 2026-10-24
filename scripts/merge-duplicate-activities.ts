@@ -6,9 +6,9 @@
  *
  * Before cross-source matching existed, a Concept2 result that the Logbook also
  * pushed to Strava was stored twice — once per webhook. This pairs each
- * Strava-only row with the Concept2-only row it duplicates (same matcher the
- * inbox processors now use), moves the Strava id/data/title onto the Concept2
- * row, and deletes the Strava row.
+ * Strava-only row with the Concept2-only row it duplicates (by the result id in
+ * Strava's external_id, else the time/distance matcher), moves the Strava
+ * id/data/title onto the Concept2 row, and deletes the Strava row.
  *
  * Dry run by default; pass --apply to write. Uses DATABASE_URL.
  *
@@ -20,6 +20,7 @@ import { PrismaNeon } from "@prisma/adapter-neon";
 import { type Prisma, PrismaClient } from "@/generated/prisma/client";
 import {
 	findCrossSourceMatch,
+	getConceptTwoIdFromStrava,
 	lockAthleteActivities,
 } from "@/server/routers/activities/common/cross-source-activity";
 
@@ -69,7 +70,18 @@ async function mergeAthlete(athleteId: string, label: string) {
 
 			let merged = 0;
 			for (const strava of stravaOnly) {
-				const concept2 = findCrossSourceMatch(strava, concept2Only);
+				// Prefer the Concept2 id the Logbook embeds in the upload; fall
+				// back to time/distance only when Strava doesn't name one.
+				const linkedId = getConceptTwoIdFromStrava(
+					(strava.stravaData ?? {}) as {
+						device_name?: string;
+						external_id?: string;
+					},
+				);
+				const concept2 =
+					linkedId !== null
+						? concept2Only.find((row) => row.conceptTwoId === linkedId)
+						: findCrossSourceMatch(strava, concept2Only);
 				if (!concept2) continue;
 				concept2Only.splice(concept2Only.indexOf(concept2), 1);
 				merged += 1;
@@ -77,7 +89,8 @@ async function mergeAthlete(athleteId: string, label: string) {
 				console.log(
 					`  ${label}: ${strava.startDate.toISOString()}  ` +
 						`"${strava.name}" ${strava.distance}m (strava ${strava.stravaId})  ⇐  ` +
-						`"${concept2.name}" ${concept2.distance}m (concept2 ${concept2.conceptTwoId})`,
+						`"${concept2.name}" ${concept2.distance}m (concept2 ${concept2.conceptTwoId})` +
+						`  [${linkedId !== null ? "external_id" : "time/distance"}]`,
 				);
 				if (!apply) continue;
 

@@ -52,7 +52,9 @@ export async function removeActivitySource(
 		let deleted = 0;
 		let unlinked = 0;
 		for (const row of rows) {
-			if (source === "strava" && row.conceptTwoId !== null) {
+			// A Strava row can carry a Concept2 id before that result has
+			// arrived; only keep the row when Concept2 data is actually there.
+			if (source === "strava" && row.conceptTwoData !== null) {
 				const remaining = parseStored(
 					concept2ActivitySchema,
 					row.conceptTwoData,

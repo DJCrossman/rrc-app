@@ -6,6 +6,7 @@ import {
 	type CrossSourceShape,
 	crossSourceWindow,
 	findCrossSourceMatch,
+	getConceptTwoIdFromStrava,
 	lockAthleteActivities,
 } from "../../common/cross-source-activity";
 
@@ -56,23 +57,26 @@ export async function processStravaInboxBatchCommand(
 
 			for (const item of items) {
 				const data = mergeActivity(item);
+				// An explicit Concept2 id is authoritative — if that result
+				// hasn't arrived yet, it will find this row by id when it does.
 				const existing =
 					resolveExistingId(item, byStravaId, byConceptTwoId) ??
-					takeCrossSourceMatch(data, concept2Only);
+					(item.conceptTwoId === null
+						? takeCrossSourceMatch(data, concept2Only)
+						: undefined);
 
 				if (existing) {
 					await tx.activity.update({
 						where: { id: existing.id },
 						// Concept2 is the source of truth for the piece's metrics;
 						// Strava contributes the athlete-authored title.
-						data:
-							existing.conceptTwoId !== null
-								? {
-										name: data.name,
-										stravaId: data.stravaId,
-										stravaData: data.stravaData,
-									}
-								: data,
+						data: existing.hasConcept2Data
+							? {
+									name: data.name,
+									stravaId: data.stravaId,
+									stravaData: data.stravaData,
+								}
+							: data,
 					});
 					continue;
 				}
@@ -123,27 +127,16 @@ function parseBatchActivities(rawItems: unknown[]): {
 			invalidItems += 1;
 			continue;
 		}
-		// When a Strava activity was uploaded from a Concept2 erg, the
-		// external_id mirrors the Concept2 activity id. Capture it so we can
-		// merge with a pre-existing Concept2 row instead of creating a duplicate.
-		let conceptTwoId: bigint | null = null;
-		if (parsed.data.device_name === "concept2" && parsed.data.external_id) {
-			try {
-				conceptTwoId = BigInt(parsed.data.external_id);
-			} catch {
-				conceptTwoId = null;
-			}
-		}
 		items.push({
 			activity: parsed.data,
 			stravaId: BigInt(parsed.data.id),
-			conceptTwoId,
+			conceptTwoId: getConceptTwoIdFromStrava(parsed.data),
 		});
 	}
 	return { items, invalidItems };
 }
 
-type ExistingActivity = { id: string; conceptTwoId: bigint | null };
+type ExistingActivity = { id: string; hasConcept2Data: boolean };
 type Concept2OnlyActivity = ExistingActivity & CrossSourceShape;
 
 async function getExistingActivities({
@@ -180,7 +173,12 @@ async function getExistingActivities({
 						: []),
 				],
 			},
-			select: { id: true, stravaId: true, conceptTwoId: true },
+			select: {
+				id: true,
+				stravaId: true,
+				conceptTwoId: true,
+				conceptTwoData: true,
+			},
 		}),
 		db.activity.findMany({
 			where: {
@@ -193,7 +191,6 @@ async function getExistingActivities({
 			},
 			select: {
 				id: true,
-				conceptTwoId: true,
 				startDate: true,
 				elapsedTime: true,
 				distance: true,
@@ -202,11 +199,19 @@ async function getExistingActivities({
 	]);
 
 	for (const row of existing) {
-		if (row.stravaId !== null) byStravaId.set(row.stravaId.toString(), row);
+		const entry = { id: row.id, hasConcept2Data: row.conceptTwoData !== null };
+		if (row.stravaId !== null) byStravaId.set(row.stravaId.toString(), entry);
 		if (row.conceptTwoId !== null)
-			byConceptTwoId.set(row.conceptTwoId.toString(), row);
+			byConceptTwoId.set(row.conceptTwoId.toString(), entry);
 	}
-	return { byStravaId, byConceptTwoId, concept2Only };
+	return {
+		byStravaId,
+		byConceptTwoId,
+		concept2Only: concept2Only.map((row) => ({
+			...row,
+			hasConcept2Data: true,
+		})),
+	};
 }
 
 function takeCrossSourceMatch(
