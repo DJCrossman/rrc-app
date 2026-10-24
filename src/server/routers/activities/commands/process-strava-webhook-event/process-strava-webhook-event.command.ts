@@ -73,7 +73,8 @@ export async function processStravaWebhookEventCommand(
 
 	// object_type === "activity"
 	if (event.aspect_type === "delete") {
-		const result = await removeActivitySource(db, {
+		const result = await removeActivitySource({
+			db,
 			athleteId: athlete.id,
 			source: "strava",
 			externalId: event.object_id,
@@ -111,7 +112,8 @@ export async function processStravaWebhookEventCommand(
 		// app without activity:read_all (treated as a delete by Strava) or was
 		// deleted between the event firing and our fetch. Mirror Strava's
 		// semantics and remove our local copy.
-		const result = await removeActivitySource(db, {
+		const result = await removeActivitySource({
+			db,
 			athleteId: athlete.id,
 			source: "strava",
 			externalId: event.object_id,
@@ -127,7 +129,8 @@ export async function processStravaWebhookEventCommand(
 	if (!ROWING_SPORT_TYPES.has(activity.sport_type)) {
 		// If the athlete reclassified an existing rowing activity, drop our
 		// stale local copy so the DB stays consistent with Strava.
-		const result = await removeActivitySource(db, {
+		const result = await removeActivitySource({
+			db,
 			athleteId: athlete.id,
 			source: "strava",
 			externalId: event.object_id,

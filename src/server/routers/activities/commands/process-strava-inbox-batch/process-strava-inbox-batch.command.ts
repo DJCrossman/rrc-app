@@ -51,7 +51,7 @@ export async function processStravaInboxBatchCommand(
 	let activitiesCreated = 0;
 	await db.$transaction(
 		async (tx) => {
-			await lockAthleteActivities(tx, athleteId);
+			await lockAthleteActivities({ tx, athleteId });
 			const { byStravaId, byConceptTwoId, concept2Only } =
 				await getExistingActivities({ db: tx, athleteId, items });
 
@@ -60,9 +60,9 @@ export async function processStravaInboxBatchCommand(
 				// An explicit Concept2 id is authoritative — if that result
 				// hasn't arrived yet, it will find this row by id when it does.
 				const existing =
-					resolveExistingId(item, byStravaId, byConceptTwoId) ??
+					resolveExistingId({ item, byStravaId, byConceptTwoId }) ??
 					(item.conceptTwoId === null
-						? takeCrossSourceMatch(data, concept2Only)
+						? takeCrossSourceMatch({ data, pool: concept2Only })
 						: undefined);
 
 				if (existing) {
@@ -214,11 +214,14 @@ async function getExistingActivities({
 	};
 }
 
-function takeCrossSourceMatch(
-	data: CrossSourceShape,
-	pool: Concept2OnlyActivity[],
-): ExistingActivity | undefined {
-	const match = findCrossSourceMatch(data, pool);
+function takeCrossSourceMatch({
+	data,
+	pool,
+}: {
+	data: CrossSourceShape;
+	pool: Concept2OnlyActivity[];
+}): ExistingActivity | undefined {
+	const match = findCrossSourceMatch({ target: data, candidates: pool });
 	if (match) pool.splice(pool.indexOf(match), 1);
 	return match;
 }
@@ -249,11 +252,15 @@ function mergeActivity(item: ParsedStravaItem) {
 	};
 }
 
-function resolveExistingId(
-	item: ParsedStravaItem,
-	byStravaId: Map<string, ExistingActivity>,
-	byConceptTwoId: Map<string, ExistingActivity>,
-): ExistingActivity | undefined {
+function resolveExistingId({
+	item,
+	byStravaId,
+	byConceptTwoId,
+}: {
+	item: ParsedStravaItem;
+	byStravaId: Map<string, ExistingActivity>;
+	byConceptTwoId: Map<string, ExistingActivity>;
+}): ExistingActivity | undefined {
 	const stravaMatch = byStravaId.get(item.stravaId.toString());
 	if (stravaMatch) return stravaMatch;
 	if (item.conceptTwoId === null) return undefined;

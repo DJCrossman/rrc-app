@@ -51,7 +51,7 @@ export async function processConcept2InboxBatchCommand(
 	let activitiesCreated = 0;
 	await db.$transaction(
 		async (tx) => {
-			await lockAthleteActivities(tx, athleteId);
+			await lockAthleteActivities({ tx, athleteId });
 			const { byConceptTwoId, stravaOnly } = await getExistingActivities({
 				db: tx,
 				athleteId,
@@ -62,7 +62,7 @@ export async function processConcept2InboxBatchCommand(
 				const data = mergeActivity(item);
 				const existing =
 					byConceptTwoId.get(item.conceptTwoId.toString()) ??
-					takeCrossSourceMatch(data, stravaOnly);
+					takeCrossSourceMatch({ data, pool: stravaOnly });
 
 				if (existing) {
 					await tx.activity.update({
@@ -181,11 +181,14 @@ async function getExistingActivities({
 	return { byConceptTwoId, stravaOnly };
 }
 
-function takeCrossSourceMatch(
-	data: CrossSourceShape,
-	pool: StravaOnlyActivity[],
-): ExistingActivity | undefined {
-	const match = findCrossSourceMatch(data, pool);
+function takeCrossSourceMatch({
+	data,
+	pool,
+}: {
+	data: CrossSourceShape;
+	pool: StravaOnlyActivity[];
+}): ExistingActivity | undefined {
+	const match = findCrossSourceMatch({ target: data, candidates: pool });
 	if (match) pool.splice(pool.indexOf(match), 1);
 	return match;
 }

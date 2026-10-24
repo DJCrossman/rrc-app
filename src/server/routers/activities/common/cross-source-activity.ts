@@ -35,7 +35,13 @@ export type CrossSourceShape = {
 	distance: number;
 };
 
-function timeDiff(a: CrossSourceShape, b: CrossSourceShape): number {
+function timeDiff({
+	a,
+	b,
+}: {
+	a: CrossSourceShape;
+	b: CrossSourceShape;
+}): number {
 	const aStart = a.startDate.getTime();
 	const bStart = b.startDate.getTime();
 	const aEnd = aStart + a.elapsedTime;
@@ -47,7 +53,7 @@ function timeDiff(a: CrossSourceShape, b: CrossSourceShape): number {
 	);
 }
 
-function distanceMatches(a: number, b: number): boolean {
+function distanceMatches({ a, b }: { a: number; b: number }): boolean {
 	const tolerance = Math.max(
 		Math.max(a, b) * MAX_DISTANCE_DIFF_RATIO,
 		MIN_DISTANCE_DIFF_M,
@@ -59,15 +65,19 @@ function distanceMatches(a: number, b: number): boolean {
  * Returns the candidate recorded by the other integration that most likely is
  * the same piece as `target`, or undefined when none is close enough.
  */
-export function findCrossSourceMatch<T extends CrossSourceShape>(
-	target: CrossSourceShape,
-	candidates: readonly T[],
-): T | undefined {
+export function findCrossSourceMatch<T extends CrossSourceShape>({
+	target,
+	candidates,
+}: {
+	target: CrossSourceShape;
+	candidates: readonly T[];
+}): T | undefined {
 	let best: { candidate: T; time: number; distance: number } | undefined;
 	for (const candidate of candidates) {
-		const time = timeDiff(target, candidate);
+		const time = timeDiff({ a: target, b: candidate });
 		if (time > MAX_TIME_DIFF_MS) continue;
-		if (!distanceMatches(target.distance, candidate.distance)) continue;
+		if (!distanceMatches({ a: target.distance, b: candidate.distance }))
+			continue;
 		const distance = Math.abs(target.distance - candidate.distance);
 		if (
 			!best ||
@@ -94,9 +104,12 @@ export function crossSourceWindow(dates: readonly Date[]) {
  * seconds of each other; without this both see "no counterpart yet" and each
  * inserts its own row.
  */
-export async function lockAthleteActivities(
-	tx: Prisma.TransactionClient,
-	athleteId: string,
-) {
+export async function lockAthleteActivities({
+	tx,
+	athleteId,
+}: {
+	tx: Prisma.TransactionClient;
+	athleteId: string;
+}) {
 	await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`activity:${athleteId}`}))`;
 }

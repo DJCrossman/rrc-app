@@ -45,7 +45,8 @@ export async function processConcept2WebhookEventCommand(
 	}
 
 	if (event.type === "result-deleted") {
-		const result = await removeActivitySource(db, {
+		const result = await removeActivitySource({
+			db,
 			athleteId: athlete.id,
 			source: "concept2",
 			externalId: resultId,
@@ -93,7 +94,8 @@ export async function processConcept2WebhookEventCommand(
 	if (!activity) {
 		// Fetch returned 404 and the event carried no body — Concept2 considers
 		// the result gone, so mirror by removing our local copy if any.
-		const result = await removeActivitySource(db, {
+		const result = await removeActivitySource({
+			db,
 			athleteId: athlete.id,
 			source: "concept2",
 			externalId: resultId,

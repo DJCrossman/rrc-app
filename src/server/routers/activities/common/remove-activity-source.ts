@@ -4,10 +4,13 @@ import { mapConcept2Activity } from "../commands/process-concept2-inbox-batch/pr
 import { mapStravaActivity } from "../commands/process-strava-inbox-batch/process-strava-inbox-batch.command";
 import { lockAthleteActivities } from "./cross-source-activity";
 
-function parseStored<T>(
-	schema: { safeParse: (raw: unknown) => { success: boolean; data?: T } },
-	raw: Prisma.JsonValue,
-): T | undefined {
+function parseStored<T>({
+	schema,
+	raw,
+}: {
+	schema: { safeParse: (raw: unknown) => { success: boolean; data?: T } };
+	raw: Prisma.JsonValue;
+}): T | undefined {
 	if (!raw) return undefined;
 	const normalized = JSON.parse(
 		JSON.stringify(raw, (_key, value) => (value === null ? undefined : value)),
@@ -20,20 +23,19 @@ function parseStored<T>(
  * integration knows about is deleted; a row merged with the other integration
  * is kept and falls back to the remaining source's data.
  */
-export async function removeActivitySource(
-	db: PrismaClient,
-	{
-		athleteId,
-		source,
-		externalId,
-	}: {
-		athleteId: string;
-		source: "strava" | "concept2";
-		externalId: number | bigint;
-	},
-): Promise<{ deleted: number; unlinked: number }> {
+export async function removeActivitySource({
+	db,
+	athleteId,
+	source,
+	externalId,
+}: {
+	db: PrismaClient;
+	athleteId: string;
+	source: "strava" | "concept2";
+	externalId: number | bigint;
+}): Promise<{ deleted: number; unlinked: number }> {
 	return db.$transaction(async (tx) => {
-		await lockAthleteActivities(tx, athleteId);
+		await lockAthleteActivities({ tx, athleteId });
 		const id = BigInt(externalId);
 		const rows = await tx.activity.findMany({
 			where:
@@ -55,10 +57,10 @@ export async function removeActivitySource(
 			// A Strava row can carry a Concept2 id before that result has
 			// arrived; only keep the row when Concept2 data is actually there.
 			if (source === "strava" && row.conceptTwoData !== null) {
-				const remaining = parseStored(
-					concept2ActivitySchema,
-					row.conceptTwoData,
-				);
+				const remaining = parseStored({
+					schema: concept2ActivitySchema,
+					raw: row.conceptTwoData,
+				});
 				await tx.activity.update({
 					where: { id: row.id },
 					data: {
@@ -69,7 +71,10 @@ export async function removeActivitySource(
 				});
 				unlinked += 1;
 			} else if (source === "concept2" && row.stravaId !== null) {
-				const remaining = parseStored(stravaActivitySchema, row.stravaData);
+				const remaining = parseStored({
+					schema: stravaActivitySchema,
+					raw: row.stravaData,
+				});
 				await tx.activity.update({
 					where: { id: row.id },
 					data: {

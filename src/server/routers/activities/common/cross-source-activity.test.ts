@@ -22,7 +22,9 @@ describe("findCrossSourceMatch", () => {
 			elapsedTime: minutes(60),
 			distance: 13_436,
 		};
-		expect(findCrossSourceMatch(strava, [concept2])).toBe(concept2);
+		expect(
+			findCrossSourceMatch({ target: strava, candidates: [concept2] }),
+		).toBe(concept2);
 	});
 
 	it("pairs a Concept2 result stamped at the end of the piece", () => {
@@ -32,7 +34,9 @@ describe("findCrossSourceMatch", () => {
 			elapsedTime: minutes(60),
 			distance: 13_436,
 		};
-		expect(findCrossSourceMatch(strava, [concept2])).toBe(concept2);
+		expect(
+			findCrossSourceMatch({ target: strava, candidates: [concept2] }),
+		).toBe(concept2);
 	});
 
 	it("tells a warm-up apart from the main piece rowed right after it", () => {
@@ -58,8 +62,15 @@ describe("findCrossSourceMatch", () => {
 			elapsedTime: minutes(15),
 			distance: 3_322,
 		};
-		expect(findCrossSourceMatch(stravaMain, [warmup, main])).toBe(main);
-		expect(findCrossSourceMatch(stravaWarmup, [warmup, main])).toBe(warmup);
+		expect(
+			findCrossSourceMatch({ target: stravaMain, candidates: [warmup, main] }),
+		).toBe(main);
+		expect(
+			findCrossSourceMatch({
+				target: stravaWarmup,
+				candidates: [warmup, main],
+			}),
+		).toBe(warmup);
 	});
 
 	it("rejects candidates too far apart in time", () => {
@@ -69,7 +80,9 @@ describe("findCrossSourceMatch", () => {
 			elapsedTime: minutes(60),
 			distance: 13_436,
 		};
-		expect(findCrossSourceMatch(strava, [concept2])).toBeUndefined();
+		expect(
+			findCrossSourceMatch({ target: strava, candidates: [concept2] }),
+		).toBeUndefined();
 	});
 
 	it("rejects candidates with a different distance", () => {
@@ -79,7 +92,9 @@ describe("findCrossSourceMatch", () => {
 			elapsedTime: minutes(60),
 			distance: 6_000,
 		};
-		expect(findCrossSourceMatch(strava, [concept2])).toBeUndefined();
+		expect(
+			findCrossSourceMatch({ target: strava, candidates: [concept2] }),
+		).toBeUndefined();
 	});
 });
 
