@@ -51,6 +51,8 @@ model athlete {
   memberships     membership[]
   activities      activity[]
   inboxBatches    activity_inbox[]
+  pushSubscriptions       push_subscription[]
+  notificationPreferences notification_preference[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 }
@@ -224,4 +226,32 @@ model activity_inbox {
 
   @@index([athleteId, status])
   @@index([status, receivedAt])
+}
+
+// ── Notification ──────────────────────────────────────────────────────────────
+
+model push_subscription {
+  id         String    @id @default(dbgenerated("generate_id('sub_'::text)"))
+  athleteId  String
+  endpoint   String    @unique
+  p256dh     String
+  auth       String
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  failedAt   DateTime?
+  athlete    athlete   @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+
+  @@index([athleteId])
+}
+
+model notification_preference {
+  id        String   @id @default(dbgenerated("generate_id('npref_'::text)"))
+  athleteId String
+  scope     String
+  enabled   Boolean
+  updatedAt DateTime @updatedAt
+  athlete   athlete  @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+
+  @@unique([athleteId, scope])
 }

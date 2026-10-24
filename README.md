@@ -140,6 +140,7 @@ Edit `.env` and add your:
 - **Concept2** API credentials (optional - for ERG data import)
 - **Strava** API credentials (optional - for activity sync)
 - **SIGNUP_CODE** - Generate a new UUID for user registration
+- **Web Push** VAPID keys (optional - for browser push notifications, see [Push notifications](#push-notifications))
 
 **Note:** Ollama settings are commented out by default and will use the optimized defaults from [src/lib/env.ts](src/lib/env.ts) (`llava:13b` model on `localhost:11434`).
 
@@ -154,6 +155,32 @@ This command will:
 2. Start the Next.js development server
 
 Open [http://localhost:3000](http://localhost:3000) to see the app.
+
+## Push notifications
+
+Browser push notifications (practice changes, regatta updates, group messages) use the
+Web Push protocol with VAPID keys. They are optional: without keys the app boots normally
+and the in-app banner explains that notifications aren't configured.
+
+Generate a key pair once per environment and keep it stable (changing it invalidates every
+existing subscription):
+
+```bash
+bunx web-push generate-vapid-keys
+```
+
+Then set in `.env`:
+
+```bash
+NEXT_PUBLIC_WEB_PUSH_PUBLIC_KEY=<Public Key>
+WEB_PUSH_PRIVATE_KEY=<Private Key>
+# Optional contact for push services; defaults to mailto:reginarowing@crossman.io
+WEB_PUSH_SUBJECT=mailto:info@reginarowing.ca
+```
+
+Turn notifications on from the dashboard banner or **Settings → Notifications**, then use
+**Send test notification** to check the pipeline end to end. Push needs a secure context,
+so use `localhost` or HTTPS.
 
 ## AI Screenshot Parsing
 

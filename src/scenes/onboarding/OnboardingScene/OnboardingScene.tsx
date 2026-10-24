@@ -16,6 +16,7 @@ import {
 import type { DetailsStepDefaults } from "./steps/DetailsStep";
 import { DetailsStep } from "./steps/DetailsStep";
 import { DoneStep } from "./steps/DoneStep";
+import { NotificationsStep } from "./steps/NotificationsStep";
 import { OAuthIntegrationStep } from "./steps/OAuthIntegrationStep";
 import { RowingCanadaStep } from "./steps/RowingCanadaStep";
 import { WelcomeStep } from "./steps/WelcomeStep";
@@ -160,6 +161,14 @@ export function OnboardingScene({
 					<OAuthIntegrationStep
 						provider="strava"
 						connected={user?.stravaConnected ?? false}
+						onContinue={goNext}
+						onSkip={goNext}
+						onBack={goBack}
+					/>
+				);
+			case "notifications":
+				return (
+					<NotificationsStep
 						onContinue={goNext}
 						onSkip={goNext}
 						onBack={goBack}

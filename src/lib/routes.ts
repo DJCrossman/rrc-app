@@ -57,5 +57,6 @@ export const routes = {
 	settings: {
 		account: () => "/settings/account",
 		apps: () => "/settings/apps",
+		notifications: () => "/settings/notifications",
 	},
 };

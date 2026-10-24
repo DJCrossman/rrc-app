@@ -85,6 +85,7 @@
 		"sonner": "^2.0.7",
 		"tailwind-merge": "^3.4.0",
 		"vaul": "^1.1.2",
+		"web-push": "^3.6.7",
 		"zod": "^4.1.13"
 	},
 	"devDependencies": {
@@ -95,6 +96,7 @@
 		"@types/node": "^25.0.1",
 		"@types/react": "^19.2.7",
 		"@types/react-dom": "^19.2.3",
+		"@types/web-push": "^3.6.4",
 		"@vitest/ui": "^4.0.18",
 		"baseline-browser-mapping": "^2.10.25",
 		"happy-dom": "^20.4.0",

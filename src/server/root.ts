@@ -4,6 +4,7 @@ import { analyticsRouter } from "./routers/analytics/router";
 import { athletesRouter } from "./routers/athletes/router";
 import { boatsRouter } from "./routers/boats/router";
 import { ergsRouter } from "./routers/ergs/router";
+import { notificationsRouter } from "./routers/notifications/router";
 import { programsRouter } from "./routers/programs/router";
 import { usersRouter } from "./routers/users/router";
 import { workoutsRouter } from "./routers/workouts/router";
@@ -19,6 +20,7 @@ export const appRouter = router({
 	users: usersRouter,
 	analytics: analyticsRouter,
 	admin: adminRouter,
+	notifications: notificationsRouter,
 });
 
 export type AppRouter = typeof appRouter;
