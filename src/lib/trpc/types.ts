@@ -14,6 +14,12 @@ export type Activity = NonNullable<
 export type Activities = RouterOutputs["activities"]["getActivities"]["data"];
 export type ActivitiesResult = RouterOutputs["activities"]["getActivities"];
 
+export type Group = NonNullable<RouterOutputs["groups"]["getGroupById"]>;
+export type Groups = RouterOutputs["groups"]["getGroups"]["data"];
+export type GroupMember = Group["members"][number];
+
+export type Programs = RouterOutputs["programs"]["getPrograms"]["data"];
+
 export type Boat = NonNullable<RouterOutputs["boats"]["getBoatById"]>;
 export type Boats = RouterOutputs["boats"]["getBoats"]["data"];
 export type BoatsResult = RouterOutputs["boats"]["getBoats"];

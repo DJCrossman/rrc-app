@@ -30,6 +30,11 @@ export const routes = {
 		bulkCreate: () => "/athletes?action=bulkCreate",
 		view: (id: string) => `/athletes?athleteId=${id}`,
 	},
+	groups: {
+		list: () => "/groups",
+		create: () => "/groups?action=create",
+		view: (id: string) => `/groups?groupId=${id}`,
+	},
 	ergs: {
 		list: () => "/ergs",
 		create: () => "/ergs?action=create",

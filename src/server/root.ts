@@ -4,6 +4,7 @@ import { analyticsRouter } from "./routers/analytics/router";
 import { athletesRouter } from "./routers/athletes/router";
 import { boatsRouter } from "./routers/boats/router";
 import { ergsRouter } from "./routers/ergs/router";
+import { groupsRouter } from "./routers/groups/router";
 import { notificationsRouter } from "./routers/notifications/router";
 import { programsRouter } from "./routers/programs/router";
 import { scheduleRouter } from "./routers/schedule/router";
@@ -13,6 +14,7 @@ import { router } from "./trpc";
 
 export const appRouter = router({
 	athletes: athletesRouter,
+	groups: groupsRouter,
 	activities: activitiesRouter,
 	boats: boatsRouter,
 	workouts: workoutsRouter,

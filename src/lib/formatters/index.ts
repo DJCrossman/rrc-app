@@ -1,4 +1,5 @@
 export * from "./formatDuration";
+export * from "./formatHtmlAsText";
 export * from "./formatManufacturer";
 export * from "./formatMeters";
 export * from "./formatPercent";

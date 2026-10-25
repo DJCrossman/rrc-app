@@ -8,6 +8,7 @@ import {
 	// TODO: Re-enable ERGs navigation
 	// IconTreadmill,
 	IconUsers,
+	IconUsersGroup,
 } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -85,6 +86,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							title: "Athletes",
 							url: routes.athletes.list(),
 							icon: IconUsers,
+						},
+						{
+							title: "Groups",
+							url: routes.groups.list(),
+							icon: IconUsersGroup,
 						},
 						{
 							title: "Activities",

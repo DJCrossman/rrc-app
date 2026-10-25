@@ -72,6 +72,7 @@ model program {
   endDate      DateTime?    @db.Date
   syncedAt     DateTime?
   memberships  membership[]
+  groupRules   group_program[]
 }
 
 model membership {
@@ -328,4 +329,24 @@ model notification_preference {
   athlete   athlete  @relation(fields: [athleteId], references: [id], onDelete: Cascade)
 
   @@unique([athleteId, scope])
+}
+
+// ── Group ─────────────────────────────────────────────────────────────────────
+
+model group {
+  id        String          @id @default(dbgenerated("generate_id('grp_'::text)"))
+  name      String
+  programs  group_program[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model group_program {
+  id        String  @id @default(dbgenerated("generate_id('grp_prog_'::text)"))
+  groupId   String
+  programId String
+  group     group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  program   program @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, programId])
 }
