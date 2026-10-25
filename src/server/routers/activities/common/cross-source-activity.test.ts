@@ -196,5 +196,8 @@ describe("getConceptTwoIdFromStrava", () => {
 			}),
 		).toBeNull();
 		expect(getConceptTwoIdFromStrava({ device_name: "Concept2" })).toBeNull();
+		expect(
+			getConceptTwoIdFromStrava({ device_name: "Concept2", external_id: null }),
+		).toBeNull();
 	});
 });

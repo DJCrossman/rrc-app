@@ -12,6 +12,7 @@ import {
 	concept2MatchShape,
 	crossSourceWindow,
 	findCrossSourceMatch,
+	getConceptTwoIdFromStrava,
 	lockAthleteActivities,
 	parseStoredJson,
 	stravaMatchShape,
@@ -70,6 +71,7 @@ export async function processConcept2InboxBatchCommand(
 				const existing =
 					byConceptTwoId.get(item.conceptTwoId.toString()) ??
 					takeCrossSourceMatch({
+						conceptTwoId: item.conceptTwoId,
 						shape: concept2MatchShape({
 							startDate: data.startDate,
 							result: item.activity,
@@ -143,7 +145,8 @@ function parseBatchActivities(rawItems: unknown[]): {
 }
 
 type ExistingActivity = { id: string; stravaId: bigint | null };
-type StravaOnlyActivity = ExistingActivity & CrossSourceShape;
+type StravaOnlyActivity = ExistingActivity &
+	CrossSourceShape & { conceptTwoId: bigint | null };
 
 async function getExistingActivities({
 	db,
@@ -193,6 +196,8 @@ async function getExistingActivities({
 					elapsed_time: true,
 					distance: true,
 					name: true,
+					device_name: true,
+					external_id: true,
 				}),
 				raw: row.stravaData,
 			});
@@ -201,6 +206,7 @@ async function getExistingActivities({
 				{
 					id: row.id,
 					stravaId: row.stravaId,
+					conceptTwoId: getConceptTwoIdFromStrava(activity),
 					...stravaMatchShape({
 						startDate: row.startDate,
 						activity,
@@ -212,13 +218,21 @@ async function getExistingActivities({
 }
 
 function takeCrossSourceMatch({
+	conceptTwoId,
 	shape,
 	pool,
 }: {
+	conceptTwoId: bigint;
 	shape: CrossSourceShape;
 	pool: StravaOnlyActivity[];
 }): ExistingActivity | undefined {
-	const match = findCrossSourceMatch({ target: shape, candidates: pool });
+	// A Strava copy uploaded by the Logbook names this result outright.
+	const match =
+		pool.find((row) => row.conceptTwoId === conceptTwoId) ??
+		findCrossSourceMatch({
+			target: shape,
+			candidates: pool.filter((row) => row.conceptTwoId === null),
+		});
 	if (match) pool.splice(pool.indexOf(match), 1);
 	return match;
 }

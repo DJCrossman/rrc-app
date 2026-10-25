@@ -64,6 +64,26 @@ export async function processStravaInboxBatchCommand(
 
 			for (const item of items) {
 				const data = mergeActivity(item);
+				const split = findSplitCopies({ item, byStravaId, byConceptTwoId });
+				if (split) {
+					// An earlier sync missed the pairing and stored this piece twice.
+					// Fold the Strava copy into the Concept2 row, keeping any boat,
+					// erg or workout the athlete attached to either.
+					await tx.activity.delete({ where: { id: split.strava.id } });
+					await tx.activity.update({
+						where: { id: split.concept2.id },
+						data: {
+							name: data.name,
+							stravaId: data.stravaId,
+							stravaData: data.stravaData,
+							boatId: split.concept2.boatId ?? split.strava.boatId,
+							ergId: split.concept2.ergId ?? split.strava.ergId,
+							workoutId: split.concept2.workoutId ?? split.strava.workoutId,
+						},
+					});
+					continue;
+				}
+
 				// An explicit Concept2 id is authoritative — if that result
 				// hasn't arrived yet, it will find this row by id when it does.
 				const existing =
@@ -149,7 +169,13 @@ function parseBatchActivities(rawItems: unknown[]): {
 	return { items, invalidItems };
 }
 
-type ExistingActivity = { id: string; hasConcept2Data: boolean };
+type ExistingActivity = {
+	id: string;
+	hasConcept2Data: boolean;
+	boatId: string | null;
+	ergId: string | null;
+	workoutId: string | null;
+};
 type Concept2OnlyActivity = ExistingActivity & CrossSourceShape;
 
 async function getExistingActivities({
@@ -191,6 +217,9 @@ async function getExistingActivities({
 				stravaId: true,
 				conceptTwoId: true,
 				conceptTwoData: true,
+				boatId: true,
+				ergId: true,
+				workoutId: true,
 			},
 		}),
 		db.activity.findMany({
@@ -202,12 +231,25 @@ async function getExistingActivities({
 					items.map((i) => new Date(i.activity.start_date)),
 				),
 			},
-			select: { id: true, startDate: true, conceptTwoData: true },
+			select: {
+				id: true,
+				startDate: true,
+				conceptTwoData: true,
+				boatId: true,
+				ergId: true,
+				workoutId: true,
+			},
 		}),
 	]);
 
 	for (const row of existing) {
-		const entry = { id: row.id, hasConcept2Data: row.conceptTwoData !== null };
+		const entry = {
+			id: row.id,
+			hasConcept2Data: row.conceptTwoData !== null,
+			boatId: row.boatId,
+			ergId: row.ergId,
+			workoutId: row.workoutId,
+		};
 		if (row.stravaId !== null) byStravaId.set(row.stravaId.toString(), entry);
 		if (row.conceptTwoId !== null)
 			byConceptTwoId.set(row.conceptTwoId.toString(), entry);
@@ -229,6 +271,9 @@ async function getExistingActivities({
 				{
 					id: row.id,
 					hasConcept2Data: true,
+					boatId: row.boatId,
+					ergId: row.ergId,
+					workoutId: row.workoutId,
 					...concept2MatchShape({
 						startDate: row.startDate,
 						result,
@@ -275,6 +320,22 @@ function mergeActivity(item: ParsedStravaItem) {
 		stravaId,
 		...(conceptTwoId !== null ? { conceptTwoId } : {}),
 	};
+}
+
+function findSplitCopies({
+	item,
+	byStravaId,
+	byConceptTwoId,
+}: {
+	item: ParsedStravaItem;
+	byStravaId: Map<string, ExistingActivity>;
+	byConceptTwoId: Map<string, ExistingActivity>;
+}): { strava: ExistingActivity; concept2: ExistingActivity } | undefined {
+	if (item.conceptTwoId === null) return undefined;
+	const strava = byStravaId.get(item.stravaId.toString());
+	const concept2 = byConceptTwoId.get(item.conceptTwoId.toString());
+	if (!strava || !concept2 || strava.id === concept2.id) return undefined;
+	return { strava, concept2 };
 }
 
 function resolveExistingId({
