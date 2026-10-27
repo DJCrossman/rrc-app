@@ -11,6 +11,17 @@ export interface ProgramMembership {
 	program: ProgramWindow;
 }
 
+export interface GroupRule {
+	groupId: string;
+	programId: string;
+	group: { name: string };
+}
+
+export interface AthleteGroup {
+	id: string;
+	name: string;
+}
+
 export interface CoachCandidate {
 	role: string;
 	memberships: { program: ProgramWindow & { name: string } }[];
@@ -72,6 +83,27 @@ export function resolveAthleteGroupIds({
 				.map((rule) => rule.groupId),
 		),
 	];
+}
+
+export function resolveAthleteGroups({
+	memberships,
+	rules,
+	today = todayIsoDate(),
+}: {
+	memberships: Omit<ProgramMembership, "athleteId">[];
+	rules: GroupRule[];
+	today?: string;
+}): AthleteGroup[] {
+	const groupIds = new Set(
+		resolveAthleteGroupIds({ memberships, groupPrograms: rules, today }),
+	);
+	const groups = new Map<string, AthleteGroup>();
+	for (const rule of rules) {
+		if (groupIds.has(rule.groupId)) {
+			groups.set(rule.groupId, { id: rule.groupId, name: rule.group.name });
+		}
+	}
+	return [...groups.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function isCoach(

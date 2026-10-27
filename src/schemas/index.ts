@@ -6,6 +6,7 @@ export * from "./concept2User.schema";
 export * from "./concept2Webhook.schema";
 export * from "./erg.schema.";
 export * from "./groups.schema";
+export * from "./members.schema";
 export * from "./notifications.schema";
 export * from "./pagination.schema";
 export * from "./phoneNumber.schema";

@@ -11,6 +11,7 @@ import { SiteHeader } from "@/components/site-header";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { useCurrentUser } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { routes } from "@/lib/routes";
 import type { ChatChannel, ChatMessage } from "@/lib/trpc/types";
@@ -64,6 +65,7 @@ export const ChatScene = ({ channelId, threadMessageId }: ChatSceneProps) => {
 		threadMessageId,
 		loadMembers: !!forwardingMessage,
 	});
+	const { isAdmin } = useCurrentUser();
 	const quotedMessage = quote?.channelId === channelId ? quote : null;
 	const channelName = channel?.name ?? "";
 	const isUnavailable = messagesQuery.error?.data?.code === "NOT_FOUND";
@@ -79,7 +81,7 @@ export const ChatScene = ({ channelId, threadMessageId }: ChatSceneProps) => {
 		>
 			<AppSidebar variant="inset" />
 			<SidebarInset className="h-svh overflow-hidden md:h-[calc(100svh-1rem)]">
-				<SiteHeader breadcrumbs={getBreadcrumbs(channel)} />
+				<SiteHeader breadcrumbs={getBreadcrumbs(channel, isAdmin)} />
 				<ChatHeader
 					channel={channel}
 					onAddPeople={() => {
@@ -279,13 +281,13 @@ export const ChatScene = ({ channelId, threadMessageId }: ChatSceneProps) => {
 	);
 };
 
-function getBreadcrumbs(channel: ChatChannel | undefined) {
+function getBreadcrumbs(channel: ChatChannel | undefined, isAdmin: boolean) {
 	if (!channel) {
 		return [{ label: "Chat" }];
 	}
 	if (channel.kind === "direct_message") {
 		return [
-			{ label: "Members", href: routes.athletes.list() },
+			{ label: "Members", href: isAdmin ? routes.members.list() : undefined },
 			{ label: channel.name },
 		];
 	}

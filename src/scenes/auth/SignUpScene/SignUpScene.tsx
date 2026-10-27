@@ -22,12 +22,20 @@ function getErrorMessage(error: unknown, fallback: string): string {
 	return error instanceof Error ? error.message : fallback;
 }
 
-export const SignUpScene = ({ initialCode }: { initialCode?: string }) => {
+export const SignUpScene = ({
+	initialCode,
+	invitationTicket,
+}: {
+	initialCode?: string;
+	invitationTicket?: string;
+}) => {
 	const router = useRouter();
 	const { isLoaded, signUp, setActive } = useSignUp();
 	const clerk = useClerk();
 
-	const [phase, setPhase] = useState<Phase>("code");
+	const [phase, setPhase] = useState<Phase>(
+		invitationTicket ? "account" : "code",
+	);
 	const [signupCode, setSignupCode] = useState(initialCode ?? "");
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
@@ -83,12 +91,20 @@ export const SignUpScene = ({ initialCode }: { initialCode?: string }) => {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const result = await signUp.create({
-				firstName,
-				lastName,
-				emailAddress: email,
-				password,
-			});
+			const result = invitationTicket
+				? await signUp.create({
+						strategy: "ticket",
+						ticket: invitationTicket,
+						firstName,
+						lastName,
+						password,
+					})
+				: await signUp.create({
+						firstName,
+						lastName,
+						emailAddress: email,
+						password,
+					});
 			if (result.status === "complete") {
 				await finishSignup(result.createdSessionId);
 				return;
@@ -189,7 +205,9 @@ export const SignUpScene = ({ initialCode }: { initialCode?: string }) => {
 								<div className="space-y-2 text-center">
 									<h1 className="text-2xl font-bold">Create Your Account</h1>
 									<p className="text-sm text-muted-foreground">
-										Your signup code has been verified
+										{invitationTicket
+											? "You've been invited to join Regina Rowing Club"
+											: "Your signup code has been verified"}
 									</p>
 								</div>
 								<form onSubmit={handleCreateAccount} className="space-y-4">
@@ -219,19 +237,21 @@ export const SignUpScene = ({ initialCode }: { initialCode?: string }) => {
 											/>
 										</div>
 									</div>
-									<div className="space-y-2">
-										<Label htmlFor="email">Email</Label>
-										<Input
-											id="email"
-											type="email"
-											autoComplete="email"
-											placeholder="you@example.com"
-											value={email}
-											onChange={(e) => setEmail(e.target.value)}
-											required
-											disabled={isLoading}
-										/>
-									</div>
+									{!invitationTicket && (
+										<div className="space-y-2">
+											<Label htmlFor="email">Email</Label>
+											<Input
+												id="email"
+												type="email"
+												autoComplete="email"
+												placeholder="you@example.com"
+												value={email}
+												onChange={(e) => setEmail(e.target.value)}
+												required
+												disabled={isLoading}
+											/>
+										</div>
+									)}
 									<div className="space-y-2">
 										<Label htmlFor="password">Password</Label>
 										<Input
@@ -263,7 +283,7 @@ export const SignUpScene = ({ initialCode }: { initialCode?: string }) => {
 								<div className="space-y-2 text-center">
 									<h1 className="text-2xl font-bold">Verify your email</h1>
 									<p className="text-sm text-muted-foreground">
-										Enter the code we sent to {email}
+										Enter the code we sent to {signUp?.emailAddress || email}
 									</p>
 								</div>
 								<form onSubmit={handleVerifyEmail} className="space-y-4">

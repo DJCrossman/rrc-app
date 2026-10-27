@@ -2,10 +2,9 @@ import { z } from "zod";
 import { paginate } from "@/lib/pagination";
 import { withPagination } from "@/schemas";
 import type { Context } from "@/server/context";
-import {
-	athleteInclude,
-	mapToAthleteDto,
-} from "@/server/routers/athletes/common/map-to-athlete-dto";
+import { athleteInclude } from "@/server/routers/athletes/common/map-to-athlete-dto";
+import { mapToAthleteWithGroups } from "@/server/routers/athletes/common/map-to-athlete-with-groups";
+import { findGroupRules } from "@/server/routers/groups/common";
 
 export const getAthletesInputSchema = withPagination({
 	columns: ["dateJoined"] as const,
@@ -37,7 +36,7 @@ export async function getAthletesQuery(
 		],
 	};
 
-	const [rows, totalCount] = await Promise.all([
+	const [rows, totalCount, rules] = await Promise.all([
 		db.athlete.findMany({
 			where,
 			include: athleteInclude,
@@ -46,10 +45,11 @@ export async function getAthletesQuery(
 			skip: ((page ?? 1) - 1) * pageSize,
 		}),
 		db.athlete.count({ where }),
+		findGroupRules(db),
 	]);
 
 	return paginate({
-		data: rows.map(mapToAthleteDto),
+		data: rows.map((row) => mapToAthleteWithGroups(row, rules)),
 		totalCount,
 		page,
 		pageSize,

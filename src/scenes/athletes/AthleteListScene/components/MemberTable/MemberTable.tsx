@@ -5,7 +5,9 @@ import {
 	IconCaretUp,
 	IconChevronDown,
 	IconCircleCheck,
+	IconMailPlus,
 	IconPlus,
+	IconSearch,
 } from "@tabler/icons-react";
 import { keepPreviousData } from "@tanstack/react-query";
 import {
@@ -19,6 +21,7 @@ import {
 import { DateTime } from "luxon";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { DataTablePagination } from "@/components/data-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,8 +31,13 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { MultiSelect, type Option } from "@/components/ui/multi-select";
+import {
+	MultiSelect,
+	type Option,
+	useDebounce,
+} from "@/components/ui/multi-select";
 import {
 	Select,
 	SelectContent,
@@ -45,31 +53,63 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { useCurrentUser } from "@/hooks/useAuth";
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
-import type { Athlete, AthletesResult } from "@/lib/trpc/types";
+import type { Member, MembersResult } from "@/lib/trpc/types";
+import { InviteMemberDialog } from "../InviteMemberDialog/InviteMemberDialog";
+import { useMemberInvites } from "../useMemberInvites";
+import { MemberRowActions } from "./MemberRowActions";
 
 const DEFAULT_PAGE_SIZE = 20;
-const sortColumns = ["dateJoined"] as const;
+const sortColumns = ["name", "dateJoined"] as const;
 const activeMembershipOptions = ["all", "true", "false"] as const;
 
-const columns: ColumnDef<Athlete>[] = [
+const columns: ColumnDef<Member>[] = [
 	{
 		accessorKey: "name",
-		header: () => <div className="lg:w-100">Name</div>,
-		cell: ({ row }) => (
-			<Link href={routes.athletes.view(row.original.id)}>
-				{row.original.name}
-			</Link>
-		),
+		header: () => <div className="lg:w-72">Name</div>,
+		cell: ({ row }) => {
+			const member = row.original;
+			const accountLabel = getAccountLabel(member);
+			return (
+				<div className="flex flex-wrap items-center gap-1.5">
+					{member.athleteId ? (
+						<Link href={routes.members.view(member.athleteId)}>
+							{member.name}
+						</Link>
+					) : (
+						<span>{member.name}</span>
+					)}
+					{member.isAdmin && (
+						<Badge variant="secondary" className="px-1.5">
+							Admin
+						</Badge>
+					)}
+					{accountLabel && (
+						<Badge variant="outline" className="text-muted-foreground px-1.5">
+							{accountLabel}
+						</Badge>
+					)}
+				</div>
+			);
+		},
 		enableHiding: false,
+		enableSorting: true,
+	},
+	{
+		accessorKey: "email",
+		header: "Email",
+		cell: ({ row }) => (
+			<span className="text-muted-foreground">{row.original.email}</span>
+		),
 		enableSorting: false,
 	},
 	{
-		accessorKey: "activeMembership",
+		id: "active",
 		header: "Active",
 		cell: ({ row }) =>
-			row.original.activeMembership ? (
+			row.original.athlete?.activeMembership ? (
 				<IconCircleCheck size={16} className="text-green-500" />
 			) : null,
 		enableSorting: false,
@@ -78,34 +118,67 @@ const columns: ColumnDef<Athlete>[] = [
 		id: "program",
 		header: "Program",
 		cell: ({ row }) => {
-			const m = row.original.activeMembership;
-			if (!m) return "";
+			const membership = row.original.athlete?.activeMembership;
+			if (!membership) return null;
 			return (
 				<Badge variant="outline" className="text-muted-foreground px-1.5">
-					{m.name}
+					{membership.name}
 				</Badge>
 			);
 		},
 		enableSorting: false,
 	},
 	{
-		accessorKey: "dateJoined",
+		id: "groups",
+		header: "Groups",
+		cell: ({ row }) => {
+			const groups = row.original.athlete?.groups ?? [];
+			if (groups.length === 0) return null;
+			return (
+				<div className="flex flex-wrap gap-1">
+					{groups.map((group) => (
+						<Badge
+							key={group.id}
+							variant="outline"
+							className="text-muted-foreground px-1.5"
+							asChild
+						>
+							<Link href={routes.groups.view(group.id)}>{group.name}</Link>
+						</Badge>
+					))}
+				</div>
+			);
+		},
+		enableSorting: false,
+	},
+	{
+		id: "dateJoined",
 		header: "Date Joined",
-		cell: ({ row }) =>
-			row.original.dateJoined &&
-			DateTime.fromISO(row.original.dateJoined).toLocaleString({
-				month: "short",
-				year: "numeric",
-			}),
+		cell: ({ row }) => {
+			const dateJoined = row.original.athlete?.dateJoined;
+			return (
+				dateJoined &&
+				DateTime.fromISO(dateJoined).toLocaleString({
+					month: "short",
+					year: "numeric",
+				})
+			);
+		},
 		enableSorting: true,
+	},
+	{
+		id: "actions",
+		header: () => <span className="sr-only">Actions</span>,
+		cell: ({ row }) => <MemberRowActions member={row.original} />,
+		enableSorting: false,
 	},
 ];
 
-interface IAthleteTableProps {
-	initialData: AthletesResult;
+interface IMemberTableProps {
+	initialData: MembersResult;
 }
 
-export function AthleteTable({ initialData }: IAthleteTableProps) {
+export function MemberTable({ initialData }: IMemberTableProps) {
 	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
 		pageSize: DEFAULT_PAGE_SIZE,
@@ -113,9 +186,15 @@ export function AthleteTable({ initialData }: IAthleteTableProps) {
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [programIds, setProgramIds] = useState<string[]>([]);
 	const [isActive, setIsActive] = useState<boolean | undefined>(undefined);
+	const [search, setSearch] = useState("");
+	const [isInviteOpen, setIsInviteOpen] = useState(false);
+	const debouncedSearch = useDebounce(search.trim(), 300);
+	const { isAdmin } = useCurrentUser();
+	const utils = trpcClient.useUtils();
+	const { invite } = useMemberInvites();
 
 	const sort = sorting[0];
-	const { data } = trpcClient.athletes.getAthletes.useQuery(
+	const { data } = trpcClient.members.getMembers.useQuery(
 		{
 			page: pagination.pageIndex + 1,
 			pageSize: pagination.pageSize,
@@ -123,9 +202,19 @@ export function AthleteTable({ initialData }: IAthleteTableProps) {
 			order: sort ? (sort.desc ? "desc" : "asc") : undefined,
 			programIds: programIds.length ? programIds : undefined,
 			isActive,
+			search: debouncedSearch || undefined,
 		},
 		{ initialData, placeholderData: keepPreviousData },
 	);
+	const syncRca = trpcClient.activities.syncRca.useMutation({
+		onSuccess: async (result) => {
+			toast.success("Synced from RCA", {
+				description: `${result.programs.upserted} programs · ${result.memberships.upserted} memberships`,
+			});
+			await utils.members.getMembers.invalidate();
+		},
+		onError: (error) => toast.error(error.message),
+	});
 
 	const programsQuery = trpcClient.programs.getPrograms.useQuery();
 	const programOptions: Option[] = useMemo(
@@ -145,7 +234,7 @@ export function AthleteTable({ initialData }: IAthleteTableProps) {
 		data: data.data,
 		columns,
 		state: { pagination, sorting },
-		getRowId: (row) => row.id.toString(),
+		getRowId: (row) => row.id,
 		manualPagination: true,
 		manualSorting: true,
 		pageCount: data.totalPages,
@@ -159,6 +248,20 @@ export function AthleteTable({ initialData }: IAthleteTableProps) {
 		<div className="w-full flex-col justify-start gap-6">
 			<div className="flex items-center justify-between p-4 lg:px-6">
 				<div className="flex items-center gap-2">
+					<div className="relative">
+						<IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+						<Input
+							type="search"
+							aria-label="Search members"
+							placeholder="Search members"
+							className="h-8 w-56 pl-8"
+							value={search}
+							onChange={(event) => {
+								setSearch(event.target.value);
+								setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+							}}
+						/>
+					</div>
 					<Label htmlFor="program-selector" className="sr-only">
 						Programs
 					</Label>
@@ -203,37 +306,53 @@ export function AthleteTable({ initialData }: IAthleteTableProps) {
 					</Select>
 				</div>
 
-				<div className="flex items-center">
-					<Button
-						asChild
-						variant="outline"
-						size="sm"
-						className="rounded-r-none"
-					>
-						<Link href={routes.athletes.create()}>
-							<IconPlus />
-							<span className="hidden lg:inline">Add Athlete</span>
-						</Link>
-					</Button>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button
-								variant="outline"
-								size="sm"
-								className="rounded-l-none border-l-0 px-2"
-								aria-label="More add options"
-							>
-								<IconChevronDown />
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuItem asChild>
-								<Link href={routes.athletes.bulkCreate()}>
-									Bulk Add Athletes
-								</Link>
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+				<div className="flex items-center gap-2">
+					{isAdmin && (
+						<Button size="sm" onClick={() => setIsInviteOpen(true)}>
+							<IconMailPlus />
+							<span className="hidden lg:inline">Invite member</span>
+						</Button>
+					)}
+					<div className="flex items-center">
+						<Button
+							asChild
+							variant="outline"
+							size="sm"
+							className="rounded-r-none"
+						>
+							<Link href={routes.members.create()}>
+								<IconPlus />
+								<span className="hidden lg:inline">Add Member</span>
+							</Link>
+						</Button>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button
+									variant="outline"
+									size="sm"
+									className="rounded-l-none border-l-0 px-2"
+									aria-label="More add options"
+								>
+									<IconChevronDown />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								<DropdownMenuItem asChild>
+									<Link href={routes.members.bulkCreate()}>
+										Bulk Add Members
+									</Link>
+								</DropdownMenuItem>
+								{isAdmin && (
+									<DropdownMenuItem
+										disabled={syncRca.isPending}
+										onSelect={() => syncRca.mutate()}
+									>
+										Sync from RCA
+									</DropdownMenuItem>
+								)}
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
 				</div>
 			</div>
 			<div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
@@ -296,11 +415,26 @@ export function AthleteTable({ initialData }: IAthleteTableProps) {
 				</div>
 				<div className="flex items-center justify-between px-4">
 					<div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-						{data.totalCount} athletes.
+						{data.totalCount} {data.totalCount === 1 ? "member" : "members"}.
 					</div>
 					<DataTablePagination table={table} />
 				</div>
 			</div>
+			<InviteMemberDialog
+				isOpen={isInviteOpen}
+				onClose={() => setIsInviteOpen(false)}
+				onSubmit={async (data) => {
+					const { sent } = await invite.mutateAsync(data);
+					if (sent.length > 0) setIsInviteOpen(false);
+				}}
+			/>
 		</div>
 	);
+}
+
+function getAccountLabel(member: Member): string | null {
+	if (member.account === "invited") return "Invited";
+	if (member.account === "none") return "No account";
+	if (!member.athlete) return "No profile yet";
+	return null;
 }

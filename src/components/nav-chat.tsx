@@ -21,6 +21,7 @@ import {
 	SidebarMenuSubButton,
 	SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { useCurrentUser } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { channelNotificationScope } from "@/lib/notifications";
 import { routes } from "@/lib/routes";
@@ -43,6 +44,7 @@ export function NavChat() {
 		onError: (error) => toast.error(error.message),
 	});
 	const { preferences } = useNotifications();
+	const { isAdmin } = useCurrentUser();
 	const channels = (channelsQuery.data?.data ?? []).map((channel) => ({
 		...channel,
 		isMuted: preferences[channelNotificationScope(channel.id)] === false,
@@ -69,16 +71,23 @@ export function NavChat() {
 				/>
 			</SidebarMenuItem>
 			<SidebarMenuItem>
-				<SidebarMenuButton
-					asChild
-					tooltip="Members"
-					isActive={isActivePath(pathname, routes.athletes.list())}
-				>
-					<Link href={routes.athletes.list()}>
+				{isAdmin ? (
+					<SidebarMenuButton
+						asChild
+						tooltip="Members"
+						isActive={isActivePath(pathname, routes.members.list())}
+					>
+						<Link href={routes.members.list()}>
+							<IconUsers />
+							<span>Members</span>
+						</Link>
+					</SidebarMenuButton>
+				) : (
+					<SidebarMenuButton tooltip="Members">
 						<IconUsers />
 						<span>Members</span>
-					</Link>
-				</SidebarMenuButton>
+					</SidebarMenuButton>
+				)}
 				<SidebarMenuAction
 					showOnHover
 					title="New message"

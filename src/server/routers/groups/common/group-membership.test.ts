@@ -4,6 +4,7 @@ import {
 	isProgramActive,
 	type ProgramWindow,
 	resolveAthleteGroupIds,
+	resolveAthleteGroups,
 	resolveGroupMemberIds,
 } from "./group-membership";
 
@@ -116,6 +117,58 @@ describe("resolveAthleteGroupIds", () => {
 				today: TODAY,
 			}),
 		).toEqual([]);
+	});
+});
+
+describe("resolveAthleteGroups", () => {
+	const rules = [
+		{
+			groupId: "grp_masters",
+			programId: "prog_masters",
+			group: { name: "Masters" },
+		},
+		{
+			groupId: "grp_everyone",
+			programId: "prog_masters",
+			group: { name: "Everyone" },
+		},
+		{
+			groupId: "grp_everyone",
+			programId: "prog_juniors",
+			group: { name: "Everyone" },
+		},
+		{
+			groupId: "grp_juniors",
+			programId: "prog_juniors",
+			group: { name: "Juniors" },
+		},
+	];
+
+	it("names each group once, sorted by name", () => {
+		const groups = resolveAthleteGroups({
+			memberships: [
+				{ programId: "prog_masters", program: current },
+				{ programId: "prog_juniors", program: current },
+			],
+			rules,
+			today: TODAY,
+		});
+
+		expect(groups).toEqual([
+			{ id: "grp_everyone", name: "Everyone" },
+			{ id: "grp_juniors", name: "Juniors" },
+			{ id: "grp_masters", name: "Masters" },
+		]);
+	});
+
+	it("ignores rules for programs the athlete is not active in", () => {
+		const groups = resolveAthleteGroups({
+			memberships: [{ programId: "prog_juniors", program: expired }],
+			rules,
+			today: TODAY,
+		});
+
+		expect(groups).toEqual([]);
 	});
 });
 

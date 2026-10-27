@@ -1,7 +1,8 @@
 "use client";
 
-import { IconPencil, IconX } from "@tabler/icons-react";
+import { IconMessage, IconPencil, IconX } from "@tabler/icons-react";
 import { DateTime, Interval } from "luxon";
+import Link from "next/link";
 import { useState } from "react";
 import { ActivityTable } from "@/components/activities";
 import { Badge } from "@/components/ui/badge";
@@ -24,10 +25,12 @@ import {
 } from "@/components/ui/table";
 import { formatRole } from "@/lib/formatters";
 import { formatGender } from "@/lib/formatters/formatGender";
+import { routes } from "@/lib/routes";
 import type { Activities, Athlete } from "@/lib/trpc/types";
 import type { CreateAthlete, UpdateAthlete } from "@/schemas";
 import type { AthleteStats } from "@/schemas/athlete.schema";
 import { AthleteForm } from "../AthleteForm/AthleteForm";
+import { useMessageMember } from "../useMessageMember";
 import { StatCard } from "./StatCard";
 
 interface AthleteDetailsDrawerProps {
@@ -35,6 +38,8 @@ interface AthleteDetailsDrawerProps {
 	athlete: Athlete | null;
 	activities: Activities;
 	athleteStats: AthleteStats | null;
+	canEdit: boolean;
+	startEditing: boolean;
 	onClose: () => void;
 	onSubmit: (data: UpdateAthlete) => Promise<void> | void;
 }
@@ -44,10 +49,18 @@ export const AthleteDetailsDrawer = ({
 	athlete,
 	activities,
 	athleteStats,
+	canEdit,
+	startEditing,
 	onClose,
 	onSubmit,
 }: AthleteDetailsDrawerProps) => {
-	const [isEditing, setIsEditing] = useState(false);
+	const [isEditing, setIsEditing] = useState(startEditing);
+	const [lastStartEditing, setLastStartEditing] = useState(startEditing);
+	if (startEditing !== lastStartEditing) {
+		setLastStartEditing(startEditing);
+		setIsEditing(startEditing);
+	}
+	const { canMessage, message, isPending } = useMessageMember();
 
 	const handleClose = () => {
 		setIsEditing(false);
@@ -79,10 +92,21 @@ export const AthleteDetailsDrawer = ({
 					<div>
 						<DrawerTitle>{athlete.name}</DrawerTitle>
 						<DrawerDescription>
-							Athlete details and activity history
+							Member details and activity history
 						</DrawerDescription>
 					</div>
 					<div className="flex items-center gap-2">
+						{canMessage(athlete) && (
+							<Button
+								variant="outline"
+								size="sm"
+								disabled={isPending}
+								onClick={() => message(athlete)}
+							>
+								<IconMessage />
+								Message
+							</Button>
+						)}
 						<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
 							<IconX className="h-4 w-4" />
 							<span className="sr-only">Close</span>
@@ -112,14 +136,16 @@ export const AthleteDetailsDrawer = ({
 							{/* Athlete Details Section */}
 							<div className="flex items-center justify-between mb-4">
 								<h2 className="text-xl font-semibold">Details</h2>
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setIsEditing(true)}
-								>
-									<IconPencil className="h-4 w-4 mr-2" />
-									Edit
-								</Button>
+								{canEdit && (
+									<Button
+										variant="outline"
+										size="sm"
+										onClick={() => setIsEditing(true)}
+									>
+										<IconPencil className="h-4 w-4 mr-2" />
+										Edit
+									</Button>
+								)}
 							</div>
 							<div className="space-y-4">
 								<div className="space-y-4">
@@ -163,6 +189,26 @@ export const AthleteDetailsDrawer = ({
 												)}
 									</div>
 								</div>
+							</div>
+
+							{/* Groups Section */}
+							<div className="space-y-4">
+								<h2 className="text-xl font-semibold">Groups</h2>
+								{athlete.groups.length > 0 ? (
+									<div className="flex flex-wrap gap-2">
+										{athlete.groups.map((group) => (
+											<Badge key={group.id} variant="outline" asChild>
+												<Link href={routes.groups.view(group.id)}>
+													{group.name}
+												</Link>
+											</Badge>
+										))}
+									</div>
+								) : (
+									<p className="text-sm text-muted-foreground">
+										Not in any groups.
+									</p>
+								)}
 							</div>
 
 							{/* Indoors Stats Section */}

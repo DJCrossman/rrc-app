@@ -68,6 +68,16 @@ export async function getAthleteGroups(db: GroupsDb, athleteId: string) {
 	});
 }
 
+export function findGroupRules(db: GroupsDb) {
+	return db.group_program.findMany({
+		select: {
+			groupId: true,
+			programId: true,
+			group: { select: { name: true } },
+		},
+	});
+}
+
 export async function findRuleMemberships(db: GroupsDb, programIds: string[]) {
 	if (!programIds.length) return [];
 	return db.membership.findMany({

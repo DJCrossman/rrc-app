@@ -40,6 +40,7 @@ export function mapToAthleteDto(row: AthleteRow) {
 
 	return {
 		id: row.id,
+		userId: row.userId,
 		firstName: row.firstName,
 		lastName: row.lastName,
 		nickname: row.nickname,

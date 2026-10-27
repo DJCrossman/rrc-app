@@ -1,9 +1,8 @@
 import type { GetAthleteByIdInput } from "@/schemas";
 import type { Context } from "@/server/context";
-import {
-	athleteInclude,
-	mapToAthleteDto,
-} from "@/server/routers/athletes/common/map-to-athlete-dto";
+import { athleteInclude } from "@/server/routers/athletes/common/map-to-athlete-dto";
+import { mapToAthleteWithGroups } from "@/server/routers/athletes/common/map-to-athlete-with-groups";
+import { findGroupRules } from "@/server/routers/groups/common";
 
 export async function getAthleteByIdQuery(
 	input: GetAthleteByIdInput,
@@ -14,5 +13,5 @@ export async function getAthleteByIdQuery(
 		where: { id: input.id },
 		include: athleteInclude,
 	});
-	return row ? mapToAthleteDto(row) : null;
+	return row ? mapToAthleteWithGroups(row, await findGroupRules(db)) : null;
 }
