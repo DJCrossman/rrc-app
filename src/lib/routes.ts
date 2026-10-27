@@ -1,5 +1,6 @@
 import type { DateTime } from "luxon";
 import type { ScheduleTypeFilter } from "@/schemas";
+import { EVERYONE_CHANNEL_ID } from "@/schemas/chat.schema";
 
 type ScheduleRouteParams = {
 	week?: DateTime<true>;
@@ -44,6 +45,12 @@ export const routes = {
 		list: () => "/activities",
 		create: () => "/activities?action=create",
 		view: (id: string) => `/activities?activityId=${id}`,
+	},
+	chat: {
+		channel: (id: string) => `/chat/${id}`,
+		thread: (channelId: string, messageId: string) =>
+			`/chat/${channelId}?thread=${messageId}`,
+		everyone: () => `/chat/${EVERYONE_CHANNEL_ID}`,
 	},
 	settings: {
 		account: () => "/settings/account",

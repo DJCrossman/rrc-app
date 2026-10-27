@@ -350,3 +350,80 @@ model group_program {
 
   @@unique([groupId, programId])
 }
+
+// ── Chat ──────────────────────────────────────────────────────────────────────
+
+enum ChannelKind {
+  everyone
+  group
+  direct_message
+}
+
+model channel {
+  id        String           @id @default(dbgenerated("generate_id('chan_'::text)"))
+  kind      ChannelKind
+  groupId   String?          @unique
+  createdAt DateTime         @default(now())
+  members   channel_member[]
+  reads     channel_read[]
+  messages  message[]
+}
+
+model channel_member {
+  id            String    @id @default(dbgenerated("generate_id('chm_'::text)"))
+  channelId     String
+  userId        String
+  addedByUserId String?
+  visibleFrom   DateTime?
+  createdAt     DateTime  @default(now())
+  channel       channel   @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, userId])
+  @@index([userId])
+}
+
+model channel_read {
+  id         String   @id @default(dbgenerated("generate_id('chr_'::text)"))
+  channelId  String
+  userId     String
+  lastReadAt DateTime
+  channel    channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+
+  @@unique([channelId, userId])
+}
+
+model message {
+  id              String             @id @default(dbgenerated("generate_id('msg_'::text)"))
+  channelId       String
+  authorUserId    String
+  parentId        String?
+  text            String?
+  gif             String?
+  quotedMessageId String?
+  forwardedFromId String?
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  deletedAt       DateTime?
+  channel         channel            @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  parent          message?           @relation("thread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies         message[]          @relation("thread")
+  quotedMessage   message?           @relation("quote", fields: [quotedMessageId], references: [id], onDelete: SetNull)
+  quotedBy        message[]          @relation("quote")
+  forwardedFrom   message?           @relation("forward", fields: [forwardedFromId], references: [id], onDelete: SetNull)
+  forwards        message[]          @relation("forward")
+  reactions       message_reaction[]
+
+  @@index([channelId, parentId, createdAt])
+  @@index([parentId, createdAt])
+}
+
+model message_reaction {
+  id        String   @id @default(dbgenerated("generate_id('rxn_'::text)"))
+  messageId String
+  userId    String
+  emoji     String
+  createdAt DateTime @default(now())
+  message   message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId, emoji])
+}

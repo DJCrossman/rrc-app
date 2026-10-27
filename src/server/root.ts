@@ -3,6 +3,7 @@ import { adminRouter } from "./routers/admin/router";
 import { analyticsRouter } from "./routers/analytics/router";
 import { athletesRouter } from "./routers/athletes/router";
 import { boatsRouter } from "./routers/boats/router";
+import { chatRouter } from "./routers/chat/router";
 import { ergsRouter } from "./routers/ergs/router";
 import { groupsRouter } from "./routers/groups/router";
 import { notificationsRouter } from "./routers/notifications/router";
@@ -25,6 +26,7 @@ export const appRouter = router({
 	admin: adminRouter,
 	schedule: scheduleRouter,
 	notifications: notificationsRouter,
+	chat: chatRouter,
 });
 
 export type AppRouter = typeof appRouter;

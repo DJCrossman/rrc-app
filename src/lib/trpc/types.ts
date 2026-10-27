@@ -45,3 +45,9 @@ export type ScheduleEvent = ScheduleDay["events"][number];
 export type EventResponses = RouterOutputs["schedule"]["getResponses"];
 export type EventResponsePerson = EventResponses["going"][number];
 export type UpcomingSchedule = RouterOutputs["schedule"]["getUpcoming"];
+
+export type ChatChannels = RouterOutputs["chat"]["getChannels"]["data"];
+export type ChatChannel = ChatChannels[number];
+export type ChatMessage = RouterOutputs["chat"]["getMessages"]["data"][number];
+export type ChatThread = RouterOutputs["chat"]["getThread"];
+export type ChatMembers = RouterOutputs["chat"]["getMembers"]["data"];
