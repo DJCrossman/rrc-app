@@ -3,8 +3,8 @@ import { z } from "zod";
 export const stravaActivitySchema = z.object({
 	id: z.number(),
 	resource_state: z.number(),
-	external_id: z.string().optional(),
-	upload_id: z.number().optional(),
+	external_id: z.string().nullish(),
+	upload_id: z.number().nullish(),
 	athlete: z.object({
 		id: z.number(),
 		resource_state: z.number(),

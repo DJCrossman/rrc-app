@@ -22,13 +22,13 @@ function getErrorMessage(error: unknown, fallback: string): string {
 	return error instanceof Error ? error.message : fallback;
 }
 
-export const SignUpScene = () => {
+export const SignUpScene = ({ initialCode }: { initialCode?: string }) => {
 	const router = useRouter();
 	const { isLoaded, signUp, setActive } = useSignUp();
 	const clerk = useClerk();
 
 	const [phase, setPhase] = useState<Phase>("code");
-	const [signupCode, setSignupCode] = useState("");
+	const [signupCode, setSignupCode] = useState(initialCode ?? "");
 	const [firstName, setFirstName] = useState("");
 	const [lastName, setLastName] = useState("");
 	const [email, setEmail] = useState("");

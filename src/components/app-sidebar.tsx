@@ -7,12 +7,12 @@ import {
 	IconSailboat2,
 	// TODO: Re-enable ERGs navigation
 	// IconTreadmill,
-	IconUsers,
 } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
 import type * as React from "react";
 import { FeedbackButton } from "@/components/feedback-button";
+import { NavChat } from "@/components/nav-chat";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -69,6 +69,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							title: "Schedule",
 							url: routes.schedule.list(),
 							icon: IconCalendarEvent,
+							badge: "New",
 						},
 						{
 							title: "Boats",
@@ -82,17 +83,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						// 	icon: IconTreadmill,
 						// },
 						{
-							title: "Athletes",
-							url: routes.athletes.list(),
-							icon: IconUsers,
-						},
-						{
 							title: "Activities",
 							url: routes.activities.list(),
 							icon: IconActivity,
 						},
 					]}
-				/>
+				>
+					<NavChat />
+				</NavMain>
 			</SidebarContent>
 			<SidebarFooter>
 				<FeedbackButton />

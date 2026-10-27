@@ -26,7 +26,7 @@ const resultsResponseSchema = z.object({
 			per_page: z.number(),
 			current_page: z.number(),
 			total_pages: z.number(),
-			links: z.array(z.unknown()),
+			links: z.union([z.array(z.unknown()), z.record(z.string(), z.unknown())]),
 		}),
 	}),
 });

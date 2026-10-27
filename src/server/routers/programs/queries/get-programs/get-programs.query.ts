@@ -4,6 +4,7 @@ import type { Context } from "@/server/context";
 export async function getProgramsQuery(_input: undefined, { db }: Context) {
 	const [programs, totalCount] = await Promise.all([
 		db.program.findMany({
+			include: { _count: { select: { memberships: true } } },
 			orderBy: [{ name: "asc" }],
 		}),
 		db.program.count(),
@@ -18,6 +19,8 @@ export async function getProgramsQuery(_input: undefined, { db }: Context) {
 		description: p.description,
 		startDate: p.startDate?.toISOString() ?? null,
 		endDate: p.endDate?.toISOString() ?? null,
+		syncedAt: p.syncedAt?.toISOString() ?? null,
+		memberCount: p._count.memberships,
 	}));
 	return paginate({ data, totalCount });
 }

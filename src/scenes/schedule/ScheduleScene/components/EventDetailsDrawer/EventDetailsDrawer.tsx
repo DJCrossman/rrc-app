@@ -4,12 +4,14 @@ import {
 	IconCalendarEvent,
 	IconMapPin,
 	IconPencil,
+	IconShare3,
 	IconTrash,
 	IconUsersGroup,
 	IconX,
 } from "@tabler/icons-react";
 import type React from "react";
 import { useState } from "react";
+import { ShareToChatDialog } from "@/components/chat/share-to-chat-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +28,7 @@ import {
 	formatMeters,
 } from "@/lib/formatters";
 import { getMapsSearchUrl } from "@/lib/maps";
+import { routes } from "@/lib/routes";
 import { formatEventDate } from "@/lib/schedule/event-labels";
 import type {
 	AnalyticMetrics,
@@ -71,6 +74,7 @@ export const EventDetailsDrawer = ({
 	const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [notify, setNotify] = useState(true);
+	const [isSharing, setIsSharing] = useState(false);
 
 	if (!event) {
 		return null;
@@ -86,11 +90,27 @@ export const EventDetailsDrawer = ({
 						<DrawerTitle className="truncate">{event.title}</DrawerTitle>
 						<EventTypeBadge type={event.type} label={event.typeLabel} />
 					</div>
-					<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-						<IconX className="h-4 w-4" />
-						<span className="sr-only">Close</span>
-					</DrawerClose>
+					<div className="flex shrink-0 items-center gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setIsSharing(true)}
+						>
+							<IconShare3 />
+							Share to chat
+						</Button>
+						<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+							<IconX className="h-4 w-4" />
+							<span className="sr-only">Close</span>
+						</DrawerClose>
+					</div>
 				</DrawerHeader>
+				<ShareToChatDialog
+					open={isSharing}
+					onOpenChange={setIsSharing}
+					title={event.title}
+					path={routes.schedule.view({ id: event.id })}
+				/>
 				<div className="flex-1 space-y-8 overflow-y-auto p-6">
 					{isAdmin && !editing && (
 						<div className="flex flex-wrap items-center justify-end gap-2">

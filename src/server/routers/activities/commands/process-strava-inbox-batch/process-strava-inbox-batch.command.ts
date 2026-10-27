@@ -1,7 +1,21 @@
-import type { Prisma, PrismaClient } from "@/generated/prisma/client";
+import type { Prisma } from "@/generated/prisma/client";
 import { createLogger } from "@/lib/logger";
-import { type StravaActivity, stravaActivitySchema } from "@/schemas";
+import {
+	concept2ActivitySchema,
+	type StravaActivity,
+	stravaActivitySchema,
+} from "@/schemas";
 import type { AuthenticatedContext } from "@/server/context";
+import {
+	type CrossSourceShape,
+	concept2MatchShape,
+	crossSourceWindow,
+	findCrossSourceMatch,
+	getConceptTwoIdFromStrava,
+	lockAthleteActivities,
+	parseStoredJson,
+	stravaMatchShape,
+} from "../../common/cross-source-activity";
 
 const logger = createLogger("inbox.processor.strava");
 
@@ -40,21 +54,63 @@ export async function processStravaInboxBatchCommand(
 	const athleteId = batch.athleteId;
 
 	const { items, invalidItems } = parseBatchActivities(rawItems);
-	const { byStravaId, byConceptTwoId } = await getExistingActivities({
-		db,
-		athleteId,
-		items,
-	});
 
 	let activitiesCreated = 0;
 	await db.$transaction(
 		async (tx) => {
-			for (const item of items) {
-				const existingId = resolveExistingId(item, byStravaId, byConceptTwoId);
-				const data = mergeActivity(item);
+			await lockAthleteActivities({ tx, athleteId });
+			const { byStravaId, byConceptTwoId, concept2Only } =
+				await getExistingActivities({ db: tx, athleteId, items });
 
-				if (existingId) {
-					await tx.activity.update({ where: { id: existingId }, data });
+			for (const item of items) {
+				const data = mergeActivity(item);
+				const split = findSplitCopies({ item, byStravaId, byConceptTwoId });
+				if (split) {
+					// An earlier sync missed the pairing and stored this piece twice.
+					// Fold the Strava copy into the Concept2 row, keeping any boat,
+					// erg or workout the athlete attached to either.
+					await tx.activity.delete({ where: { id: split.strava.id } });
+					await tx.activity.update({
+						where: { id: split.concept2.id },
+						data: {
+							name: data.name,
+							stravaId: data.stravaId,
+							stravaData: data.stravaData,
+							boatId: split.concept2.boatId ?? split.strava.boatId,
+							ergId: split.concept2.ergId ?? split.strava.ergId,
+							workoutId: split.concept2.workoutId ?? split.strava.workoutId,
+						},
+					});
+					continue;
+				}
+
+				// An explicit Concept2 id is authoritative — if that result
+				// hasn't arrived yet, it will find this row by id when it does.
+				const existing =
+					resolveExistingId({ item, byStravaId, byConceptTwoId }) ??
+					(item.conceptTwoId === null
+						? takeCrossSourceMatch({
+								shape: stravaMatchShape({
+									startDate: data.startDate,
+									activity: item.activity,
+								}),
+								pool: concept2Only,
+							})
+						: undefined);
+
+				if (existing) {
+					await tx.activity.update({
+						where: { id: existing.id },
+						// Concept2 is the source of truth for the piece's metrics;
+						// Strava contributes the athlete-authored title.
+						data: existing.hasConcept2Data
+							? {
+									name: data.name,
+									stravaId: data.stravaId,
+									stravaData: data.stravaData,
+								}
+							: data,
+					});
 					continue;
 				}
 
@@ -104,64 +160,148 @@ function parseBatchActivities(rawItems: unknown[]): {
 			invalidItems += 1;
 			continue;
 		}
-		// When a Strava activity was uploaded from a Concept2 erg, the
-		// external_id mirrors the Concept2 activity id. Capture it so we can
-		// merge with a pre-existing Concept2 row instead of creating a duplicate.
-		let conceptTwoId: bigint | null = null;
-		if (parsed.data.device_name === "concept2" && parsed.data.external_id) {
-			try {
-				conceptTwoId = BigInt(parsed.data.external_id);
-			} catch {
-				conceptTwoId = null;
-			}
-		}
 		items.push({
 			activity: parsed.data,
 			stravaId: BigInt(parsed.data.id),
-			conceptTwoId,
+			conceptTwoId: getConceptTwoIdFromStrava(parsed.data),
 		});
 	}
 	return { items, invalidItems };
 }
+
+type ExistingActivity = {
+	id: string;
+	hasConcept2Data: boolean;
+	boatId: string | null;
+	ergId: string | null;
+	workoutId: string | null;
+};
+type Concept2OnlyActivity = ExistingActivity & CrossSourceShape;
 
 async function getExistingActivities({
 	db,
 	athleteId,
 	items,
 }: {
-	db: PrismaClient;
+	db: Prisma.TransactionClient;
 	athleteId: string;
 	items: ParsedStravaItem[];
 }): Promise<{
-	byStravaId: Map<string, string>;
-	byConceptTwoId: Map<string, string>;
+	byStravaId: Map<string, ExistingActivity>;
+	byConceptTwoId: Map<string, ExistingActivity>;
+	concept2Only: Concept2OnlyActivity[];
 }> {
+	const byStravaId = new Map<string, ExistingActivity>();
+	const byConceptTwoId = new Map<string, ExistingActivity>();
+	if (items.length === 0)
+		return { byStravaId, byConceptTwoId, concept2Only: [] };
+
 	const stravaIds = items.map((i) => i.stravaId);
 	const conceptTwoIds = items
 		.map((i) => i.conceptTwoId)
 		.filter((id): id is bigint => id !== null);
 
-	const existing = await db.activity.findMany({
-		where: {
-			athleteId,
-			OR: [
-				{ stravaId: { in: stravaIds } },
-				...(conceptTwoIds.length
-					? [{ conceptTwoId: { in: conceptTwoIds } }]
-					: []),
-			],
-		},
-		select: { id: true, stravaId: true, conceptTwoId: true },
-	});
+	const [existing, concept2Only] = await Promise.all([
+		db.activity.findMany({
+			where: {
+				athleteId,
+				OR: [
+					{ stravaId: { in: stravaIds } },
+					...(conceptTwoIds.length
+						? [{ conceptTwoId: { in: conceptTwoIds } }]
+						: []),
+				],
+			},
+			select: {
+				id: true,
+				stravaId: true,
+				conceptTwoId: true,
+				conceptTwoData: true,
+				boatId: true,
+				ergId: true,
+				workoutId: true,
+			},
+		}),
+		db.activity.findMany({
+			where: {
+				athleteId,
+				stravaId: null,
+				conceptTwoId: { not: null },
+				startDate: crossSourceWindow(
+					items.map((i) => new Date(i.activity.start_date)),
+				),
+			},
+			select: {
+				id: true,
+				startDate: true,
+				conceptTwoData: true,
+				boatId: true,
+				ergId: true,
+				workoutId: true,
+			},
+		}),
+	]);
 
-	const byStravaId = new Map<string, string>();
-	const byConceptTwoId = new Map<string, string>();
 	for (const row of existing) {
-		if (row.stravaId !== null) byStravaId.set(row.stravaId.toString(), row.id);
+		const entry = {
+			id: row.id,
+			hasConcept2Data: row.conceptTwoData !== null,
+			boatId: row.boatId,
+			ergId: row.ergId,
+			workoutId: row.workoutId,
+		};
+		if (row.stravaId !== null) byStravaId.set(row.stravaId.toString(), entry);
 		if (row.conceptTwoId !== null)
-			byConceptTwoId.set(row.conceptTwoId.toString(), row.id);
+			byConceptTwoId.set(row.conceptTwoId.toString(), entry);
 	}
-	return { byStravaId, byConceptTwoId };
+	return {
+		byStravaId,
+		byConceptTwoId,
+		concept2Only: concept2Only.flatMap((row) => {
+			const result = parseStoredJson({
+				schema: concept2ActivitySchema.pick({
+					time: true,
+					rest_time: true,
+					distance: true,
+				}),
+				raw: row.conceptTwoData,
+			});
+			if (!result) return [];
+			return [
+				{
+					id: row.id,
+					hasConcept2Data: true,
+					boatId: row.boatId,
+					ergId: row.ergId,
+					workoutId: row.workoutId,
+					...concept2MatchShape({
+						startDate: row.startDate,
+						result,
+					}),
+				},
+			];
+		}),
+	};
+}
+
+function takeCrossSourceMatch({
+	shape,
+	pool,
+}: {
+	shape: CrossSourceShape;
+	pool: Concept2OnlyActivity[];
+}): ExistingActivity | undefined {
+	const match = findCrossSourceMatch({ target: shape, candidates: pool });
+	if (match) pool.splice(pool.indexOf(match), 1);
+	return match;
+}
+
+export function mapStravaActivity(activity: StravaActivity) {
+	return mergeActivity({
+		activity,
+		stravaId: BigInt(activity.id),
+		conceptTwoId: null,
+	});
 }
 
 function mergeActivity(item: ParsedStravaItem) {
@@ -182,11 +322,31 @@ function mergeActivity(item: ParsedStravaItem) {
 	};
 }
 
-function resolveExistingId(
-	item: ParsedStravaItem,
-	byStravaId: Map<string, string>,
-	byConceptTwoId: Map<string, string>,
-): string | undefined {
+function findSplitCopies({
+	item,
+	byStravaId,
+	byConceptTwoId,
+}: {
+	item: ParsedStravaItem;
+	byStravaId: Map<string, ExistingActivity>;
+	byConceptTwoId: Map<string, ExistingActivity>;
+}): { strava: ExistingActivity; concept2: ExistingActivity } | undefined {
+	if (item.conceptTwoId === null) return undefined;
+	const strava = byStravaId.get(item.stravaId.toString());
+	const concept2 = byConceptTwoId.get(item.conceptTwoId.toString());
+	if (!strava || !concept2 || strava.id === concept2.id) return undefined;
+	return { strava, concept2 };
+}
+
+function resolveExistingId({
+	item,
+	byStravaId,
+	byConceptTwoId,
+}: {
+	item: ParsedStravaItem;
+	byStravaId: Map<string, ExistingActivity>;
+	byConceptTwoId: Map<string, ExistingActivity>;
+}): ExistingActivity | undefined {
 	const stravaMatch = byStravaId.get(item.stravaId.toString());
 	if (stravaMatch) return stravaMatch;
 	if (item.conceptTwoId === null) return undefined;

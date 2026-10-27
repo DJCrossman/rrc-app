@@ -4,7 +4,7 @@ import { z } from "zod";
 // remaining optional fields are the ones webhook payloads omit — webhooks send
 // a trimmed result (no stroke/heart-rate/interval data) compared to the REST
 // endpoints, and the same schema validates both.
-export const concept2ActivitySchema = z.object({
+export const concept2ActivitySchema = z.looseObject({
 	id: z.number(),
 	user_id: z.number(),
 	date: z.string(),
@@ -25,7 +25,7 @@ export const concept2ActivitySchema = z.object({
 		.union([
 			z.boolean(),
 			z.array(
-				z.object({
+				z.looseObject({
 					t: z.number(),
 					d: z.number(),
 					p: z.number(),
@@ -41,19 +41,19 @@ export const concept2ActivitySchema = z.object({
 	stroke_count: z.number().nullish(),
 	stroke_rate: z.number().nullish(),
 	heart_rate: z
-		.object({
-			average: z.number(),
+		.looseObject({
+			average: z.number().optional(),
 			min: z.number().optional(),
 			max: z.number().optional(),
-			ending: z.number(),
+			ending: z.number().optional(),
 			recovery: z.number().optional(),
 		})
 		.nullish(),
 	workout: z
-		.object({
+		.looseObject({
 			intervals: z
 				.array(
-					z.object({
+					z.looseObject({
 						type: z.string(),
 						time: z.number(),
 						distance: z.number(),
@@ -61,11 +61,11 @@ export const concept2ActivitySchema = z.object({
 						stroke_rate: z.number(),
 						rest_time: z.number().optional(),
 						heart_rate: z
-							.object({
-								average: z.number(),
+							.looseObject({
+								average: z.number().optional(),
 								min: z.number().optional(),
 								max: z.number().optional(),
-								ending: z.number(),
+								ending: z.number().optional(),
 								recovery: z.number().optional(),
 								rest: z.number().optional(),
 							})

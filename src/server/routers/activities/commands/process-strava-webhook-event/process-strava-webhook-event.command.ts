@@ -3,6 +3,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { createLogger } from "@/lib/logger";
 import type { Context } from "@/server/context";
 import { getStravaAccessTokenForAthlete } from "../../common/get-strava-access-token-for-athlete";
+import { removeActivitySource } from "../../common/remove-activity-source";
 import { processStravaInboxBatchCommand } from "../process-strava-inbox-batch/process-strava-inbox-batch.command";
 
 const logger = createLogger("strava.webhook");
@@ -72,18 +73,18 @@ export async function processStravaWebhookEventCommand(
 
 	// object_type === "activity"
 	if (event.aspect_type === "delete") {
-		const result = await db.activity.deleteMany({
-			where: {
-				athleteId: athlete.id,
-				stravaId: BigInt(event.object_id),
-			},
+		const result = await removeActivitySource({
+			db,
+			athleteId: athlete.id,
+			source: "strava",
+			externalId: event.object_id,
 		});
 		logger.info("activity deleted", {
 			athleteId: athlete.id,
 			stravaId: event.object_id,
-			deleted: result.count,
+			...result,
 		});
-		return { handled: true, kind: "deleted" as const, deleted: result.count };
+		return { handled: true, kind: "deleted" as const, ...result };
 	}
 
 	// create | update — fetch the activity from Strava and route through the
@@ -111,16 +112,16 @@ export async function processStravaWebhookEventCommand(
 		// app without activity:read_all (treated as a delete by Strava) or was
 		// deleted between the event firing and our fetch. Mirror Strava's
 		// semantics and remove our local copy.
-		const result = await db.activity.deleteMany({
-			where: {
-				athleteId: athlete.id,
-				stravaId: BigInt(event.object_id),
-			},
+		const result = await removeActivitySource({
+			db,
+			athleteId: athlete.id,
+			source: "strava",
+			externalId: event.object_id,
 		});
 		logger.info("activity unavailable — removed local copy", {
 			athleteId: athlete.id,
 			stravaId: event.object_id,
-			deleted: result.count,
+			...result,
 		});
 		return { handled: true, kind: "removed_unavailable" as const };
 	}
@@ -128,17 +129,17 @@ export async function processStravaWebhookEventCommand(
 	if (!ROWING_SPORT_TYPES.has(activity.sport_type)) {
 		// If the athlete reclassified an existing rowing activity, drop our
 		// stale local copy so the DB stays consistent with Strava.
-		const result = await db.activity.deleteMany({
-			where: {
-				athleteId: athlete.id,
-				stravaId: BigInt(event.object_id),
-			},
+		const result = await removeActivitySource({
+			db,
+			athleteId: athlete.id,
+			source: "strava",
+			externalId: event.object_id,
 		});
 		logger.info("non-rowing activity — skipped persistence", {
 			athleteId: athlete.id,
 			stravaId: activity.id,
 			sportType: activity.sport_type,
-			deletedStaleLocal: result.count,
+			staleLocal: result,
 		});
 		return { handled: true, kind: "skipped_non_rowing" as const };
 	}

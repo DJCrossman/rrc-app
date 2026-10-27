@@ -1,8 +1,9 @@
 "use client";
 
-import { IconPencil, IconX } from "@tabler/icons-react";
+import { IconPencil, IconShare3, IconX } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
+import { ShareToChatDialog } from "@/components/chat/share-to-chat-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
@@ -12,8 +13,10 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
+import { useCurrentUser } from "@/hooks/useAuth";
 import { formatDuration } from "@/lib/formatters/formatDuration";
 import { formatMeters } from "@/lib/formatters/formatMeters";
+import { routes } from "@/lib/routes";
 import type { Activity, Boats, Ergs, Workouts } from "@/lib/trpc/types";
 import type { CreateActivity, UpdateActivity } from "@/schemas";
 import {
@@ -44,6 +47,8 @@ export const ActivityDetailsDrawer = ({
 }: ActivityDetailsDrawerProps) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const [isImageFullscreen, setIsImageFullscreen] = useState(false);
+	const [isSharing, setIsSharing] = useState(false);
+	const { user, hasAthlete } = useCurrentUser();
 
 	if (!activity) {
 		return null;
@@ -68,12 +73,28 @@ export const ActivityDetailsDrawer = ({
 						<DrawerDescription>Activity details</DrawerDescription>
 					</div>
 					<div className="flex items-center gap-2">
+						{hasAthlete && activity.athlete.id === user.id && (
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => setIsSharing(true)}
+							>
+								<IconShare3 />
+								Share to chat
+							</Button>
+						)}
 						<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
 							<IconX className="h-4 w-4" />
 							<span className="sr-only">Close</span>
 						</DrawerClose>
 					</div>
 				</DrawerHeader>
+				<ShareToChatDialog
+					open={isSharing}
+					onOpenChange={setIsSharing}
+					title={activity.name}
+					path={routes.activities.view(activity.id)}
+				/>
 				<div className="flex-1 overflow-y-auto p-6 space-y-6">
 					{isEditing && (
 						<ActivityForm

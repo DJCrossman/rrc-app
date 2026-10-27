@@ -4,6 +4,7 @@ import { DevTool } from '@hookform/devtools';
 import * as LabelPrimitive from '@radix-ui/react-label';
 import { Slot } from '@radix-ui/react-slot';
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import {
   Controller,
   type ControllerProps,
@@ -26,7 +27,7 @@ const FormDevTools = () => {
   if (!isLocalhost) {
     return null;
   }
-  return <DevTool control={form.control} />;
+  return createPortal(<DevTool control={form.control} />, document.body);
 };
 
 function HiddenFormMessage() {

@@ -14,6 +14,12 @@ export type Activity = NonNullable<
 export type Activities = RouterOutputs["activities"]["getActivities"]["data"];
 export type ActivitiesResult = RouterOutputs["activities"]["getActivities"];
 
+export type Group = NonNullable<RouterOutputs["groups"]["getGroupById"]>;
+export type Groups = RouterOutputs["groups"]["getGroups"]["data"];
+export type GroupMember = Group["members"][number];
+
+export type Programs = RouterOutputs["programs"]["getPrograms"]["data"];
+
 export type Boat = NonNullable<RouterOutputs["boats"]["getBoatById"]>;
 export type Boats = RouterOutputs["boats"]["getBoats"]["data"];
 export type BoatsResult = RouterOutputs["boats"]["getBoats"];
@@ -39,3 +45,9 @@ export type ScheduleEvent = ScheduleDay["events"][number];
 export type EventResponses = RouterOutputs["schedule"]["getResponses"];
 export type EventResponsePerson = EventResponses["going"][number];
 export type UpcomingSchedule = RouterOutputs["schedule"]["getUpcoming"];
+
+export type ChatChannels = RouterOutputs["chat"]["getChannels"]["data"];
+export type ChatChannel = ChatChannels[number];
+export type ChatMessage = RouterOutputs["chat"]["getMessages"]["data"][number];
+export type ChatThread = RouterOutputs["chat"]["getThread"];
+export type ChatMembers = RouterOutputs["chat"]["getMembers"]["data"];
