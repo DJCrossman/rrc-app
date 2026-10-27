@@ -1,5 +1,6 @@
 "use client";
 
+import { UserProfile } from "@clerk/nextjs";
 import { toast } from "sonner";
 import {
 	Card,
@@ -21,15 +22,20 @@ export const AccountSettingsScene = ({ onUpdateProfile }: IProps) => {
 
 	if (!hasAthlete) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>My Account</CardTitle>
-					<CardDescription>
-						You're signed in as an admin and don't have a personal athlete
-						profile. Manage athletes via the Athletes page.
-					</CardDescription>
-				</CardHeader>
-			</Card>
+			<UserProfile
+				routing="hash"
+				appearance={{
+					variables: {
+						colorBackground: "#09090b",
+						colorInputBackground: "#18181b",
+						colorInputText: "#fafafa",
+						colorText: "#fafafa",
+						colorTextSecondary: "#a1a1aa",
+						colorPrimary: "#fafafa",
+						colorNeutral: "#fafafa",
+					},
+				}}
+			/>
 		);
 	}
 

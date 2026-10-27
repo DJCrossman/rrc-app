@@ -1,7 +1,7 @@
 import { getBoatByIdInputSchema } from "@/schemas";
-import { protectedProcedure } from "@/server/procedures";
+import { viewerProcedure } from "@/server/procedures";
 import { getBoatByIdQuery } from "./get-boat-by-id.query";
 
-export const getBoatByIdProcedure = protectedProcedure
+export const getBoatByIdProcedure = viewerProcedure
 	.input(getBoatByIdInputSchema)
 	.query(({ ctx, input }) => getBoatByIdQuery(input, ctx));

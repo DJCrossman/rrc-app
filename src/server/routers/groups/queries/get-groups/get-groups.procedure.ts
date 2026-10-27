@@ -1,6 +1,6 @@
-import { protectedProcedure } from "@/server/procedures";
+import { viewerProcedure } from "@/server/procedures";
 import { getGroupsQuery } from "./get-groups.query";
 
-export const getGroupsProcedure = protectedProcedure.query(({ ctx }) =>
+export const getGroupsProcedure = viewerProcedure.query(({ ctx }) =>
 	getGroupsQuery(undefined, ctx),
 );

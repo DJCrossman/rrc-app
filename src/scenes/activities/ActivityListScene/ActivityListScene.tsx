@@ -3,9 +3,11 @@
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { AppSidebar } from "@/components/app-sidebar";
+import { AthleteProfilePrompt } from "@/components/athlete-profile-prompt";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { useCurrentUser } from "@/hooks/useAuth";
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
 import type {
@@ -74,6 +76,7 @@ export const ActivityListScene = ({
 	isCreateDrawerOpen,
 }: ActivityListSceneProps) => {
 	const router = useRouter();
+	const { hasAthlete } = useCurrentUser();
 	const utils = trpcClient.useUtils();
 	const createActivity = trpcClient.activities.createActivity.useMutation({
 		onSuccess: async () => {
@@ -104,6 +107,11 @@ export const ActivityListScene = ({
 				<SiteHeader breadcrumbs={[{ label: "Activities" }]} />
 				<div className="flex flex-1 flex-col">
 					<div className="@container/main flex flex-1 flex-col gap-2">
+						{!hasAthlete && (
+							<div className="px-4 lg:px-6">
+								<AthleteProfilePrompt />
+							</div>
+						)}
 						<IntegrationAlert />
 						<div className="flex items-center justify-between p-4 lg:px-6">
 							<Heading as="h1">Activities</Heading>

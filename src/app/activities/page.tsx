@@ -33,7 +33,7 @@ export default async function ActivitiesPage({
 
 	const currentAthlete =
 		currentAthleteResult.status === "fulfilled"
-			? currentAthleteResult.value
+			? (currentAthleteResult.value ?? undefined)
 			: undefined;
 	const activitiesResponse =
 		activitiesResult.status === "fulfilled"

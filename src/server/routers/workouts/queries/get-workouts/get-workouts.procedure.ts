@@ -1,6 +1,6 @@
-import { protectedProcedure } from "@/server/procedures";
+import { viewerProcedure } from "@/server/procedures";
 import { getWorkoutsQuery } from "./get-workouts.query";
 
-export const getWorkoutsProcedure = protectedProcedure.query(({ ctx }) =>
+export const getWorkoutsProcedure = viewerProcedure.query(({ ctx }) =>
 	getWorkoutsQuery(undefined, ctx),
 );

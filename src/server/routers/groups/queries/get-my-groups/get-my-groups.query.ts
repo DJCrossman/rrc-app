@@ -1,11 +1,11 @@
 import { paginate } from "@/lib/pagination";
-import type { AuthenticatedContext } from "@/server/context";
+import type { ViewerContext } from "@/server/context";
 import { getAthleteGroups } from "../../common/group-members";
 
 export async function getMyGroupsQuery(
 	_input: undefined,
-	{ db, athlete }: AuthenticatedContext,
+	{ db, athlete }: ViewerContext,
 ) {
-	const data = await getAthleteGroups(db, athlete.id);
+	const data = athlete ? await getAthleteGroups(db, athlete.id) : [];
 	return paginate({ data, totalCount: data.length });
 }

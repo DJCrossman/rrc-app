@@ -1,11 +1,11 @@
 import { DateTime } from "luxon";
-import type { AuthenticatedContext } from "@/server/context";
+import type { ViewerContext } from "@/server/context";
 
 export async function getAnalyticsQuery(
 	_input: undefined,
-	{ db, athlete }: AuthenticatedContext,
+	{ db, athlete }: ViewerContext,
 ) {
-	const athleteId = athlete.id;
+	const athleteId = athlete?.id;
 
 	const now = DateTime.now();
 	const currStart = now.startOf("month").toJSDate();

@@ -1,6 +1,6 @@
-import { protectedProcedure } from "@/server/procedures";
+import { viewerProcedure } from "@/server/procedures";
 import { getLeaderboardQuery } from "./get-leaderboard.query";
 
-export const getLeaderboardProcedure = protectedProcedure.query(({ ctx }) =>
+export const getLeaderboardProcedure = viewerProcedure.query(({ ctx }) =>
 	getLeaderboardQuery(undefined, ctx),
 );

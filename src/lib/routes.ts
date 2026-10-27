@@ -29,11 +29,12 @@ export const routes = {
 		bulkCreate: () => "/boats?action=bulkCreate",
 		view: (id: string) => `/boats?boatId=${id}`,
 	},
-	athletes: {
-		list: () => "/athletes",
-		create: () => "/athletes?action=create",
-		bulkCreate: () => "/athletes?action=bulkCreate",
-		view: (id: string) => `/athletes?athleteId=${id}`,
+	members: {
+		list: () => "/members",
+		create: () => "/members?action=create",
+		bulkCreate: () => "/members?action=bulkCreate",
+		view: (id: string) => `/members?athleteId=${id}`,
+		edit: (id: string) => `/members?athleteId=${id}&action=edit`,
 	},
 	groups: {
 		list: () => "/groups",
@@ -55,6 +56,9 @@ export const routes = {
 		thread: (channelId: string, messageId: string) =>
 			`/chat/${channelId}?thread=${messageId}`,
 		everyone: () => `/chat/${EVERYONE_CHANNEL_ID}`,
+	},
+	onboarding: {
+		start: () => "/onboarding",
 	},
 	settings: {
 		account: () => "/settings/account",

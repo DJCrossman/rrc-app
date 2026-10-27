@@ -1,12 +1,9 @@
 import { DateTime } from "luxon";
 import { paginate } from "@/lib/pagination";
-import type { AuthenticatedContext } from "@/server/context";
+import type { Context } from "@/server/context";
 import { mapToAthleteDto } from "@/server/routers/athletes/common/map-to-athlete-dto";
 
-export async function getLeaderboardQuery(
-	_input: undefined,
-	{ db }: AuthenticatedContext,
-) {
+export async function getLeaderboardQuery(_input: undefined, { db }: Context) {
 	const [allAthletes, totalCount] = await Promise.all([
 		db.athlete.findMany({
 			include: {

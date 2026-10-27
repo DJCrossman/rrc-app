@@ -1,9 +1,12 @@
-import type { AuthenticatedContext } from "@/server/context";
-import { mapToAthleteDto } from "@/server/routers/athletes/common/map-to-athlete-dto";
+import type { ViewerContext } from "@/server/context";
+import { mapToAthleteWithGroups } from "@/server/routers/athletes/common/map-to-athlete-with-groups";
+import { findGroupRules } from "@/server/routers/groups/common";
 
 export async function getCurrentAthleteQuery(
 	_input: undefined,
-	{ athlete }: AuthenticatedContext,
+	{ db, athlete }: ViewerContext,
 ) {
-	return mapToAthleteDto(athlete);
+	return athlete
+		? mapToAthleteWithGroups(athlete, await findGroupRules(db))
+		: null;
 }

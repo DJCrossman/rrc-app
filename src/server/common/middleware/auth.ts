@@ -1,5 +1,6 @@
 import { athleteInclude } from "@/server/routers/athletes/common/map-to-athlete-dto";
 import { middleware, TRPCError } from "../trpc";
+import { resolveViewerAccess } from "./viewer-access";
 
 export const requireAuthAndAthlete = middleware(async ({ ctx, next }) => {
 	if (!ctx.user) {
@@ -49,23 +50,15 @@ export const requireAuthAndAdmin = middleware(async ({ ctx, next }) => {
 
 export const requireAuthAndAthleteOrAdmin = middleware(
 	async ({ ctx, next }) => {
-		if (!ctx.user) {
-			throw new TRPCError({
-				code: "UNAUTHORIZED",
-				message: "Authentication required",
-			});
-		}
-		const athlete = await ctx.db.athlete.findUnique({
-			where: { userId: ctx.user.id },
-			include: athleteInclude,
+		const athlete = ctx.user
+			? await ctx.db.athlete.findUnique({
+					where: { userId: ctx.user.id },
+					include: athleteInclude,
+				})
+			: null;
+		return next({
+			ctx: { ...ctx, ...resolveViewerAccess({ user: ctx.user, athlete }) },
 		});
-		if (!athlete && !ctx.user.isAdmin) {
-			throw new TRPCError({
-				code: "FORBIDDEN",
-				message: "Athlete account required",
-			});
-		}
-		return next({ ctx: { ...ctx, user: ctx.user, athlete } });
 	},
 );
 

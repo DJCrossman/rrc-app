@@ -1,12 +1,12 @@
 import { TRPCError } from "@trpc/server";
 import { getActivityByIdInputSchema } from "@/schemas";
-import { authenticatedProcedure } from "@/server/common/procedures/authenticated.procedure";
+import { viewerProcedure } from "@/server/procedures";
 import {
 	activityInclude,
 	mapToActivityDto,
 } from "@/server/routers/activities/common/map-to-activity-dto";
 
-export const getActivityByIdProcedure = authenticatedProcedure
+export const getActivityByIdProcedure = viewerProcedure
 	.input(getActivityByIdInputSchema)
 	.query(async ({ ctx, input }) => {
 		if (!input.id) return null;
@@ -15,7 +15,7 @@ export const getActivityByIdProcedure = authenticatedProcedure
 			include: activityInclude,
 		});
 		if (!row) return null;
-		if (row.athleteId !== ctx.athlete.id) {
+		if (!ctx.user.isAdmin && row.athleteId !== ctx.athlete?.id) {
 			throw new TRPCError({
 				code: "FORBIDDEN",
 				message: "Cannot view another athlete's activity",

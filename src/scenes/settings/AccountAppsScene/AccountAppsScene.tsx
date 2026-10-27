@@ -5,6 +5,7 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
+import { AthleteProfilePrompt } from "@/components/athlete-profile-prompt";
 import { ApplicationIcon } from "@/components/integrations/application-icon";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -173,10 +174,10 @@ export const AccountAppsScene = ({
 						Connected Applications
 					</h2>
 					<p className="text-muted-foreground">
-						You're signed in as an admin and don't have a personal athlete
-						profile. Connect integrations from a member account instead.
+						Connect your training apps to sync activities automatically.
 					</p>
 				</div>
+				<AthleteProfilePrompt />
 			</div>
 		);
 	}
