@@ -79,6 +79,53 @@ export function dateEditor<TRow>({
 	);
 }
 
+export function numberEditor<TRow>({
+	row,
+	column,
+	onRowChange,
+	onClose,
+}: RenderEditCellProps<TRow>) {
+	const value = (row as Record<string, unknown>)[column.key] as
+		| number
+		| undefined;
+	return (
+		<input
+			type="number"
+			inputMode="decimal"
+			className={editorClass}
+			value={value ?? ""}
+			onChange={(e) =>
+				onRowChange({
+					...row,
+					[column.key]:
+						e.target.value === "" ? undefined : Number(e.target.value),
+				})
+			}
+			onBlur={() => deferClose(() => onClose(true, false))}
+		/>
+	);
+}
+
+export function timeEditor<TRow>({
+	row,
+	column,
+	onRowChange,
+}: RenderEditCellProps<TRow>) {
+	const value = (row as Record<string, unknown>)[column.key] as
+		| string
+		| undefined;
+	return (
+		<input
+			type="time"
+			className={editorClass}
+			value={value ?? ""}
+			onChange={(e) =>
+				onRowChange({ ...row, [column.key]: e.target.value || undefined }, true)
+			}
+		/>
+	);
+}
+
 /**
  * Factory for select-based cell editors. Pass the option list and an optional
  * label-resolver that can read the current row (e.g. to format gender based

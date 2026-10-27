@@ -5,7 +5,12 @@ import { requireAuth } from "@/lib/auth";
 import { parseDuration } from "@/lib/parsers/parseDuration";
 import { parseIntensity } from "@/lib/parsers/parseIntensity";
 import { parseIntervals } from "@/lib/parsers/parseIntervals";
-import { type CreateWorkout, workoutCoreSchema } from "@/schemas";
+import {
+	type CreateWorkout,
+	type WorkoutActivityType,
+	WorkoutActivityTypes,
+	workoutCoreSchema,
+} from "@/schemas";
 
 export async function POST(request: Request) {
 	try {
@@ -106,10 +111,9 @@ export async function POST(request: Request) {
 			if (intensityCategory === undefined)
 				intensityCategory = parseIntensity(description);
 			const activityType: string =
-				"activityType" in item &&
-				(item.activityType === "erg" || item.activityType === "water")
+				"activityType" in item && isActivityType(item.activityType)
 					? item.activityType
-					: "type" in item && (item.type === "erg" || item.type === "water")
+					: "type" in item && isActivityType(item.type)
 						? item.type
 						: "erg";
 			const fragments =
@@ -151,3 +155,6 @@ export async function POST(request: Request) {
 export interface UploadWorkoutScreenshotResult {
 	workouts: PromiseSettledResult<CreateWorkout>[];
 }
+
+const isActivityType = (value: unknown): value is WorkoutActivityType =>
+	WorkoutActivityTypes.includes(value as WorkoutActivityType);

@@ -144,8 +144,22 @@ model workout {
   intervalCount     Int                @default(1)
   intensityCategory IntensityCategory
   fragments         workout_fragment[]
+  zoneMinutes       workout_zone_minute[]
   activities        activity[]
   event             event?
+}
+
+// Minutes of a session spent in each training zone. A session is typically split
+// across several — 80 min = 30 C6 + 30 C5 + 20 C4 — and strength work carries
+// none at all, which is why these are rows rather than columns on `workout`.
+model workout_zone_minute {
+  id                String            @id @default(dbgenerated("generate_id('work_zone_'::text)"))
+  workoutId         String
+  intensityCategory IntensityCategory
+  minutes           Int
+  workout           workout           @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+
+  @@unique([workoutId, intensityCategory])
 }
 
 model workout_fragment {
@@ -164,6 +178,8 @@ model workout_fragment {
 enum ActivityType {
   water
   erg
+  crossTrain
+  strength
 }
 
 model activity {

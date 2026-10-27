@@ -9,13 +9,14 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
-import type { CreateEvent } from "@/schemas";
+import type { CreateEvent, EventFormInput } from "@/schemas";
 import { getNewEventFormValues } from "../../utils/getEventFormValues";
 import { EventCreateForm } from "../EventCreateForm/EventCreateForm";
 
 interface EventCreateDrawerProps {
 	isOpen: boolean;
 	defaultDate: string;
+	defaultValues?: EventFormInput;
 	onClose: () => void;
 	onSubmit: (input: CreateEvent) => Promise<void>;
 }
@@ -23,6 +24,7 @@ interface EventCreateDrawerProps {
 export const EventCreateDrawer = ({
 	isOpen,
 	defaultDate,
+	defaultValues,
 	onClose,
 	onSubmit,
 }: EventCreateDrawerProps) => (
@@ -47,7 +49,7 @@ export const EventCreateDrawer = ({
 			<div className="flex-1 overflow-y-auto p-6">
 				{isOpen && (
 					<EventCreateForm
-						defaultValues={getNewEventFormValues(defaultDate)}
+						defaultValues={defaultValues ?? getNewEventFormValues(defaultDate)}
 						onSubmit={onSubmit}
 						onCancel={onClose}
 					/>

@@ -14,7 +14,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { cn } from "@/lib/utils";
-import type { EventFormInput, IntensityCategory } from "@/schemas";
+import {
+	type EventFormInput,
+	type IntensityCategory,
+	type WorkoutActivityType,
+	WorkoutActivityTypes,
+} from "@/schemas";
 import {
 	intensityActiveSelectorMap,
 	intensityColorMap,
@@ -55,13 +60,17 @@ export const WorkoutFields = ({
 							<Tabs
 								value={field.value}
 								onValueChange={(value) => {
-									if (value === "erg" || value === "water")
+									if (
+										WorkoutActivityTypes.includes(value as WorkoutActivityType)
+									)
 										field.onChange(value);
 								}}
 							>
-								<TabsList className="grid w-full grid-cols-2">
+								<TabsList className="grid w-full grid-cols-4">
 									<TabsTrigger value="water">Boat</TabsTrigger>
 									<TabsTrigger value="erg">ERG</TabsTrigger>
+									<TabsTrigger value="crossTrain">XT</TabsTrigger>
+									<TabsTrigger value="strength">S&C</TabsTrigger>
 								</TabsList>
 							</Tabs>
 						</FormControl>

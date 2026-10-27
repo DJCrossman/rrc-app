@@ -1,8 +1,10 @@
 import type { Prisma } from "@/generated/prisma/client";
+import type { ZoneMinutes } from "@/schemas";
 
 export const workoutInclude = {
 	fragments: true,
-	event: { select: { id: true } },
+	zoneMinutes: true,
+	event: { select: { id: true, title: true } },
 } as const;
 
 export type WorkoutRow = Prisma.workoutGetPayload<{
@@ -19,7 +21,9 @@ export const mapToWorkoutDto = (workout: WorkoutRow) => ({
 	distance: workout.distance,
 	intervalCount: workout.intervalCount,
 	intensityCategory: workout.intensityCategory,
+	zoneMinutes: mapToZoneMinutes(workout.zoneMinutes),
 	eventId: workout.event?.id ?? null,
+	eventTitle: workout.event?.title ?? null,
 	fragments: workout.fragments.map((f) => ({
 		id: f.id,
 		workoutId: f.workoutId,
@@ -30,3 +34,8 @@ export const mapToWorkoutDto = (workout: WorkoutRow) => ({
 		relativeSplit: f.relativeSplit,
 	})),
 });
+
+const mapToZoneMinutes = (rows: WorkoutRow["zoneMinutes"]): ZoneMinutes =>
+	Object.fromEntries(
+		rows.map((row) => [row.intensityCategory, row.minutes]),
+	) as ZoneMinutes;

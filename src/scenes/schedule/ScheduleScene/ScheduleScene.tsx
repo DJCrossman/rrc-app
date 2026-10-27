@@ -1,6 +1,7 @@
 "use client";
 
-import { IconCalendarShare, IconPlus } from "@tabler/icons-react";
+import { IconCalendarShare, IconPlus, IconTable } from "@tabler/icons-react";
+
 import { DateTime } from "luxon";
 import { useRouter } from "next/navigation";
 import type React from "react";
@@ -13,6 +14,7 @@ import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { routes } from "@/lib/routes";
+import { countNotifiable } from "@/lib/schedule/changes";
 import {
 	CLUB_TIMEZONE,
 	formatWeekRange,
@@ -39,6 +41,7 @@ import {
 	SubscribeDialog,
 	WeekNavigation,
 } from "./components";
+import { formatNudgeResult } from "./utils/formatNudgeResult";
 
 const TYPE_FILTERS = [
 	{ value: "all", label: "All" },
@@ -138,6 +141,20 @@ export const ScheduleScene = ({
 									<IconCalendarShare />
 									<span className="hidden sm:inline">Subscribe</span>
 								</Button>
+								{isAdmin && (
+									<Button asChild variant="outline" size="sm">
+										<a
+											href={routes.schedule.bulkEditTraining({
+												week: weekStart,
+											})}
+										>
+											<IconTable />
+											<span className="hidden sm:inline">
+												Bulk edit training
+											</span>
+										</a>
+									</Button>
+								)}
 								{isAdmin && (
 									<Button
 										type="button"
@@ -286,17 +303,20 @@ export const ScheduleScene = ({
 				responses={responses}
 				analytics={analytics}
 				isAdmin={isAdmin}
+				notifyCount={selectedEvent ? countNotifiable(selectedEvent) : 0}
 				onClose={closeOverlay}
-				onSubmit={async (input) => {
+				onSubmit={async (input, { notify }) => {
 					if (!selectedEvent) return;
 					await withErrorToast(
-						updateEvent.mutateAsync({ ...input, id: selectedEvent.id }),
+						updateEvent.mutateAsync({ ...input, id: selectedEvent.id, notify }),
 					);
 					toast.success("Event updated");
 					router.refresh();
 				}}
-				onDelete={async (eventId) => {
-					await withErrorToast(deleteEvent.mutateAsync({ id: eventId }));
+				onDelete={async (eventId, { notify }) => {
+					await withErrorToast(
+						deleteEvent.mutateAsync({ id: eventId, notify }),
+					);
 					toast.success("Event deleted");
 					closeOverlay();
 					router.refresh();
@@ -306,12 +326,10 @@ export const ScheduleScene = ({
 				event={nudgeEvent}
 				onClose={() => setNudgeEvent(null)}
 				onConfirm={async (eventId) => {
-					const { count } = await withErrorToast(
+					const { count, reached } = await withErrorToast(
 						nudge.mutateAsync({ eventId }),
 					);
-					toast.success(
-						`Reminder sent to ${count} ${count === 1 ? "person" : "people"}`,
-					);
+					toast.success(formatNudgeResult(count, reached));
 				}}
 			/>
 			<SubscribeDialog

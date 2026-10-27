@@ -93,7 +93,13 @@ describe("sendPush", () => {
 			message,
 		);
 
-		expect(result).toEqual({ sent: 3, failed: 0, removed: 0, skipped: 0 });
+		expect(result).toEqual({
+			reached: 2,
+			sent: 3,
+			failed: 0,
+			removed: 0,
+			skipped: 0,
+		});
 		expect(send).toHaveBeenCalledTimes(3);
 		const [subscription, payload, options] = send.mock.calls[0];
 		expect(subscription).toEqual({
@@ -139,7 +145,13 @@ describe("sendPush", () => {
 			message,
 		);
 
-		expect(result).toEqual({ sent: 1, failed: 1, removed: 2, skipped: 0 });
+		expect(result).toEqual({
+			reached: 1,
+			sent: 1,
+			failed: 1,
+			removed: 2,
+			skipped: 0,
+		});
 		expect(db.push_subscription.deleteMany).toHaveBeenCalledWith({
 			where: { id: { in: ["sub_gone", "sub_missing"] } },
 		});
@@ -171,7 +183,13 @@ describe("sendPush", () => {
 			{ ...message, scope: "channel:chan_1" },
 		);
 
-		expect(result).toEqual({ sent: 1, failed: 0, removed: 0, skipped: 2 });
+		expect(result).toEqual({
+			reached: 1,
+			sent: 1,
+			failed: 0,
+			removed: 0,
+			skipped: 2,
+		});
 		expect(db.notification_preference.findMany).toHaveBeenCalledWith(
 			expect.objectContaining({
 				where: {
@@ -196,7 +214,13 @@ describe("sendPush", () => {
 			message,
 		);
 
-		expect(result).toEqual({ sent: 0, failed: 0, removed: 0, skipped: 1 });
+		expect(result).toEqual({
+			reached: 0,
+			sent: 0,
+			failed: 0,
+			removed: 0,
+			skipped: 1,
+		});
 		expect(send).not.toHaveBeenCalled();
 		expect(db.push_subscription.findMany).not.toHaveBeenCalled();
 	});
@@ -209,7 +233,13 @@ describe("sendPush", () => {
 			message,
 		);
 
-		expect(result).toEqual({ sent: 0, failed: 0, removed: 0, skipped: 0 });
+		expect(result).toEqual({
+			reached: 0,
+			sent: 0,
+			failed: 0,
+			removed: 0,
+			skipped: 0,
+		});
 		expect(db.notification_preference.findMany).not.toHaveBeenCalled();
 	});
 
@@ -221,7 +251,13 @@ describe("sendPush", () => {
 
 		await expect(
 			createPushService({ db: asPushDb(db) }).sendPush(["ath_a"], message),
-		).resolves.toEqual({ sent: 0, failed: 0, removed: 0, skipped: 0 });
+		).resolves.toEqual({
+			reached: 0,
+			sent: 0,
+			failed: 0,
+			removed: 0,
+			skipped: 0,
+		});
 		expect(console.error).toHaveBeenCalled();
 	});
 });

@@ -1,3 +1,5 @@
+export * from "./formatActivityType";
+export * from "./formatDistance";
 export * from "./formatDuration";
 export * from "./formatManufacturer";
 export * from "./formatMeters";

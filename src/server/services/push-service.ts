@@ -15,6 +15,8 @@ const PUSH_TTL_SECONDS = 24 * 60 * 60;
 const GONE_STATUS_CODES = new Set([404, 410]);
 
 export type PushResult = {
+	/** Distinct athletes with at least one device the push reached. */
+	reached: number;
 	sent: number;
 	failed: number;
 	removed: number;
@@ -44,7 +46,13 @@ export function createPushService({ db }: { db: PushDb }): PushService {
 		isConfigured: vapidDetails !== null,
 		publicKey,
 		sendPush: async (athleteIds, message) => {
-			const result: PushResult = { sent: 0, failed: 0, removed: 0, skipped: 0 };
+			const result: PushResult = {
+				reached: 0,
+				sent: 0,
+				failed: 0,
+				removed: 0,
+				skipped: 0,
+			};
 			const uniqueIds = [...new Set(athleteIds)];
 			if (uniqueIds.length === 0) return result;
 			if (!vapidDetails) {
@@ -77,7 +85,13 @@ export function createPushService({ db }: { db: PushDb }): PushService {
 
 				const subscriptions = await db.push_subscription.findMany({
 					where: { athleteId: { in: recipients } },
-					select: { id: true, endpoint: true, p256dh: true, auth: true },
+					select: {
+						id: true,
+						athleteId: true,
+						endpoint: true,
+						p256dh: true,
+						auth: true,
+					},
 				});
 				const payload = buildPushPayload(message);
 				const outcomes = await Promise.all(
@@ -109,6 +123,11 @@ export function createPushService({ db }: { db: PushDb }): PushService {
 						}),
 				]);
 
+				result.reached = new Set(
+					subscriptions
+						.filter(({ id }) => sentIds.includes(id))
+						.map(({ athleteId }) => athleteId),
+				).size;
 				result.sent = sentIds.length;
 				result.removed = goneIds.length;
 				result.failed = failedIds.length;

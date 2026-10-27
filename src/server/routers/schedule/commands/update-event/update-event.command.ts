@@ -1,24 +1,22 @@
 import { TRPCError } from "@trpc/server";
-import type { UpdateEvent } from "@/schemas";
+import type { UpdateEventInput } from "@/schemas";
 import type { AdminContext } from "@/server/context";
+import { updateEventRow } from "@/server/routers/schedule/common/event-writes";
+import { mapToEventDtos } from "@/server/routers/schedule/common/map-to-event-dto";
 import {
-	toEventData,
-	toEventGroups,
-	toWorkoutData,
-} from "@/server/routers/schedule/common/event-data";
-import {
-	eventInclude,
-	mapToEventDtos,
-} from "@/server/routers/schedule/common/map-to-event-dto";
+	notifiableEventSelect,
+	planChangeNotifications,
+	toEventSnapshot,
+} from "@/server/routers/schedule/common/schedule-change-notifications";
 
 export async function updateEventCommand(
-	{ id, ...input }: UpdateEvent,
+	{ id, notify, ...input }: UpdateEventInput,
 	{ db, athlete }: AdminContext,
 ) {
 	const existing = await db.event.findUnique({
 		where: { id },
 		select: {
-			type: true,
+			...notifiableEventSelect,
 			workoutId: true,
 			_count: { select: { rsvps: { where: { status: "yes" } } } },
 		},
@@ -40,37 +38,17 @@ export async function updateEventCommand(
 		});
 	}
 
-	const row = await db.$transaction(async (tx) => {
-		let workoutId = existing.workoutId;
-		if (input.type === "training" && input.workout) {
-			const data = toWorkoutData(input.workout, input.startAt);
-			const fragments = input.workout.fragments ?? [];
-			workoutId = workoutId
-				? (
-						await tx.workout.update({
-							where: { id: workoutId },
-							data: {
-								...data,
-								fragments: { deleteMany: {}, create: fragments },
-							},
-						})
-					).id
-				: (
-						await tx.workout.create({
-							data: { ...data, fragments: { create: fragments } },
-						})
-					).id;
-		}
-		return tx.event.update({
-			where: { id },
-			data: {
-				...toEventData(input),
-				workoutId,
-				groups: { deleteMany: {}, create: toEventGroups(input) },
-			},
-			include: eventInclude,
-		});
-	});
+	const row = await db.$transaction((tx) =>
+		updateEventRow(tx, id, input, existing.workoutId),
+	);
 	const [event] = await mapToEventDtos(db, [row], athlete?.id ?? null);
-	return event;
+	return {
+		event,
+		notifications: notify
+			? planChangeNotifications(
+					[existing],
+					new Map([[id, toEventSnapshot(id, input)]]),
+				)
+			: [],
+	};
 }

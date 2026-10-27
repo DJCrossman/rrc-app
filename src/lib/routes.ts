@@ -17,6 +17,10 @@ export const routes = {
 			toScheduleUrl({ ...params, action: "create" }),
 		view: ({ id, ...params }: ScheduleRouteParams & { id: string }) =>
 			toScheduleUrl({ ...params, eventId: id }),
+		bulkEditTraining: ({ week }: Pick<ScheduleRouteParams, "week"> = {}) =>
+			week
+				? `/schedule/bulk-edit-training?week=${week.toISODate()}`
+				: "/schedule/bulk-edit-training",
 	},
 	boats: {
 		list: () => "/boats",

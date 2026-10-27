@@ -76,7 +76,16 @@ export const updateEventSchema = eventFieldsSchema
 	.superRefine(refineEvent);
 export type UpdateEvent = z.infer<typeof updateEventSchema>;
 
-export const deleteEventInputSchema = z.object({ id: z.string() });
+// Whether a change should push to the athletes it affects. On by default; the
+// coach can untick it for edits nobody needs to hear about.
+const notifySchema = z.object({ notify: z.boolean().default(true) });
+
+export const updateEventInputSchema = updateEventSchema.and(notifySchema);
+export type UpdateEventInput = z.infer<typeof updateEventInputSchema>;
+
+export const deleteEventInputSchema = z
+	.object({ id: z.string() })
+	.extend(notifySchema.shape);
 export type DeleteEventInput = z.infer<typeof deleteEventInputSchema>;
 
 export const eventFormSchema = z
@@ -167,6 +176,81 @@ export const eventFormSchema = z
 		};
 	});
 export type EventFormInput = z.input<typeof eventFormSchema>;
+
+const optionalGridNumber = z.preprocess(
+	(value) => (value === "" || value === null ? undefined : value),
+	z.coerce.number().nonnegative().optional(),
+);
+
+// One row of the bulk week editor: a training event plus its workout, in the
+// units a coach types (minutes, metres) rather than the stored ones.
+export const trainingRowSchema = z
+	.object({
+		eventId: z.string().optional(),
+		title: z.string().trim().min(1, "Title is required").max(200),
+		dayIndex: z.coerce.number().int().min(0).max(6),
+		time: z
+			.string()
+			.regex(/^([01]\d|2[0-3]):[0-5]\d$/, { message: "Use HH:MM" }),
+		activityType: workoutCoreSchema.shape.activityType.unwrap(),
+		description: z.string(),
+		intensityCategory: workoutCoreSchema.shape.intensityCategory,
+		workoutType: workoutCoreSchema.shape.workoutType,
+		durationMin: optionalGridNumber,
+		distanceMeters: optionalGridNumber,
+		// Session composition, flattened one column per zone so the grid can edit
+		// each directly.
+		zoneC1: optionalGridNumber,
+		zoneC2: optionalGridNumber,
+		zoneC3: optionalGridNumber,
+		zoneC4: optionalGridNumber,
+		zoneC5: optionalGridNumber,
+		zoneC6: optionalGridNumber,
+		intervalCount: z.preprocess(
+			(value) => (value === "" || value === null ? undefined : value),
+			z.coerce.number().int().min(1).default(1),
+		),
+		fragments: z.array(createWorkoutFragmentSchema).optional(),
+		// Event fields the grid has no column for. They ride along so an edit made
+		// in the event drawer survives until the week is saved.
+		eventDetails: z
+			.object({
+				description: z.string().nullable(),
+				lengthMin: z.number().nullable(),
+				allDay: z.boolean(),
+				timezone: z.string(),
+				location: z.string().nullable(),
+				audience: z.enum(EventAudiences),
+				groupIds: z.array(z.string()),
+			})
+			.optional(),
+	})
+	.superRefine((row, ctx) => {
+		if (row.workoutType === "distance" && row.distanceMeters == null) {
+			ctx.addIssue({
+				code: "custom",
+				message: "Distance is required",
+				path: ["distanceMeters"],
+			});
+		}
+		if (row.workoutType === "time" && row.durationMin == null) {
+			ctx.addIssue({
+				code: "custom",
+				message: "Duration is required",
+				path: ["durationMin"],
+			});
+		}
+	});
+export type TrainingRow = z.infer<typeof trainingRowSchema>;
+
+export const saveTrainingWeekSchema = z
+	.object({
+		creates: z.array(createEventSchema).default([]),
+		updates: z.array(updateEventSchema).default([]),
+		deleteIds: z.array(z.string()).default([]),
+	})
+	.extend(notifySchema.shape);
+export type SaveTrainingWeek = z.infer<typeof saveTrainingWeekSchema>;
 
 function refineEvent(
 	event: z.infer<typeof eventFieldsSchema>,

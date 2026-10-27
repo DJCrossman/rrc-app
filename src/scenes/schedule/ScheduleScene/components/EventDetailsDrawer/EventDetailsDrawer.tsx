@@ -20,6 +20,7 @@ import {
 	DrawerTitle,
 } from "@/components/ui/drawer";
 import {
+	formatActivityType,
 	formatCompactSplit,
 	formatDuration,
 	formatMeters,
@@ -39,6 +40,10 @@ import { EventResponsesList } from "../EventResponsesList/EventResponsesList";
 import { EventTypeBadge } from "../EventTypeBadge/EventTypeBadge";
 import { EventWorkoutForm } from "../EventWorkoutForm/EventWorkoutForm";
 import { FragmentSplitDisplay } from "../FragmentSplitDisplay";
+import {
+	NotifyToggle,
+	notifyAthletesLabel,
+} from "../NotifyToggle/NotifyToggle";
 
 interface EventDetailsDrawerProps {
 	event: ScheduleEvent | null;
@@ -46,8 +51,10 @@ interface EventDetailsDrawerProps {
 	analytics: Pick<AnalyticMetrics, "lastTwoKm" | "lastSixKm"> | null;
 	isAdmin: boolean;
 	onClose: () => void;
-	onSubmit: (input: CreateEvent) => Promise<void>;
-	onDelete: (eventId: string) => Promise<void>;
+	onSubmit: (input: CreateEvent, options: { notify: boolean }) => Promise<void>;
+	onDelete: (eventId: string, options: { notify: boolean }) => Promise<void>;
+	/** Athletes a change would reach; the notify checkbox shows only when set. */
+	notifyCount?: number;
 }
 
 export const EventDetailsDrawer = ({
@@ -58,10 +65,12 @@ export const EventDetailsDrawer = ({
 	onClose,
 	onSubmit,
 	onDelete,
+	notifyCount = 0,
 }: EventDetailsDrawerProps) => {
 	const [editing, setEditing] = useState<"details" | "workout" | null>(null);
 	const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [notify, setNotify] = useState(true);
 
 	if (!event) {
 		return null;
@@ -84,7 +93,7 @@ export const EventDetailsDrawer = ({
 				</DrawerHeader>
 				<div className="flex-1 space-y-8 overflow-y-auto p-6">
 					{isAdmin && !editing && (
-						<div className="flex items-center justify-end gap-2">
+						<div className="flex flex-wrap items-center justify-end gap-2">
 							{isConfirmingDelete ? (
 								<>
 									<span className="mr-auto text-sm">
@@ -106,7 +115,7 @@ export const EventDetailsDrawer = ({
 										onClick={async () => {
 											setIsDeleting(true);
 											try {
-												await onDelete(event.id);
+												await onDelete(event.id, { notify });
 											} finally {
 												setIsDeleting(false);
 											}
@@ -114,13 +123,25 @@ export const EventDetailsDrawer = ({
 									>
 										Delete
 									</Button>
+									{notifyCount > 0 && (
+										<div className="basis-full">
+											<NotifyToggle
+												label={notifyAthletesLabel(notifyCount)}
+												checked={notify}
+												onCheckedChange={setNotify}
+											/>
+										</div>
+									)}
 								</>
 							) : (
 								<Button
 									type="button"
 									variant="outline"
 									size="sm"
-									onClick={() => setIsConfirmingDelete(true)}
+									onClick={() => {
+										setNotify(true);
+										setIsConfirmingDelete(true);
+									}}
 								>
 									<IconTrash />
 									Delete event
@@ -132,17 +153,29 @@ export const EventDetailsDrawer = ({
 						<SectionHeader
 							title="Details"
 							canEdit={isAdmin && !editing}
-							onEdit={() => setEditing("details")}
+							onEdit={() => {
+								setNotify(true);
+								setEditing("details");
+							}}
 						/>
 						{editing === "details" ? (
-							<EventDetailsForm
-								event={event}
-								onSubmit={async (input) => {
-									await onSubmit(input);
-									setEditing(null);
-								}}
-								onCancel={() => setEditing(null)}
-							/>
+							<>
+								{notifyCount > 0 && (
+									<NotifyToggle
+										label={`${notifyAthletesLabel(notifyCount)} if the time or location changes`}
+										checked={notify}
+										onCheckedChange={setNotify}
+									/>
+								)}
+								<EventDetailsForm
+									event={event}
+									onSubmit={async (input) => {
+										await onSubmit(input, { notify });
+										setEditing(null);
+									}}
+									onCancel={() => setEditing(null)}
+								/>
+							</>
 						) : (
 							<dl className="space-y-4">
 								<DetailRow icon={IconCalendarEvent} label="When">
@@ -193,14 +226,15 @@ export const EventDetailsDrawer = ({
 									{workout.intensityCategory}
 								</Badge>
 								<Badge variant="outline">
-									{workout.activityType === "water" ? "On Water" : "Erg"}
+									{formatActivityType(workout.activityType)}
 								</Badge>
 							</SectionHeader>
 							{editing === "workout" ? (
 								<EventWorkoutForm
 									event={event}
 									onSubmit={async (input) => {
-										await onSubmit(input);
+										// Workout edits never notify, so there's no choice to offer.
+										await onSubmit(input, { notify: true });
 										setEditing(null);
 									}}
 									onCancel={() => setEditing(null)}

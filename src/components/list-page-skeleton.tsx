@@ -10,6 +10,8 @@ interface ListPageSkeletonProps {
 	heading?: string;
 	columns?: number;
 	rows?: number;
+	/** Match the scene's own sidebar state so the shell doesn't shift on load. */
+	defaultSidebarOpen?: boolean;
 }
 
 export function ListPageSkeleton({
@@ -17,9 +19,11 @@ export function ListPageSkeleton({
 	heading = title,
 	columns = 5,
 	rows = 10,
+	defaultSidebarOpen,
 }: ListPageSkeletonProps) {
 	return (
 		<SidebarProvider
+			defaultOpen={defaultSidebarOpen}
 			style={
 				{
 					"--sidebar-width": "calc(var(--spacing) * 72)",

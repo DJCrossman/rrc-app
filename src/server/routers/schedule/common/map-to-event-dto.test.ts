@@ -28,7 +28,8 @@ const baseEvent: EventRow = {
 		intervalCount: 3,
 		intensityCategory: "C5",
 		fragments: [],
-		event: { id: "evt_1" },
+		zoneMinutes: [],
+		event: { id: "evt_1", title: "Morning row" },
 	},
 	groups: [],
 	rsvps: [

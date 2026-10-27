@@ -6,8 +6,14 @@ import { sendNudge } from "@/server/routers/schedule/common/send-nudge";
 
 export async function nudgeCommand(
 	{ eventId }: EventIdInput,
-	{ db }: AdminContext,
+	{ db, services }: AdminContext,
 ) {
+	if (!services.push.isConfigured) {
+		throw new TRPCError({
+			code: "PRECONDITION_FAILED",
+			message: "Push notifications are not configured on the server.",
+		});
+	}
 	const event = await db.event.findUnique({
 		where: { id: eventId },
 		include: {
@@ -22,6 +28,6 @@ export async function nudgeCommand(
 	const responded = new Set(event.rsvps.map(({ athleteId }) => athleteId));
 	const athleteIds = [...audience].filter((id) => !responded.has(id));
 
-	await sendNudge({ eventId: event.id, title: event.title, athleteIds });
-	return { count: athleteIds.length };
+	const { reached } = await sendNudge(services.push, { event, athleteIds });
+	return { count: athleteIds.length, reached };
 }

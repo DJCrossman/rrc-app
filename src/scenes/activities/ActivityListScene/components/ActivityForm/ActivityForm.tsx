@@ -27,7 +27,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDuration, formatMeters } from "@/lib/formatters";
 import type { Boats, Ergs, Workouts } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
-import { getWorkoutBreakdown } from "@/lib/workouts/getWorkoutBreakdown";
 import {
 	COURSE_LAP_METERS,
 	type CreateActivity,
@@ -440,7 +439,7 @@ function WorkoutCombobox({ form, workouts }: WorkoutComboboxProps) {
 							value={field.value ?? ""}
 							values={workouts.map((workout) => ({
 								value: workout.id,
-								label: `${getWorkoutBreakdown(workout).title} — ${DateTime.fromISO(
+								label: `${workout.eventTitle ?? workout.description} — ${DateTime.fromISO(
 									workout.startDate,
 								).toLocaleString(DateTime.DATE_MED)}`,
 							}))}
@@ -451,7 +450,10 @@ function WorkoutCombobox({ form, workouts }: WorkoutComboboxProps) {
 								field.onChange(value);
 								const workout = workouts.find((w) => w.id === value);
 								if (!workout) return;
-								form.setValue("name", getWorkoutBreakdown(workout).title);
+								form.setValue(
+									"name",
+									workout.eventTitle ?? workout.description,
+								);
 								form.setValue("startDate", workout.startDate);
 								form.setValue("workoutType", workout.workoutType);
 								form.setValue("elapsedTime", workout.elapsedTime ?? 0);

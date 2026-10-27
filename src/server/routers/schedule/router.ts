@@ -5,6 +5,7 @@ import { getCalendarTokenProcedure } from "./commands/get-calendar-token/get-cal
 import { nudgeProcedure } from "./commands/nudge/nudge.procedure";
 import { rotateCalendarTokenProcedure } from "./commands/rotate-calendar-token/rotate-calendar-token.procedure";
 import { rsvpProcedure } from "./commands/rsvp/rsvp.procedure";
+import { saveTrainingWeekProcedure } from "./commands/save-training-week/save-training-week.procedure";
 import { updateEventProcedure } from "./commands/update-event/update-event.procedure";
 import { getEventByIdProcedure } from "./queries/get-event-by-id/get-event-by-id.procedure";
 import { getResponsesProcedure } from "./queries/get-responses/get-responses.procedure";
@@ -21,6 +22,7 @@ export const scheduleRouter = router({
 	createEvent: createEventProcedure,
 	updateEvent: updateEventProcedure,
 	deleteEvent: deleteEventProcedure,
+	saveTrainingWeek: saveTrainingWeekProcedure,
 	getCalendarToken: getCalendarTokenProcedure,
 	rotateCalendarToken: rotateCalendarTokenProcedure,
 });
