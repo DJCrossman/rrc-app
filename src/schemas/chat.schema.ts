@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const EVERYONE_CHANNEL_ID = "chan_everyone";
+export const EVERYONE_CHANNEL_ID = "everyone";
 export const MAX_MESSAGE_LENGTH = 4000;
 export const MAX_DM_MEMBERS = 9;
 
