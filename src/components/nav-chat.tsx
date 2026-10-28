@@ -98,7 +98,9 @@ export function NavChat() {
 				</SidebarMenuAction>
 				<ChannelSubMenu
 					channels={channels.filter(
-						(channel) => channel.kind === "direct_message",
+						(channel) =>
+							channel.kind === "direct_message" &&
+							!channel.hasOnlyFormerMembers,
 					)}
 					pathname={pathname}
 				/>

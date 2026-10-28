@@ -54,12 +54,13 @@ export function mapToChannelDto(
 		lastMessage && visibleFrom && lastMessage.createdAt < visibleFrom
 			? null
 			: lastMessage;
-	const others =
+	const otherMembers =
 		channel.kind === "direct_message"
-			? channel.members
-					.filter((member) => member.userId !== userId)
-					.map((member) => getChatUser(users, member.userId))
+			? channel.members.filter((member) => member.userId !== userId)
 			: [];
+	const others = otherMembers.map((member) =>
+		getChatUser(users, member.userId),
+	);
 	return {
 		id: channel.id,
 		kind: channel.kind,
@@ -71,6 +72,9 @@ export function mapToChannelDto(
 					getChannelName(channel)),
 		initials: others.length === 1 ? others[0].initials : null,
 		members: others,
+		hasOnlyFormerMembers:
+			otherMembers.length > 0 &&
+			otherMembers.every((member) => !users.has(member.userId)),
 		memberCount:
 			channel.kind === "direct_message" ? channel.members.length : memberCount,
 		unreadCount,
