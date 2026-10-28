@@ -28,7 +28,7 @@ export function EventWorkoutForm({
 	const [isParsing, setIsParsing] = useState(false);
 	const form = useForm<EventFormInput>({
 		resolver: zodResolver(eventFormSchema, undefined, { raw: true }),
-		defaultValues: getEventFormValues(event),
+		defaultValues: { ...getEventFormValues(event), hasWorkout: true },
 	});
 
 	return (

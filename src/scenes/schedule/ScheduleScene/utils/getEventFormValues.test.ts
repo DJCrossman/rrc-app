@@ -81,6 +81,7 @@ describe("getEventFormValues", () => {
 			type: "regatta",
 			workout: null,
 		});
+		expect(values.hasWorkout).toBe(false);
 		expect(values.workout).toMatchObject({
 			description: "",
 			workoutType: "time",

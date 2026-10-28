@@ -14,6 +14,7 @@ const values: EventFormInput = {
 	audience: "club",
 	groupIds: ["grp_a"],
 	volunteerSpots: 3,
+	hasWorkout: true,
 	workout: {
 		description: "3x20' r3",
 		activityType: "erg",
@@ -75,6 +76,16 @@ describe("eventFormSchema", () => {
 			workout: { ...values.workout, elapsedTime: null },
 		});
 		expect(result.success).toBe(true);
+	});
+
+	it("saves a training without a workout when it was skipped", () => {
+		const result = eventFormSchema.safeParse({
+			...values,
+			hasWorkout: false,
+			workout: { ...values.workout, elapsedTime: null },
+		});
+		expect(result.success).toBe(true);
+		expect(result.data?.workout).toBeNull();
 	});
 
 	it("rejects an end time before the start", () => {

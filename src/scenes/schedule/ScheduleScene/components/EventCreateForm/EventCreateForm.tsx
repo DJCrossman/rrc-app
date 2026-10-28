@@ -109,6 +109,20 @@ export function EventCreateForm({
 					>
 						{step === "workout" ? "Back" : "Cancel"}
 					</Button>
+					{step === "workout" && (
+						<Button
+							type="button"
+							variant="ghost"
+							className="ml-auto"
+							disabled={form.formState.isSubmitting || isParsing}
+							onClick={(event) => {
+								form.setValue("hasWorkout", false);
+								event.currentTarget.form?.requestSubmit();
+							}}
+						>
+							Skip for now
+						</Button>
+					)}
 					{isTraining && step === "event" ? (
 						<Button
 							key="next"
@@ -125,6 +139,7 @@ export function EventCreateForm({
 						<Button
 							key="save"
 							type="submit"
+							onClick={() => form.setValue("hasWorkout", true)}
 							disabled={form.formState.isSubmitting || isParsing}
 						>
 							Save

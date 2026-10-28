@@ -4,6 +4,7 @@ import {
 	IconCalendarEvent,
 	IconMapPin,
 	IconPencil,
+	IconPlus,
 	IconShare3,
 	IconTrash,
 	IconUsersGroup,
@@ -230,24 +231,29 @@ export const EventDetailsDrawer = ({
 							</dl>
 						)}
 					</section>
-					{workout && (
+					{(workout || (event.type === "training" && isAdmin)) && (
 						<section className="space-y-3">
 							<SectionHeader
 								title="Workout"
 								canEdit={isAdmin && !editing}
+								isAdding={!workout}
 								onEdit={() => setEditing("workout")}
 							>
-								<Badge
-									className={cn(
-										"border-transparent",
-										intensityColorMap[workout.intensityCategory],
-									)}
-								>
-									{workout.intensityCategory}
-								</Badge>
-								<Badge variant="outline">
-									{formatActivityType(workout.activityType)}
-								</Badge>
+								{workout && (
+									<>
+										<Badge
+											className={cn(
+												"border-transparent",
+												intensityColorMap[workout.intensityCategory],
+											)}
+										>
+											{workout.intensityCategory}
+										</Badge>
+										<Badge variant="outline">
+											{formatActivityType(workout.activityType)}
+										</Badge>
+									</>
+								)}
 							</SectionHeader>
 							{editing === "workout" ? (
 								<EventWorkoutForm
@@ -259,7 +265,7 @@ export const EventDetailsDrawer = ({
 									}}
 									onCancel={() => setEditing(null)}
 								/>
-							) : (
+							) : workout ? (
 								<>
 									<p className="text-sm">
 										{workout.description
@@ -322,6 +328,10 @@ export const EventDetailsDrawer = ({
 										</div>
 									)}
 								</>
+							) : (
+								<p className="text-sm text-muted-foreground">
+									No workout planned yet.
+								</p>
 							)}
 						</section>
 					)}
@@ -340,11 +350,13 @@ export const EventDetailsDrawer = ({
 const SectionHeader = ({
 	title,
 	canEdit = false,
+	isAdding = false,
 	onEdit,
 	children,
 }: {
 	title: string;
 	canEdit?: boolean;
+	isAdding?: boolean;
 	onEdit?: () => void;
 	children?: React.ReactNode;
 }) => (
@@ -359,8 +371,8 @@ const SectionHeader = ({
 				className="ml-auto"
 				onClick={onEdit}
 			>
-				<IconPencil />
-				Edit
+				{isAdding ? <IconPlus /> : <IconPencil />}
+				{isAdding ? "Add" : "Edit"}
 			</Button>
 		)}
 	</div>

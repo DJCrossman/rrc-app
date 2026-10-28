@@ -18,6 +18,7 @@ export function getNewEventFormValues(date: string): EventFormInput {
 		audience: "club",
 		groupIds: [],
 		volunteerSpots: null,
+		hasWorkout: true,
 		workout: {
 			description: "",
 			activityType: month >= 5 && month <= 9 ? "water" : "erg",
@@ -50,6 +51,7 @@ export function getEventFormValues(event: ScheduleEvent): EventFormInput {
 		audience: event.audience,
 		groupIds: event.groupIds,
 		volunteerSpots: event.volunteerSpots,
+		hasWorkout: event.workout !== null,
 		workout: event.workout
 			? {
 					description: event.workout.description,

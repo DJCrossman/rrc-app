@@ -103,6 +103,7 @@ export const eventFormSchema = z
 		audience: z.enum(EventAudiences),
 		groupIds: z.array(z.string()),
 		volunteerSpots: z.number().int().nullable(),
+		hasWorkout: z.boolean(),
 		workout: z.object({
 			description: z.string(),
 			activityType: workoutCoreSchema.shape.activityType.unwrap(),
@@ -134,7 +135,7 @@ export const eventFormSchema = z
 		if (values.audience === "groups" && values.groupIds.length === 0) {
 			addIssue(["groupIds"], "Pick at least one group");
 		}
-		if (values.type === "training") {
+		if (values.type === "training" && values.hasWorkout) {
 			const { workoutType, distance, elapsedTime } = values.workout;
 			if (workoutType === "distance" && !distance) {
 				addIssue(["workout", "distance"], "Distance is required");
@@ -167,7 +168,7 @@ export const eventFormSchema = z
 			volunteerSpots:
 				values.type === "volunteer" ? (values.volunteerSpots ?? null) : null,
 			workout:
-				values.type === "training"
+				values.type === "training" && values.hasWorkout
 					? {
 							...workout,
 							elapsedTime: elapsedTime ?? undefined,
@@ -276,13 +277,6 @@ function refineEvent(
 			code: "custom",
 			message: "Pick at least one group",
 			path: ["groupIds"],
-		});
-	}
-	if (event.type === "training" && !event.workout) {
-		ctx.addIssue({
-			code: "custom",
-			message: "Training needs a workout",
-			path: ["workout"],
 		});
 	}
 }
