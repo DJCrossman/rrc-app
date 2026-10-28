@@ -9,7 +9,7 @@ export async function replyInThreadCommand(
 	ctx: ViewerContext,
 ) {
 	const { db, user } = ctx;
-	const target = await findAccessibleMessage(ctx, input.messageId);
+	const target = await findAccessibleMessage(db, input.messageId, user);
 	const rootId = target.parentId ?? target.id;
 	const content = {
 		channelId: target.channelId,

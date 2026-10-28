@@ -2,10 +2,12 @@ import type { MarkRead } from "@/schemas/chat.schema";
 import type { ViewerContext } from "@/server/context";
 import { findAccessibleChannel } from "@/server/routers/chat/common/chat-access";
 
-export async function markReadCommand(input: MarkRead, ctx: ViewerContext) {
-	const { db, user } = ctx;
+export async function markReadCommand(
+	input: MarkRead,
+	{ db, user }: ViewerContext,
+) {
 	const [channel, latest] = await Promise.all([
-		findAccessibleChannel(ctx, input.channelId),
+		findAccessibleChannel(db, input.channelId, user),
 		db.message.findFirst({
 			where: { channelId: input.channelId, parentId: null },
 			orderBy: { createdAt: "desc" },

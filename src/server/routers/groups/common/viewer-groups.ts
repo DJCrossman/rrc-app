@@ -1,13 +1,19 @@
 import { definePermission } from "@/server/common/permission";
 import type { ViewerContext } from "@/server/context";
-import { getAthleteGroupIds } from "./group-members";
+import { type GroupsDb, getAthleteGroupIds } from "./group-members";
 
 /** Admins see every group; everyone else sees only the groups they're in. */
 export type ViewerGroups =
 	| { isAdmin: true }
 	| { isAdmin: false; groupIds: ReadonlySet<string> };
 
-export function isViewerAdmin({ user, athlete }: ViewerContext) {
+export function isViewerAdmin({
+	user,
+	athlete,
+}: {
+	user: Pick<ViewerContext["user"], "isAdmin">;
+	athlete: { role: string } | null;
+}) {
 	return user.isAdmin || athlete?.role === "admin";
 }
 
@@ -26,13 +32,21 @@ export function getViewerGroups(ctx: ViewerContext): Promise<ViewerGroups> {
 	return groups;
 }
 
-async function loadViewerGroups(ctx: ViewerContext): Promise<ViewerGroups> {
-	if (isViewerAdmin(ctx)) {
+function loadViewerGroups(ctx: ViewerContext): Promise<ViewerGroups> {
+	return resolveViewerGroups(ctx.db, {
+		isAdmin: isViewerAdmin(ctx),
+		athleteId: ctx.athlete?.id ?? null,
+	});
+}
+
+export async function resolveViewerGroups(
+	db: GroupsDb,
+	{ isAdmin, athleteId }: { isAdmin: boolean; athleteId: string | null },
+): Promise<ViewerGroups> {
+	if (isAdmin) {
 		return { isAdmin: true };
 	}
-	const groupIds = ctx.athlete
-		? await getAthleteGroupIds(ctx.db, ctx.athlete.id)
-		: [];
+	const groupIds = athleteId ? await getAthleteGroupIds(db, athleteId) : [];
 	return { isAdmin: false, groupIds: new Set(groupIds) };
 }
 

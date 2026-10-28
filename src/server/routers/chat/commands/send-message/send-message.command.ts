@@ -10,7 +10,7 @@ export async function sendMessageCommand(
 	ctx: ViewerContext,
 ) {
 	const { db, user } = ctx;
-	await findAccessibleChannel(ctx, input.channelId);
+	await findAccessibleChannel(db, input.channelId, user);
 	if (input.quotedMessageId) {
 		await assertQuotable(ctx, input.quotedMessageId, input.channelId);
 	}

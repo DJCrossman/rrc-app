@@ -1,7 +1,10 @@
 import type { ChannelKind } from "@/generated/prisma/client";
 import { EVERYONE_CHANNEL_ID } from "@/schemas/chat.schema";
-import type { ViewerContext } from "@/server/context";
-import { getViewerGroups, isViewerAdmin } from "@/server/routers/groups/common";
+import type { SessionUser, ViewerContext } from "@/server/context";
+import {
+	isViewerAdmin,
+	resolveViewerGroups,
+} from "@/server/routers/groups/common";
 import { TRPCError } from "@/server/trpc";
 
 type Db = ViewerContext["db"];
@@ -24,10 +27,10 @@ const channelAccessInclude = {
 } as const;
 
 export async function findAccessibleChannel(
-	ctx: ViewerContext,
+	db: Db,
 	channelId: string,
+	user: SessionUser,
 ) {
-	const { db } = ctx;
 	const channel =
 		(await db.channel.findUnique({
 			where: { id: channelId },
@@ -36,17 +39,17 @@ export async function findAccessibleChannel(
 		(channelId === EVERYONE_CHANNEL_ID
 			? await ensureEveryoneChannel(db)
 			: null);
-	if (!channel || !(await canViewerAccess(ctx, channel))) {
+	if (!channel || !(await canViewerAccess(db, user, channel))) {
 		throw new TRPCError({ code: "NOT_FOUND", message: "Channel not found" });
 	}
 	return channel;
 }
 
 export async function findAccessibleMessage(
-	ctx: ViewerContext,
+	db: Db,
 	messageId: string,
+	user: SessionUser,
 ) {
-	const { db, user } = ctx;
 	const message = await db.message.findUnique({
 		where: { id: messageId },
 		include: {
@@ -56,7 +59,7 @@ export async function findAccessibleMessage(
 	});
 	if (
 		!message ||
-		!(await canViewerAccess(ctx, message.channel)) ||
+		!(await canViewerAccess(db, user, message.channel)) ||
 		!isVisibleToMember(
 			message.parent ?? message,
 			getVisibleFrom(message.channel, user.id),
@@ -108,21 +111,33 @@ export function canAccessChannel(
 }
 
 export async function getChannelViewer(
-	ctx: ViewerContext,
+	db: Db,
+	user: SessionUser,
 ): Promise<ChannelViewer> {
-	const groups = await getViewerGroups(ctx);
+	const athlete = await db.athlete.findUnique({
+		where: { userId: user.id },
+		select: { id: true, role: true },
+	});
+	const groups = await resolveViewerGroups(db, {
+		isAdmin: isViewerAdmin({ user, athlete }),
+		athleteId: athlete?.id ?? null,
+	});
 	return groups.isAdmin
-		? { userId: ctx.user.id, isAdmin: true, groupIds: new Set() }
-		: { userId: ctx.user.id, isAdmin: false, groupIds: groups.groupIds };
+		? { userId: user.id, isAdmin: true, groupIds: new Set() }
+		: { userId: user.id, isAdmin: false, groupIds: groups.groupIds };
 }
 
 // Only group channels need the viewer's groups, so skip looking them up for
 // everything else.
-async function canViewerAccess(ctx: ViewerContext, channel: AccessibleChannel) {
+async function canViewerAccess(
+	db: Db,
+	user: SessionUser,
+	channel: AccessibleChannel,
+) {
 	const viewer =
 		channel.kind === "group"
-			? await getChannelViewer(ctx)
-			: { userId: ctx.user.id, isAdmin: false, groupIds: new Set<string>() };
+			? await getChannelViewer(db, user)
+			: { userId: user.id, isAdmin: false, groupIds: new Set<string>() };
 	return canAccessChannel(channel, viewer);
 }
 
@@ -158,8 +173,8 @@ export function ensureGroupChannel(db: Db, groupId: string) {
 	});
 }
 
-export function isChatAdmin(ctx: ViewerContext) {
-	return isViewerAdmin(ctx);
+export function isChatAdmin({ user, athlete }: ViewerContext) {
+	return user.isAdmin || athlete?.role === "admin";
 }
 
 export function findExactDm<T extends { members: { userId: string }[] }>(

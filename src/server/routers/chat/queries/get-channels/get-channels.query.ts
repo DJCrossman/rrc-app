@@ -21,12 +21,14 @@ import { getMemberIdsByGroup } from "@/server/routers/groups/common";
 
 type Db = ViewerContext["db"];
 
-export async function getChannelsQuery(_input: undefined, ctx: ViewerContext) {
-	const { db, user } = ctx;
+export async function getChannelsQuery(
+	_input: undefined,
+	{ db, user }: ViewerContext,
+) {
 	const [{ channels: allChannels, groups }, viewer, reads, athleteCount] =
 		await Promise.all([
 			findVisibleChannels(db, user.id),
-			getChannelViewer(ctx),
+			getChannelViewer(db, user),
 			db.channel_read.findMany({
 				where: { userId: user.id },
 				select: { channelId: true, lastReadAt: true },

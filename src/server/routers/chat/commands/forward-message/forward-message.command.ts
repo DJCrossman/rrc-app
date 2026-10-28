@@ -9,12 +9,11 @@ import { TRPCError } from "@/server/trpc";
 
 export async function forwardMessageCommand(
 	input: ForwardMessage,
-	ctx: ViewerContext,
+	{ db, user }: ViewerContext,
 ) {
-	const { db, user } = ctx;
 	const [source, target] = await Promise.all([
-		findAccessibleMessage(ctx, input.messageId),
-		findAccessibleChannel(ctx, input.targetChannelId),
+		findAccessibleMessage(db, input.messageId, user),
+		findAccessibleChannel(db, input.targetChannelId, user),
 	]);
 	if (source.deletedAt) {
 		throw new TRPCError({

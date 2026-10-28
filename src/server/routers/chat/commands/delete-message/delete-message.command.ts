@@ -11,7 +11,7 @@ export async function deleteMessageCommand(
 	ctx: ViewerContext,
 ) {
 	const { db, user } = ctx;
-	const message = await findAccessibleMessage(ctx, input.messageId);
+	const message = await findAccessibleMessage(db, input.messageId, user);
 	if (message.authorUserId !== user.id && !isChatAdmin(ctx)) {
 		throw new TRPCError({
 			code: "FORBIDDEN",

@@ -8,8 +8,8 @@ export async function getThreadQuery(
 	input: GetThreadInput,
 	ctx: ViewerContext,
 ) {
-	const { db } = ctx;
-	const message = await findAccessibleMessage(ctx, input.messageId);
+	const { db, user } = ctx;
+	const message = await findAccessibleMessage(db, input.messageId, user);
 	const rootId = message.parentId ?? message.id;
 	const [root, replies] = await Promise.all([
 		db.message.findUniqueOrThrow({
