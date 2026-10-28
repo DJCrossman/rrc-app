@@ -88,6 +88,7 @@ export const ScheduleView = ({
 	const rsvp = trpcClient.schedule.rsvp.useMutation();
 	const nudge = trpcClient.schedule.nudge.useMutation();
 	const createEvent = trpcClient.schedule.createEvent.useMutation();
+	const createEvents = trpcClient.schedule.createEvents.useMutation();
 	const updateEvent = trpcClient.schedule.updateEvent.useMutation();
 	const deleteEvent = trpcClient.schedule.deleteEvent.useMutation();
 	const calendarToken = trpcClient.schedule.getCalendarToken.useMutation({
@@ -296,6 +297,32 @@ export const ScheduleView = ({
 							week: startOfWeek(
 								DateTime.fromISO(event.startAt, {
 									zone: event.timezone,
+								}) as DateTime<true>,
+							),
+						}),
+					);
+					router.refresh();
+				}}
+				onSubmitMany={async (events) => {
+					const { created, failed, firstStartAt } = await withErrorToast(
+						createEvents.mutateAsync({ events }),
+					);
+					if (!firstStartAt) {
+						toast.error("None of the events could be created");
+						return;
+					}
+					const createdLabel = `${created} ${created === 1 ? "event" : "events"} created`;
+					if (failed > 0) {
+						toast.warning(`${createdLabel}, ${failed} failed`);
+					} else {
+						toast.success(createdLabel);
+					}
+					navigate(
+						scheduleRoutes.list({
+							...routeParams,
+							week: startOfWeek(
+								DateTime.fromISO(firstStartAt, {
+									zone: CLUB_TIMEZONE,
 								}) as DateTime<true>,
 							),
 						}),

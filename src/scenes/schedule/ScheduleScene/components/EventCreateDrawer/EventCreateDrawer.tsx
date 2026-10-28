@@ -1,6 +1,8 @@
 "use client";
 
-import { IconX } from "@tabler/icons-react";
+import { IconSparkles, IconX } from "@tabler/icons-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
 	Drawer,
 	DrawerClose,
@@ -12,6 +14,7 @@ import {
 import type { CreateEvent, EventFormInput } from "@/schemas";
 import { getNewEventFormValues } from "../../utils/getEventFormValues";
 import { EventCreateForm } from "../EventCreateForm/EventCreateForm";
+import { EventPromptForm } from "../EventPromptForm/EventPromptForm";
 
 interface EventCreateDrawerProps {
 	isOpen: boolean;
@@ -19,6 +22,7 @@ interface EventCreateDrawerProps {
 	defaultValues?: EventFormInput;
 	onClose: () => void;
 	onSubmit: (input: CreateEvent) => Promise<void>;
+	onSubmitMany?: (inputs: CreateEvent[]) => Promise<void>;
 }
 
 export const EventCreateDrawer = ({
@@ -27,6 +31,7 @@ export const EventCreateDrawer = ({
 	defaultValues,
 	onClose,
 	onSubmit,
+	onSubmitMany,
 }: EventCreateDrawerProps) => (
 	<Drawer
 		open={isOpen}
@@ -48,13 +53,64 @@ export const EventCreateDrawer = ({
 			</DrawerHeader>
 			<div className="flex-1 overflow-y-auto p-6">
 				{isOpen && (
-					<EventCreateForm
-						defaultValues={defaultValues ?? getNewEventFormValues(defaultDate)}
+					<EventCreateBody
+						defaultDate={defaultDate}
+						defaultValues={defaultValues}
+						onClose={onClose}
 						onSubmit={onSubmit}
-						onCancel={onClose}
+						onSubmitMany={onSubmitMany}
 					/>
 				)}
 			</div>
 		</DrawerContent>
 	</Drawer>
 );
+
+// Mounted only while the drawer is open, so each opening starts on the
+// single-event form.
+const EventCreateBody = ({
+	defaultDate,
+	defaultValues,
+	onClose,
+	onSubmit,
+	onSubmitMany,
+}: Omit<EventCreateDrawerProps, "isOpen">) => {
+	const [mode, setMode] = useState<"form" | "prompt">("form");
+
+	return mode === "prompt" && onSubmitMany ? (
+		<EventPromptForm
+			startDate={defaultDate}
+			onSubmit={onSubmitMany}
+			onCancel={onClose}
+			afterType={
+				<Button
+					type="button"
+					variant="link"
+					className="h-auto p-0"
+					onClick={() => setMode("form")}
+				>
+					Add a single event instead
+				</Button>
+			}
+		/>
+	) : (
+		<EventCreateForm
+			defaultValues={defaultValues ?? getNewEventFormValues(defaultDate)}
+			onSubmit={onSubmit}
+			onCancel={onClose}
+			afterType={
+				onSubmitMany && (
+					<Button
+						type="button"
+						variant="link"
+						className="h-auto p-0"
+						onClick={() => setMode("prompt")}
+					>
+						<IconSparkles />
+						Create several events from a prompt
+					</Button>
+				)
+			}
+		/>
+	);
+};

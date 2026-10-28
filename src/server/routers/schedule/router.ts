@@ -1,5 +1,6 @@
 import { router } from "@/server/trpc";
 import { createEventProcedure } from "./commands/create-event/create-event.procedure";
+import { createEventsProcedure } from "./commands/create-events/create-events.procedure";
 import { deleteEventProcedure } from "./commands/delete-event/delete-event.procedure";
 import { getCalendarTokenProcedure } from "./commands/get-calendar-token/get-calendar-token.procedure";
 import { nudgeProcedure } from "./commands/nudge/nudge.procedure";
@@ -20,6 +21,7 @@ export const scheduleRouter = router({
 	rsvp: rsvpProcedure,
 	nudge: nudgeProcedure,
 	createEvent: createEventProcedure,
+	createEvents: createEventsProcedure,
 	updateEvent: updateEventProcedure,
 	deleteEvent: deleteEventProcedure,
 	saveTrainingWeek: saveTrainingWeekProcedure,

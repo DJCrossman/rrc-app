@@ -72,6 +72,13 @@ const eventFieldsSchema = z.object({
 export const createEventSchema = eventFieldsSchema.superRefine(refineEvent);
 export type CreateEvent = z.infer<typeof createEventSchema>;
 
+export const MAX_CREATE_EVENTS = 300;
+
+export const createEventsSchema = z.object({
+	events: z.array(createEventSchema).min(1).max(MAX_CREATE_EVENTS),
+});
+export type CreateEvents = z.infer<typeof createEventsSchema>;
+
 export const updateEventSchema = eventFieldsSchema
 	.extend({ id: z.string() })
 	.superRefine(refineEvent);

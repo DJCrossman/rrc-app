@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,14 +39,16 @@ const EVENT_FIELDS = [
 
 interface EventCreateFormProps {
 	defaultValues: EventFormInput;
-	onSubmit: (input: CreateEvent) => Promise<void>;
+	onSubmit: (input: CreateEvent, values: EventFormInput) => Promise<void>;
 	onCancel: () => void;
+	afterType?: ReactNode;
 }
 
 export function EventCreateForm({
 	defaultValues,
 	onSubmit,
 	onCancel,
+	afterType,
 }: EventCreateFormProps) {
 	const [step, setStep] = useState<"event" | "workout">("event");
 	const [isParsing, setIsParsing] = useState(false);
@@ -60,7 +62,7 @@ export function EventCreateForm({
 		<Form {...form}>
 			<form
 				onSubmit={form.handleSubmit(
-					(values) => onSubmit(eventFormSchema.parse(values)),
+					(values) => onSubmit(eventFormSchema.parse(values), values),
 					(errors) =>
 						setStep(
 							EVENT_FIELDS.some((field) => errors[field]) ? "event" : "workout",
@@ -96,6 +98,7 @@ export function EventCreateForm({
 							</FormItem>
 						)}
 					/>
+					{afterType}
 					<EventDetailsFields />
 				</div>
 				<div hidden={step !== "workout"} className="space-y-6">
