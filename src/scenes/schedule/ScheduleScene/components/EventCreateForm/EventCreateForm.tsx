@@ -79,10 +79,10 @@ export function EventCreateForm({
 								<FormLabel isRequired>Type</FormLabel>
 								<FormControl>
 									<ToggleGroup
-										type="single"
 										variant="outline"
-										value={field.value}
-										onValueChange={(value) => {
+										value={field.value ? [field.value] : []}
+										onValueChange={(values) => {
+											const value = values[0];
 											if (value) field.onChange(value);
 										}}
 										className="w-full"

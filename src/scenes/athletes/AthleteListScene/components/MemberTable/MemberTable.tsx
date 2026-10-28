@@ -141,9 +141,9 @@ const columns: ColumnDef<Member>[] = [
 							key={group.id}
 							variant="outline"
 							className="text-muted-foreground px-1.5"
-							asChild
+							render={<Link href={routes.groups.view(group.id)} />}
 						>
-							<Link href={routes.groups.view(group.id)}>{group.name}</Link>
+							{group.name}
 						</Badge>
 					))}
 				</div>
@@ -324,37 +324,37 @@ export function MemberTable({ initialData }: IMemberTableProps) {
 					)}
 					<div className="flex items-center">
 						<Button
-							asChild
 							variant="outline"
 							size="sm"
 							className="rounded-r-none"
+							render={<Link href={routes.members.create()} />}
 						>
-							<Link href={routes.members.create()}>
-								<IconPlus />
-								<span className="hidden lg:inline">Add Member</span>
-							</Link>
+							<IconPlus />
+							<span className="hidden lg:inline">Add Member</span>
 						</Button>
 						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button
-									variant="outline"
-									size="sm"
-									className="rounded-l-none border-l-0 px-2"
-									aria-label="More add options"
-								>
-									<IconChevronDown />
-								</Button>
+							<DropdownMenuTrigger
+								render={
+									<Button
+										variant="outline"
+										size="sm"
+										className="rounded-l-none border-l-0 px-2"
+										aria-label="More add options"
+									/>
+								}
+							>
+								<IconChevronDown />
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
-								<DropdownMenuItem asChild>
-									<Link href={routes.members.bulkCreate()}>
-										Bulk Add Members
-									</Link>
+								<DropdownMenuItem
+									render={<Link href={routes.members.bulkCreate()} />}
+								>
+									Bulk Add Members
 								</DropdownMenuItem>
 								{isAdmin && (
 									<DropdownMenuItem
 										disabled={syncRca.isPending}
-										onSelect={() => syncRca.mutate()}
+										onClick={() => syncRca.mutate()}
 									>
 										Sync from RCA
 									</DropdownMenuItem>

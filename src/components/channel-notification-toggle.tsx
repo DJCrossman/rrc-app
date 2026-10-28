@@ -26,18 +26,20 @@ export const ChannelNotificationToggle = ({
 
 	return (
 		<Tooltip>
-			<TooltipTrigger asChild>
-				<Button
-					variant="ghost"
-					size="icon"
-					className={className}
-					aria-label={label}
-					aria-pressed={isMuted}
-					disabled={isLoading}
-					onClick={() => setPreference(scope, isMuted)}
-				>
-					{isMuted ? <BellOff /> : <Bell />}
-				</Button>
+			<TooltipTrigger
+				render={
+					<Button
+						variant="ghost"
+						size="icon"
+						className={className}
+						aria-label={label}
+						aria-pressed={isMuted}
+						disabled={isLoading}
+						onClick={() => setPreference(scope, isMuted)}
+					/>
+				}
+			>
+				{isMuted ? <BellOff /> : <Bell />}
 			</TooltipTrigger>
 			<TooltipContent>{label}</TooltipContent>
 		</Tooltip>

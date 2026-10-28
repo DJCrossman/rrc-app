@@ -13,8 +13,13 @@ export const AthleteProfilePrompt = ({ className }: { className?: string }) => (
 				You're signed in as an admin without an athlete profile. Create one to
 				log activities, connect apps and appear on the leaderboard.
 			</span>
-			<Button asChild variant="outline" size="sm" className="mt-2 w-fit">
-				<Link href={routes.onboarding.start()}>Create athlete profile</Link>
+			<Button
+				variant="outline"
+				size="sm"
+				className="mt-2 w-fit"
+				render={<Link href={routes.onboarding.start()} />}
+			>
+				Create athlete profile
 			</Button>
 		</AlertDescription>
 	</Alert>

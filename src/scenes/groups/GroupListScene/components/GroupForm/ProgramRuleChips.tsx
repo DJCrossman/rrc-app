@@ -58,20 +58,18 @@ export function ProgramRuleChips({
 			</div>
 			{pastPrograms.length > 0 && (
 				<Accordion
-					type="single"
-					collapsible
 					defaultValue={
 						pastPrograms.some((program) => value.includes(program.id))
-							? "past"
+							? ["past"]
 							: undefined
 					}
 				>
 					<AccordionItem value="past">
 						<AccordionTrigger className="text-muted-foreground group py-2 font-normal">
-							<span className="group-data-[state=open]:hidden">
+							<span className="group-data-panel-open:hidden">
 								Show past memberships
 							</span>
-							<span className="hidden group-data-[state=open]:inline">
+							<span className="hidden group-data-panel-open:inline">
 								Hide past memberships
 							</span>
 						</AccordionTrigger>
@@ -106,7 +104,7 @@ function ProgramRuleToggle({
 			<Toggle
 				variant="outline"
 				size="sm"
-				className="rounded-full px-3 data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+				className="rounded-full px-3 data-pressed:border-primary data-pressed:bg-primary data-pressed:text-primary-foreground"
 				pressed={isIncluded}
 				onPressedChange={(pressed) => onIncludedChange(program.id, pressed)}
 			>

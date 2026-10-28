@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
+import { type ReactElement, useState } from "react";
 import { useDrawerContentContainer } from "@/components/ui/drawer";
 import {
 	Popover,
@@ -24,7 +24,7 @@ const GIF_PLACEHOLDERS = [
 ];
 
 interface GifPickerProps {
-	children: ReactNode;
+	children: ReactElement;
 	onSelect: (gif: string) => void;
 }
 
@@ -44,7 +44,7 @@ export function GifPicker({ children, onSelect }: GifPickerProps) {
 				if (!next) setQuery("");
 			}}
 		>
-			<PopoverTrigger asChild>{children}</PopoverTrigger>
+			<PopoverTrigger render={children} />
 			<PopoverContent
 				container={container ?? undefined}
 				align="start"

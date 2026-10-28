@@ -85,19 +85,21 @@ export function ChatHeader({
 					)}
 					{isDm && channel.memberCount >= MIN_MEMBERS_TO_LEAVE && (
 						<DropdownMenu modal={false}>
-							<DropdownMenuTrigger asChild>
-								<Button
-									type="button"
-									variant="ghost"
-									size="icon"
-									className="size-8 border border-input"
-									aria-label="Conversation options"
-								>
-									<IconDotsVertical />
-								</Button>
+							<DropdownMenuTrigger
+								render={
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="size-8 border border-input"
+										aria-label="Conversation options"
+									/>
+								}
+							>
+								<IconDotsVertical />
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end">
-								<DropdownMenuItem variant="destructive" onSelect={onLeave}>
+								<DropdownMenuItem variant="destructive" onClick={onLeave}>
 									<IconDoorExit />
 									Leave conversation
 								</DropdownMenuItem>

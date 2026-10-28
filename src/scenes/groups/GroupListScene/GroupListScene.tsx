@@ -109,11 +109,12 @@ export const GroupListScene = ({
 										)}
 										Sync from RCA
 									</Button>
-									<Button asChild size="sm">
-										<Link href={routes.groups.create()}>
-											<IconPlus />
-											New group
-										</Link>
+									<Button
+										size="sm"
+										render={<Link href={routes.groups.create()} />}
+									>
+										<IconPlus />
+										New group
 									</Button>
 								</div>
 							)}

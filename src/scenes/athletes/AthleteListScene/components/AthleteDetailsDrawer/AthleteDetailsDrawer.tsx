@@ -197,10 +197,12 @@ export const AthleteDetailsDrawer = ({
 								{athlete.groups.length > 0 ? (
 									<div className="flex flex-wrap gap-2">
 										{athlete.groups.map((group) => (
-											<Badge key={group.id} variant="outline" asChild>
-												<Link href={routes.groups.view(group.id)}>
-													{group.name}
-												</Link>
+											<Badge
+												key={group.id}
+												variant="outline"
+												render={<Link href={routes.groups.view(group.id)} />}
+											>
+												{group.name}
 											</Badge>
 										))}
 									</div>

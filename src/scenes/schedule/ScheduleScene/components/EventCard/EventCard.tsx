@@ -103,26 +103,26 @@ export const EventCard = ({
 				)
 			)}
 			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
-					<Button
-						type="button"
-						variant="ghost"
-						size="icon-sm"
-						aria-label="Event actions"
-						className="ml-auto"
-					>
-						<IconDotsVertical />
-					</Button>
+				<DropdownMenuTrigger
+					render={
+						<Button
+							type="button"
+							variant="ghost"
+							size="icon-sm"
+							aria-label="Event actions"
+							className="ml-auto"
+						/>
+					}
+				>
+					<IconDotsVertical />
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
-					<DropdownMenuItem asChild>
-						<Link href={viewHref} scroll={false}>
-							<IconEye />
-							View details
-						</Link>
+					<DropdownMenuItem render={<Link href={viewHref} scroll={false} />}>
+						<IconEye />
+						View details
 					</DropdownMenuItem>
 					{isAdmin && (
-						<DropdownMenuItem onSelect={() => onNudge(event)}>
+						<DropdownMenuItem onClick={() => onNudge(event)}>
 							<IconBell />
 							Nudge athletes
 						</DropdownMenuItem>

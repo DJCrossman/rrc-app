@@ -78,24 +78,36 @@ export const SubscribeDialog = ({
 					</div>
 				</div>
 				<div className="grid grid-cols-3 gap-2">
-					<Button asChild variant="outline" disabled={!links}>
-						<a href={links?.google} target="_blank" rel="noreferrer">
-							<IconBrandGoogle />
-							Google
-						</a>
-					</Button>
-					<Button asChild variant="outline" disabled={!links}>
-						<a href={links?.webcal}>
-							<IconBrandApple />
-							Apple
-						</a>
-					</Button>
-					<Button asChild variant="outline" disabled={!links}>
-						<a href={links?.outlook} target="_blank" rel="noreferrer">
-							<IconBrandWindows />
-							Outlook
-						</a>
-					</Button>
+					<Button
+						variant="outline"
+						disabled={!links}
+						render={
+							<a href={links?.google} target="_blank" rel="noreferrer">
+								<IconBrandGoogle />
+								Google
+							</a>
+						}
+					/>
+					<Button
+						variant="outline"
+						disabled={!links}
+						render={
+							<a href={links?.webcal}>
+								<IconBrandApple />
+								Apple
+							</a>
+						}
+					/>
+					<Button
+						variant="outline"
+						disabled={!links}
+						render={
+							<a href={links?.outlook} target="_blank" rel="noreferrer">
+								<IconBrandWindows />
+								Outlook
+							</a>
+						}
+					/>
 				</div>
 				<DialogFooter className="sm:justify-between">
 					<Button

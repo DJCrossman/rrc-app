@@ -33,14 +33,17 @@ const STATUS_BADGE: Record<
 export function ProgramHoverCard({
 	program,
 	children,
-}: React.PropsWithChildren<{ program: Program }>) {
+}: {
+	program: Program;
+	children: React.ReactElement;
+}) {
 	const container = useDrawerContentContainer();
 	const status = STATUS_BADGE[getProgramStatus(program)];
 	const details = getProgramDetails(program);
 
 	return (
-		<HoverCard openDelay={300} closeDelay={100}>
-			<HoverCardTrigger asChild>{children}</HoverCardTrigger>
+		<HoverCard>
+			<HoverCardTrigger delay={300} closeDelay={100} render={children} />
 			<HoverCardContent
 				container={container ?? undefined}
 				side="bottom"

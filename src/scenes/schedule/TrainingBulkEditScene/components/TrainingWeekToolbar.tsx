@@ -84,9 +84,11 @@ export const TrainingWeekToolbar = ({
 			<Button size="sm" onClick={onSave} disabled={!isDirty || isSaving}>
 				{isSaving ? "Saving..." : "Save week"}
 			</Button>
-			<Button asChild variant="ghost" size="sm">
-				<a href={routes.schedule.list({ week: weekStart })}>Done</a>
-			</Button>
+			<Button
+				variant="ghost"
+				size="sm"
+				render={<a href={routes.schedule.list({ week: weekStart })}>Done</a>}
+			/>
 		</div>
 	</div>
 );

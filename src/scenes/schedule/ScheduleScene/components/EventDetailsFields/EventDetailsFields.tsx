@@ -56,20 +56,22 @@ export const EventDetailsFields = () => {
 						<FormItem>
 							<FormLabel isRequired>Date</FormLabel>
 							<Popover open={isDateOpen} onOpenChange={setIsDateOpen}>
-								<PopoverTrigger asChild>
-									<FormControl>
-										<Button
-											type="button"
-											variant="outline"
-											className="w-full justify-between font-normal"
-										>
-											{selected.isValid
-												? selected.toLocaleString(DateTime.DATE_HUGE)
-												: "Select date"}
-											<ChevronDownIcon />
-										</Button>
-									</FormControl>
-								</PopoverTrigger>
+								<FormControl>
+									<PopoverTrigger
+										render={
+											<Button
+												type="button"
+												variant="outline"
+												className="w-full justify-between font-normal"
+											/>
+										}
+									>
+										{selected.isValid
+											? selected.toLocaleString(DateTime.DATE_HUGE)
+											: "Select date"}
+										<ChevronDownIcon />
+									</PopoverTrigger>
+								</FormControl>
 								<PopoverContent
 									className="w-auto overflow-hidden p-0"
 									align="start"
@@ -162,10 +164,10 @@ export const EventDetailsFields = () => {
 						<FormLabel isRequired>Audience</FormLabel>
 						<FormControl>
 							<ToggleGroup
-								type="single"
 								variant="outline"
-								value={field.value}
-								onValueChange={(value) => {
+								value={field.value ? [field.value] : []}
+								onValueChange={(values) => {
+									const value = values[0];
 									if (value) field.onChange(value);
 								}}
 								className="w-full"

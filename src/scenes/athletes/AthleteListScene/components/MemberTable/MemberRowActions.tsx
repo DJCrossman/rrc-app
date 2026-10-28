@@ -58,35 +58,41 @@ export function MemberRowActions({ member }: MemberRowActionsProps) {
 			)}
 			{hasMenu && (
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button
-							variant="ghost"
-							size="icon-sm"
-							className="size-7"
-							aria-label={`More actions for ${member.name}`}
-						>
-							<IconDots />
-						</Button>
+					<DropdownMenuTrigger
+						render={
+							<Button
+								variant="ghost"
+								size="icon-sm"
+								className="size-7"
+								aria-label={`More actions for ${member.name}`}
+							/>
+						}
+					>
+						<IconDots />
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
 						{athleteId && (
-							<DropdownMenuItem asChild>
-								<Link href={routes.members.view(athleteId)}>View details</Link>
+							<DropdownMenuItem
+								render={<Link href={routes.members.view(athleteId)} />}
+							>
+								View details
 							</DropdownMenuItem>
 						)}
 						{showMessage && (
-							<DropdownMenuItem onSelect={() => message(member)}>
+							<DropdownMenuItem onClick={() => message(member)}>
 								Send message
 							</DropdownMenuItem>
 						)}
 						{isAdmin && athleteId && (
-							<DropdownMenuItem asChild>
-								<Link href={routes.members.edit(athleteId)}>Edit</Link>
+							<DropdownMenuItem
+								render={<Link href={routes.members.edit(athleteId)} />}
+							>
+								Edit
 							</DropdownMenuItem>
 						)}
 						{canInvite && email && (
 							<DropdownMenuItem
-								onSelect={() =>
+								onClick={() =>
 									invite.mutate({ emails: [email], role: "member" })
 								}
 							>
@@ -96,13 +102,13 @@ export function MemberRowActions({ member }: MemberRowActionsProps) {
 						{isAdmin && invitationId && (
 							<>
 								<DropdownMenuItem
-									onSelect={() => resend.mutate({ invitationId })}
+									onClick={() => resend.mutate({ invitationId })}
 								>
 									Resend invitation
 								</DropdownMenuItem>
 								<DropdownMenuItem
 									variant="destructive"
-									onSelect={() => revoke.mutate({ invitationId })}
+									onClick={() => revoke.mutate({ invitationId })}
 								>
 									Revoke invitation
 								</DropdownMenuItem>

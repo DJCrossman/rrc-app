@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useState } from "react";
+import { type ReactElement, useState } from "react";
 import { useDrawerContentContainer } from "@/components/ui/drawer";
 import {
 	Popover,
@@ -13,7 +13,7 @@ import { EMOJI_CATEGORIES, findEmoji, searchEmoji } from "./emojiData";
 import { useFrequentEmoji } from "./useFrequentEmoji";
 
 interface EmojiPickerProps {
-	children: ReactNode;
+	children: ReactElement;
 	onSelect: (emoji: string) => void;
 	onOpenChange?: (open: boolean) => void;
 	align?: "start" | "center" | "end";
@@ -38,14 +38,12 @@ export function EmojiPicker({
 				onOpenChange?.(next);
 			}}
 		>
-			<PopoverTrigger asChild>{children}</PopoverTrigger>
+			<PopoverTrigger render={children} />
 			<PopoverContent
 				container={container ?? undefined}
 				align={align}
 				className="w-[352px] rounded-xl border-input bg-card p-0"
-				onCloseAutoFocus={(event) => {
-					if (!restoreFocus) event.preventDefault();
-				}}
+				finalFocus={restoreFocus}
 			>
 				<EmojiPickerContent
 					onSelect={(emoji) => {

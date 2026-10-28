@@ -106,7 +106,14 @@ function InviteMemberForm({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Invite as</FormLabel>
-							<Select onValueChange={field.onChange} value={field.value}>
+							<Select
+								items={InviteRoles.map((role) => ({
+									value: role,
+									label: role === "admin" ? "Admin" : "Member",
+								}))}
+								onValueChange={field.onChange}
+								value={field.value}
+							>
 								<FormControl>
 									<SelectTrigger className="w-full">
 										<SelectValue />

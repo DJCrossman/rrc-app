@@ -138,9 +138,9 @@ export const WorkoutFields = ({
 						<FormLabel isRequired>Intensity</FormLabel>
 						<FormControl>
 							<ToggleGroup
-								type="single"
-								value={field.value}
-								onValueChange={(value) => {
+								value={field.value ? [field.value] : []}
+								onValueChange={(values) => {
+									const value = values[0];
 									if (value) field.onChange(value);
 								}}
 								className="w-full"
@@ -153,7 +153,7 @@ export const WorkoutFields = ({
 										className={cn(
 											intensityColorMap[category],
 											intensityActiveSelectorMap[category],
-											"data-[state=on]:ring-2 data-[state=on]:ring-primary",
+											"data-pressed:ring-2 data-pressed:ring-primary",
 										)}
 									>
 										{category}
@@ -173,10 +173,10 @@ export const WorkoutFields = ({
 						<FormLabel isRequired>Workout type</FormLabel>
 						<FormControl>
 							<ToggleGroup
-								type="single"
 								variant="outline"
-								value={field.value}
-								onValueChange={(value) => {
+								value={field.value ? [field.value] : []}
+								onValueChange={(values) => {
+									const value = values[0];
 									if (value) field.onChange(value);
 								}}
 								className="w-full"

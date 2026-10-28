@@ -54,14 +54,12 @@ export function NavChat() {
 		<>
 			<SidebarMenuItem>
 				<SidebarMenuButton
-					asChild
 					tooltip="Groups"
 					isActive={pathname === routes.groups.list()}
+					render={<Link href={routes.groups.list()} />}
 				>
-					<Link href={routes.groups.list()}>
-						<IconUsersGroup />
-						<span>Groups</span>
-					</Link>
+					<IconUsersGroup />
+					<span>Groups</span>
 				</SidebarMenuButton>
 				<ChannelSubMenu
 					channels={channels.filter(
@@ -73,14 +71,12 @@ export function NavChat() {
 			<SidebarMenuItem>
 				{isAdmin ? (
 					<SidebarMenuButton
-						asChild
 						tooltip="Members"
 						isActive={isActivePath(pathname, routes.members.list())}
+						render={<Link href={routes.members.list()} />}
 					>
-						<Link href={routes.members.list()}>
-							<IconUsers />
-							<span>Members</span>
-						</Link>
+						<IconUsers />
+						<span>Members</span>
 					</SidebarMenuButton>
 				) : (
 					<SidebarMenuButton tooltip="Members">
@@ -149,34 +145,34 @@ function ChannelSubMenu({
 				return (
 					<SidebarMenuSubItem key={channel.id}>
 						<SidebarMenuSubButton
-							asChild
 							isActive={isActive}
 							className="[&>svg]:size-[15px] [&>svg]:text-muted-foreground"
+							render={
+								<Link
+									href={href}
+									className={cn(channel.isMuted && !isActive && "opacity-60")}
+								/>
+							}
 						>
-							<Link
-								href={href}
-								className={cn(channel.isMuted && !isActive && "opacity-60")}
-							>
-								{channel.kind === "direct_message" ? (
-									<span className="flex size-[18px] shrink-0 items-center justify-center rounded-[5px] bg-zinc-700 text-[9px] font-semibold">
-										{channel.initials ?? <IconUsers className="size-3" />}
-									</span>
-								) : (
-									<ChannelIcon channel={channel} />
-								)}
-								<span className="min-w-0 flex-1 truncate">{channel.name}</span>
-								{channel.isMuted && (
-									<IconBellOff
-										aria-label="Muted"
-										className="size-3.5 shrink-0 text-muted-foreground"
-									/>
-								)}
-								{channel.unreadCount > 0 && !isActive && !channel.isMuted && (
-									<span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-sidebar-primary px-1.5 text-xs font-semibold text-sidebar-primary-foreground">
-										{channel.unreadCount > 99 ? "99+" : channel.unreadCount}
-									</span>
-								)}
-							</Link>
+							{channel.kind === "direct_message" ? (
+								<span className="flex size-[18px] shrink-0 items-center justify-center rounded-[5px] bg-zinc-700 text-[9px] font-semibold">
+									{channel.initials ?? <IconUsers className="size-3" />}
+								</span>
+							) : (
+								<ChannelIcon channel={channel} />
+							)}
+							<span className="min-w-0 flex-1 truncate">{channel.name}</span>
+							{channel.isMuted && (
+								<IconBellOff
+									aria-label="Muted"
+									className="size-3.5 shrink-0 text-muted-foreground"
+								/>
+							)}
+							{channel.unreadCount > 0 && !isActive && !channel.isMuted && (
+								<span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-sidebar-primary px-1.5 text-xs font-semibold text-sidebar-primary-foreground">
+									{channel.unreadCount > 99 ? "99+" : channel.unreadCount}
+								</span>
+							)}
 						</SidebarMenuSubButton>
 					</SidebarMenuSubItem>
 				);

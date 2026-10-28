@@ -90,27 +90,26 @@ export function MessageActions({
 			</ActionButton>
 			{hasMenuItems && (
 				<DropdownMenu modal={false} onOpenChange={setIsMenuOpen}>
-					<DropdownMenuTrigger asChild>
-						<ActionButton label="More actions">
-							<IconDotsVertical />
-						</ActionButton>
+					<DropdownMenuTrigger render={<ActionButton label="More actions" />}>
+						<IconDotsVertical />
 					</DropdownMenuTrigger>
 					<DropdownMenuContent
 						align="end"
-						onCloseAutoFocus={(event) => {
-							if (!restoreFocus.current) event.preventDefault();
+						finalFocus={() => {
+							const shouldRestoreFocus = restoreFocus.current;
 							restoreFocus.current = true;
+							return shouldRestoreFocus;
 						}}
 					>
 						{onQuote && (
-							<DropdownMenuItem onSelect={selectWithoutRestoringFocus(onQuote)}>
+							<DropdownMenuItem onClick={selectWithoutRestoringFocus(onQuote)}>
 								<IconQuote />
 								Quote
 							</DropdownMenuItem>
 						)}
 						{message.text && (
 							<DropdownMenuItem
-								onSelect={async () => {
+								onClick={async () => {
 									await navigator.clipboard.writeText(message.text ?? "");
 									toast.success("Copied to clipboard");
 								}}
@@ -120,7 +119,7 @@ export function MessageActions({
 							</DropdownMenuItem>
 						)}
 						{onMarkUnread && (
-							<DropdownMenuItem onSelect={onMarkUnread}>
+							<DropdownMenuItem onClick={onMarkUnread}>
 								<IconMail />
 								Mark unread
 							</DropdownMenuItem>
@@ -130,7 +129,7 @@ export function MessageActions({
 								<DropdownMenuSeparator />
 								<DropdownMenuItem
 									variant="destructive"
-									onSelect={selectWithoutRestoringFocus(onDelete)}
+									onClick={selectWithoutRestoringFocus(onDelete)}
 								>
 									<IconTrash />
 									Delete message
