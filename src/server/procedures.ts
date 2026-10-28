@@ -1,4 +1,5 @@
 export type { FinalizeCallback } from "./common/builder";
+export { definePermission, type Permission } from "./common/permission";
 export { adminProcedure } from "./common/procedures/admin.procedure";
 export { authenticatedProcedure as protectedProcedure } from "./common/procedures/authenticated.procedure";
 export { onboardingProcedure } from "./common/procedures/onboarding.procedure";

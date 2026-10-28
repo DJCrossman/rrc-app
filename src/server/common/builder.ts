@@ -2,7 +2,8 @@ import type { TRPCMutationProcedure, TRPCQueryProcedure } from "@trpc/server";
 import { after as nextAfter } from "next/server";
 import type { z } from "zod";
 import { createLogger } from "@/lib/logger";
-import type { baseProcedure } from "./trpc";
+import type { Permission } from "./permission";
+import { type baseProcedure, TRPCError } from "./trpc";
 
 const afterLogger = createLogger("procedure.after");
 
@@ -48,6 +49,10 @@ export type AfterableBuilder<TContext, TInput> = {
 	use(
 		mw: Parameters<typeof baseProcedure.use>[0],
 	): AfterableBuilder<TContext, TInput>;
+	/** Throws the permission's error unless its check passes. */
+	permission(
+		rule: Permission<TContext, TInput>,
+	): AfterableBuilder<TContext, TInput>;
 	mutation<TResult>(
 		arg: ResolveArg<TContext, TInput, TResult>,
 	): TRPCMutationProcedure<{ meta: object; input: TInput; output: TResult }>;
@@ -91,6 +96,22 @@ export function wrapBuilder<TContext, TInput>(
 		},
 		use(mw) {
 			return wrapBuilder<TContext, TInput>(builder.use(mw));
+		},
+		permission(rule) {
+			return wrapBuilder<TContext, TInput>(
+				builder.use(
+					async (opts: {
+						ctx: TContext;
+						input: TInput;
+						next: () => Promise<unknown>;
+					}) => {
+						if (!(await rule.check({ ctx: opts.ctx, input: opts.input }))) {
+							throw new TRPCError(rule.error);
+						}
+						return opts.next();
+					},
+				),
+			);
 		},
 		mutation<TResult>(arg: ResolveArg<TContext, TInput, TResult>) {
 			const config: ResolveConfig<TContext, TInput, TResult> =

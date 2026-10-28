@@ -2,12 +2,11 @@ import { DateTime } from "luxon";
 import { CLUB_TIMEZONE, getClubToday } from "@/lib/schedule/week";
 import type { GetUpcomingInput } from "@/schemas";
 import type { ViewerContext } from "@/server/context";
-import { canSeeGroup, getViewerGroups } from "@/server/routers/groups/common";
+import { getViewerGroups } from "@/server/routers/groups/common";
 import {
 	eventInclude,
 	mapToVisibleEventDtos,
 } from "@/server/routers/schedule/common/map-to-event-dto";
-import { TRPCError } from "@/server/trpc";
 
 const UPCOMING_SCAN_LIMIT = 200;
 
@@ -17,9 +16,6 @@ export async function getUpcomingQuery(
 ) {
 	const { db } = ctx;
 	const viewer = await getViewerGroups(ctx);
-	if (groupId && !canSeeGroup(viewer, groupId)) {
-		throw new TRPCError({ code: "NOT_FOUND", message: "Group not found" });
-	}
 	const now = DateTime.now();
 	const rows = await db.event.findMany({
 		where: {

@@ -1,3 +1,4 @@
+import { definePermission } from "@/server/common/permission";
 import type { ViewerContext } from "@/server/context";
 import { getAthleteGroupIds } from "./group-members";
 
@@ -10,9 +11,22 @@ export function isViewerAdmin({ user, athlete }: ViewerContext) {
 	return user.isAdmin || athlete?.role === "admin";
 }
 
-export async function getViewerGroups(
-	ctx: ViewerContext,
-): Promise<ViewerGroups> {
+// Each request builds its own user object, so keying on it shares the lookup
+// between a procedure's permission check and its handler without leaking
+// across requests.
+const viewerGroupsByUser = new WeakMap<object, Promise<ViewerGroups>>();
+
+export function getViewerGroups(ctx: ViewerContext): Promise<ViewerGroups> {
+	const cached = viewerGroupsByUser.get(ctx.user);
+	if (cached) {
+		return cached;
+	}
+	const groups = loadViewerGroups(ctx);
+	viewerGroupsByUser.set(ctx.user, groups);
+	return groups;
+}
+
+async function loadViewerGroups(ctx: ViewerContext): Promise<ViewerGroups> {
 	if (isViewerAdmin(ctx)) {
 		return { isAdmin: true };
 	}
@@ -25,3 +39,24 @@ export async function getViewerGroups(
 export function canSeeGroup(viewer: ViewerGroups, groupId: string) {
 	return viewer.isAdmin || viewer.groupIds.has(groupId);
 }
+
+const GROUP_NOT_FOUND = {
+	code: "NOT_FOUND",
+	message: "Group not found",
+} as const;
+
+/** For procedures about one group, taking its `id`. */
+export const canViewGroup = definePermission<ViewerContext, { id: string }>(
+	async ({ ctx, input }) => canSeeGroup(await getViewerGroups(ctx), input.id),
+	GROUP_NOT_FOUND,
+);
+
+/** For procedures that can be narrowed to a group with `groupId`. */
+export const canViewGroupScope = definePermission<
+	ViewerContext,
+	{ groupId?: string }
+>(
+	async ({ ctx, input }) =>
+		!input.groupId || canSeeGroup(await getViewerGroups(ctx), input.groupId),
+	GROUP_NOT_FOUND,
+);
