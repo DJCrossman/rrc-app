@@ -85,15 +85,6 @@ export const ChatScene = ({ channelId, threadMessageId }: ChatSceneProps) => {
 				<SiteHeader breadcrumbs={getBreadcrumbs(channel, isAdmin)} />
 				<ChatHeader
 					channel={channel}
-					tabs={
-						channel?.groupId && (
-							<GroupTabs
-								groupId={channel.groupId}
-								channelId={channel.id}
-								active="chat"
-							/>
-						)
-					}
 					onAddPeople={() => {
 						setShareHistory(true);
 						setIsAddingPeople(true);
@@ -109,7 +100,15 @@ export const ChatScene = ({ channelId, threadMessageId }: ChatSceneProps) => {
 							},
 						)
 					}
-				/>
+				>
+					{channel?.groupId && (
+						<GroupTabs
+							groupId={channel.groupId}
+							channelId={channel.id}
+							active="chat"
+						/>
+					)}
+				</ChatHeader>
 				<NotificationsBanner className="mx-4 mt-3 w-auto lg:mx-6" />
 				<div className="flex min-h-0 flex-1">
 					<section

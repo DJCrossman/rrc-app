@@ -13,8 +13,22 @@ interface MessagesCardProps {
 	channels: ChatChannels | undefined;
 }
 
-export const MessagesCard = ({ channels }: MessagesCardProps) => {
-	const shown = [...(channels ?? [])]
+export const MessagesCard = ({ channels }: MessagesCardProps) => (
+	<ClubWeekCard title="Messages" className="gap-1">
+		<ChannelList channels={channels} />
+	</ClubWeekCard>
+);
+
+const ChannelList = ({ channels }: MessagesCardProps) => {
+	if (!channels) {
+		return <Skeleton className="h-24 w-full" />;
+	}
+	if (channels.length === 0) {
+		return (
+			<p className="text-[13px] text-muted-foreground">No messages yet.</p>
+		);
+	}
+	const shown = [...channels]
 		.sort(
 			(a, b) =>
 				b.unreadCount - a.unreadCount ||
@@ -22,54 +36,46 @@ export const MessagesCard = ({ channels }: MessagesCardProps) => {
 		)
 		.slice(0, MAX_CHANNELS);
 	return (
-		<ClubWeekCard title="Messages" className="gap-1">
-			{!channels ? (
-				<Skeleton className="h-24 w-full" />
-			) : shown.length === 0 ? (
-				<p className="text-[13px] text-muted-foreground">No messages yet.</p>
-			) : (
-				<ul className="flex flex-col">
-					{shown.map((channel) => (
-						<li key={channel.id}>
-							<Link
-								href={routes.chat.channel(channel.id)}
-								className="-mx-1.5 flex items-center gap-2.5 rounded-lg px-1.5 py-1 hover:bg-muted"
-							>
-								<span className="flex size-7 shrink-0 items-center justify-center rounded-[7px] bg-muted text-[11px] font-semibold">
-									{channel.initials ?? <ChannelIcon channel={channel} />}
+		<ul className="flex flex-col">
+			{shown.map((channel) => (
+				<li key={channel.id}>
+					<Link
+						href={routes.chat.channel(channel.id)}
+						className="-mx-1.5 flex items-center gap-2.5 rounded-lg px-1.5 py-1 hover:bg-muted"
+					>
+						<span className="flex size-7 shrink-0 items-center justify-center rounded-[7px] bg-muted text-[11px] font-semibold">
+							{channel.initials ?? <ChannelIcon channel={channel} />}
+						</span>
+						<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+							<span className="flex items-baseline justify-between gap-2">
+								<span
+									className={cn(
+										"truncate text-[13px]",
+										channel.unreadCount ? "font-semibold" : "font-medium",
+									)}
+								>
+									{channel.name}
 								</span>
-								<span className="flex min-w-0 flex-1 flex-col gap-0.5">
-									<span className="flex items-baseline justify-between gap-2">
-										<span
-											className={cn(
-												"truncate text-[13px]",
-												channel.unreadCount ? "font-semibold" : "font-medium",
-											)}
-										>
-											{channel.name}
-										</span>
-										{channel.lastMessage && (
-											<span className="text-xs whitespace-nowrap text-muted-foreground">
-												{formatLastReply(channel.lastMessage.createdAt)}
-											</span>
-										)}
+								{channel.lastMessage && (
+									<span className="text-xs whitespace-nowrap text-muted-foreground">
+										{formatLastReply(channel.lastMessage.createdAt)}
 									</span>
-									<span className="flex items-center gap-2">
-										<span className="min-w-0 flex-1 truncate text-[13px] text-muted-foreground">
-											{channel.lastMessage
-												? `${channel.lastMessage.isMine ? "You" : channel.lastMessage.authorName.split(" ")[0]}: ${channel.lastMessage.preview}`
-												: "No messages yet"}
-										</span>
-										{channel.unreadCount > 0 && (
-											<CountBadge count={channel.unreadCount} />
-										)}
-									</span>
+								)}
+							</span>
+							<span className="flex items-center gap-2">
+								<span className="min-w-0 flex-1 truncate text-[13px] text-muted-foreground">
+									{channel.lastMessage
+										? `${channel.lastMessage.isMine ? "You" : channel.lastMessage.authorName.split(" ")[0]}: ${channel.lastMessage.preview}`
+										: "No messages yet"}
 								</span>
-							</Link>
-						</li>
-					))}
-				</ul>
-			)}
-		</ClubWeekCard>
+								{channel.unreadCount > 0 && (
+									<CountBadge count={channel.unreadCount} />
+								)}
+							</span>
+						</span>
+					</Link>
+				</li>
+			))}
+		</ul>
 	);
 };

@@ -22,14 +22,14 @@ const MIN_MEMBERS_TO_LEAVE = 3;
 
 interface ChatHeaderProps {
 	channel: ChatChannel | undefined;
-	tabs?: ReactNode;
+	children?: ReactNode;
 	onAddPeople?: () => void;
 	onLeave?: () => void;
 }
 
 export function ChatHeader({
 	channel,
-	tabs,
+	children,
 	onAddPeople,
 	onLeave,
 }: ChatHeaderProps) {
@@ -48,7 +48,7 @@ export function ChatHeader({
 				) : (
 					<Skeleton className="h-5 w-40" />
 				)}
-				{tabs}
+				{children}
 			</div>
 			{channel && (
 				<div className="flex shrink-0 items-center gap-2">
