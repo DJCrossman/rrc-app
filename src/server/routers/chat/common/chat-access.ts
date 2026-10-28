@@ -67,8 +67,20 @@ export async function findAccessibleMessage(
 	return message;
 }
 
-export async function findMyDm(ctx: ViewerContext, channelId: string) {
-	const channel = await findAccessibleChannel(ctx, channelId);
+// Direct messages never depend on the viewer's groups, so this skips the
+// group lookup that findAccessibleChannel would do.
+export async function findMyDm(db: Db, channelId: string, userId: string) {
+	const channel = await db.channel.findUnique({
+		where: { id: channelId },
+		include: channelAccessInclude,
+	});
+	if (
+		!channel ||
+		(channel.kind === "direct_message" &&
+			!channel.members.some((member) => member.userId === userId))
+	) {
+		throw new TRPCError({ code: "NOT_FOUND", message: "Channel not found" });
+	}
 	if (channel.kind !== "direct_message") {
 		throw new TRPCError({
 			code: "BAD_REQUEST",

@@ -5,9 +5,11 @@ import { TRPCError } from "@/server/trpc";
 
 const MIN_MEMBERS_TO_LEAVE = 3;
 
-export async function leaveDmCommand(input: LeaveDm, ctx: ViewerContext) {
-	const { db, user } = ctx;
-	const channel = await findMyDm(ctx, input.channelId);
+export async function leaveDmCommand(
+	input: LeaveDm,
+	{ db, user }: ViewerContext,
+) {
+	const channel = await findMyDm(db, input.channelId, user.id);
 	if (channel.members.length < MIN_MEMBERS_TO_LEAVE) {
 		throw new TRPCError({
 			code: "BAD_REQUEST",
