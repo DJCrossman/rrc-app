@@ -28,8 +28,13 @@ export const UpNextCard = ({
 	<ClubWeekCard
 		title="Up next"
 		action={
-			<Button asChild variant="outline" size="sm" className="h-7 text-xs">
-				<Link href={scheduleHref}>Full schedule</Link>
+			<Button
+				variant="outline"
+				size="sm"
+				className="h-7 text-xs"
+				render={<Link href={scheduleHref} />}
+			>
+				Full schedule
 			</Button>
 		}
 	>

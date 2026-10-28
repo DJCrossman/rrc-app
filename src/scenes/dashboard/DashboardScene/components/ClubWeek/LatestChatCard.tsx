@@ -34,8 +34,13 @@ export const LatestChatCard = ({ channelId }: LatestChatCardProps) => {
 			className="gap-1"
 			action={
 				chatHref && (
-					<Button asChild variant="outline" size="sm" className="h-7 text-xs">
-						<Link href={chatHref}>Open chat</Link>
+					<Button
+						variant="outline"
+						size="sm"
+						className="h-7 text-xs"
+						render={<Link href={chatHref} />}
+					>
+						Open chat
 					</Button>
 				)
 			}

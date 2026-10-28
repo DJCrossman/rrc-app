@@ -139,16 +139,22 @@ export const ScheduleView = ({
 								<span className="hidden sm:inline">Subscribe</span>
 							</Button>
 							{isAdmin && (
-								<Button asChild variant="outline" size="sm">
-									<a
-										href={routes.schedule.bulkEditTraining({
-											week: weekStart,
-										})}
-									>
-										<IconTable />
-										<span className="hidden sm:inline">Bulk edit training</span>
-									</a>
-								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									render={
+										<a
+											href={routes.schedule.bulkEditTraining({
+												week: weekStart,
+											})}
+										>
+											<IconTable />
+											<span className="hidden sm:inline">
+												Bulk edit training
+											</span>
+										</a>
+									}
+								/>
 							)}
 							{isAdmin && (
 								<Button

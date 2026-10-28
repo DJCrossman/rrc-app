@@ -108,8 +108,13 @@ export const AvailabilityCard = ({
 				</p>
 			)}
 			{isAdmin && (
-				<Button asChild variant="outline" size="sm" className="h-7 text-xs">
-					<Link href={responsesHref(event.id)}>See all responses</Link>
+				<Button
+					variant="outline"
+					size="sm"
+					className="h-7 text-xs"
+					render={<Link href={responsesHref(event.id)} />}
+				>
+					See all responses
 				</Button>
 			)}
 			{isNudging && (

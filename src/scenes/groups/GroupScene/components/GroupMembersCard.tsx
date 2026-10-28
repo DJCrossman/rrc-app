@@ -21,8 +21,13 @@ export const GroupMembersCard = ({ group, isAdmin }: GroupMembersCardProps) => {
 					{group.memberCount} {group.memberCount === 1 ? "member" : "members"}
 				</h3>
 				{isAdmin && (
-					<Button asChild variant="outline" size="sm" className="h-7 text-xs">
-						<Link href={routes.groups.view(group.id)}>Manage</Link>
+					<Button
+						variant="outline"
+						size="sm"
+						className="h-7 text-xs"
+						render={<Link href={routes.groups.view(group.id)} />}
+					>
+						Manage
 					</Button>
 				)}
 			</div>

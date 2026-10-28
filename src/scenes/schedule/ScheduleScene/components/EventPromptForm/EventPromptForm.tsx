@@ -250,10 +250,10 @@ export function EventPromptForm({
 			<div className="space-y-2">
 				<Label>Type</Label>
 				<ToggleGroup
-					type="single"
 					variant="outline"
-					value={type}
-					onValueChange={(value) => {
+					value={[type]}
+					onValueChange={(values) => {
+						const value = values[0];
 						if (value) setType(value as EventType);
 					}}
 					className="w-full"
