@@ -33,27 +33,32 @@ const RSVP_OPTIONS = [
 interface RsvpButtonsProps {
 	eventId: string;
 	status: RsvpStatus | null;
+	showLabels?: boolean;
 	onRsvp: (eventId: string, status: RsvpStatus) => Promise<RsvpStatus | null>;
 }
 
 export const RsvpButtons = ({
 	eventId,
 	status: savedStatus,
+	showLabels = false,
 	onRsvp,
 }: RsvpButtonsProps) => {
 	const [status, setStatus] = useState(savedStatus);
 	const [isPending, setIsPending] = useState(false);
 
 	return (
-		<fieldset aria-label="RSVP" className="flex gap-1">
+		<fieldset
+			aria-label="RSVP"
+			className={cn("flex gap-1", showLabels && "flex-wrap gap-1.5")}
+		>
 			{RSVP_OPTIONS.map(
 				({ status: option, label, icon: Icon, selectedClassName }) => (
 					<Button
 						key={option}
 						type="button"
 						variant="outline"
-						size="icon-sm"
-						aria-label={label}
+						size={showLabels ? "sm" : "icon-sm"}
+						aria-label={showLabels ? undefined : label}
 						title={label}
 						aria-pressed={status === option}
 						disabled={isPending}
@@ -72,6 +77,7 @@ export const RsvpButtons = ({
 						}}
 					>
 						<Icon />
+						{showLabels && label}
 					</Button>
 				),
 			)}

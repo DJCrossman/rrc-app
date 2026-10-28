@@ -133,11 +133,15 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
 
 interface ILeaderboardTableProps {
 	data: Leaderboard;
+	initialProgramIds?: string[];
 }
 
-export function LeaderboardTable({ data }: ILeaderboardTableProps) {
+export function LeaderboardTable({
+	data,
+	initialProgramIds = [],
+}: ILeaderboardTableProps) {
 	const [rowSelection, setRowSelection] = useState({});
-	const [programIds, setProgramIds] = useState<string[]>([]);
+	const [programIds, setProgramIds] = useState<string[]>(initialProgramIds);
 	const [sorting, setSorting] = useState<SortingState>([
 		{ id: "meters", desc: true },
 	]);

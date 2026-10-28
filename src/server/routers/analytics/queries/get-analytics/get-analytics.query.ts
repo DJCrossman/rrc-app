@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
 import type { ViewerContext } from "@/server/context";
+import { toMetersTimeSeries } from "../../common/to-meters-time-series";
 
 export async function getAnalyticsQuery(
 	_input: undefined,
@@ -148,18 +149,7 @@ export async function getAnalyticsQuery(
 			})
 		: [];
 
-	const seriesMap = new Map<string, { boat: number; erg: number }>();
-	for (const row of seriesRows) {
-		const day = row.startDate.toISOString().split("T")[0];
-		const entry = seriesMap.get(day) ?? { boat: 0, erg: 0 };
-		if (row.type === "water") entry.boat += row.distance;
-		else entry.erg += row.distance;
-		seriesMap.set(day, entry);
-	}
-	const metersTimeSeries = Array.from(seriesMap.entries()).map(([date, v]) => ({
-		date,
-		...v,
-	}));
+	const metersTimeSeries = toMetersTimeSeries(seriesRows);
 
 	return {
 		analyticMetrics: {

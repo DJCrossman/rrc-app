@@ -9,6 +9,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { trpcClient } from "@/lib/trpc/client";
 import {
+	ClubWeekSection,
 	IntegrationAlert,
 	LeaderboardTable,
 	LeaderboardTableSkeleton,
@@ -56,6 +57,7 @@ export const DashboardScene = () => {
 									data={analyticsQuery.data.analyticMetrics}
 								/>
 							) : null}
+							<ClubWeekSection />
 							{analyticsQuery.isPending ? (
 								<div className="px-4 lg:px-6">
 									<MetersTimeSeriesChartSkeleton />

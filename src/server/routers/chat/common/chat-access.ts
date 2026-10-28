@@ -99,6 +99,15 @@ export function ensureEveryoneChannel(db: Db) {
 	});
 }
 
+export function ensureGroupChannel(db: Db, groupId: string) {
+	return db.channel.upsert({
+		where: { groupId },
+		create: { kind: "group", groupId },
+		update: {},
+		select: { id: true },
+	});
+}
+
 export function isChatAdmin({ user, athlete }: ViewerContext) {
 	return user.isAdmin || athlete?.role === "admin";
 }

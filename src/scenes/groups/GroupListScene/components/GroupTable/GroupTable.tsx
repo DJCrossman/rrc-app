@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-table";
 import { DateTime } from "luxon";
 import Link from "next/link";
+import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
 	Table,
@@ -20,14 +21,14 @@ import {
 import { routes } from "@/lib/routes";
 import type { Groups } from "@/lib/trpc/types";
 
-const columns: ColumnDef<Groups[number]>[] = [
+const getColumns = (
+	getGroupHref: (id: string) => string,
+): ColumnDef<Groups[number]>[] => [
 	{
 		accessorKey: "name",
 		header: () => <div className="lg:w-60">Group</div>,
 		cell: ({ row }) => (
-			<Link href={routes.groups.view(row.original.id)}>
-				{row.original.name}
-			</Link>
+			<Link href={getGroupHref(row.original.id)}>{row.original.name}</Link>
 		),
 	},
 	{
@@ -59,9 +60,19 @@ const columns: ColumnDef<Groups[number]>[] = [
 interface IGroupTableProps {
 	groups: Groups;
 	lastSyncedAt: string | null;
+	/** Admins open the group editor; everyone else opens the group's page. */
+	canEdit: boolean;
 }
 
-export function GroupTable({ groups, lastSyncedAt }: IGroupTableProps) {
+export function GroupTable({
+	groups,
+	lastSyncedAt,
+	canEdit,
+}: IGroupTableProps) {
+	const columns = useMemo(
+		() => getColumns(canEdit ? routes.groups.view : routes.groups.detail),
+		[canEdit],
+	);
 	const table = useReactTable({
 		data: groups,
 		columns,

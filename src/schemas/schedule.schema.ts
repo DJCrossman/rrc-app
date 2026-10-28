@@ -38,6 +38,7 @@ export type EventIdInput = z.infer<typeof eventIdInputSchema>;
 
 export const getUpcomingInputSchema = z.object({
 	limit: z.number().int().min(1).max(50).default(5),
+	groupId: z.string().min(1).optional(),
 });
 export type GetUpcomingInput = z.infer<typeof getUpcomingInputSchema>;
 

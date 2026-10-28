@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
 	formatEventDate,
+	formatEventDay,
 	formatEventTime,
 	formatGroupLabel,
 } from "./event-labels";
@@ -81,5 +82,34 @@ describe("formatGroupLabel", () => {
 	it("labels club events and falls back to group ids", () => {
 		expect(formatGroupLabel("club", ["grp_a"])).toBe("Club-wide");
 		expect(formatGroupLabel("groups", ["grp_a", "grp_b"])).toBe("grp_a, grp_b");
+	});
+
+	it("names groups it knows", () => {
+		expect(
+			formatGroupLabel(
+				"groups",
+				["grp_a", "grp_b"],
+				new Map([["grp_a", "Masters"]]),
+			),
+		).toBe("Masters, grp_b");
+	});
+});
+
+describe("formatEventDay", () => {
+	const today = "2026-10-21";
+
+	it("says today and tomorrow", () => {
+		expect(formatEventDay("2026-10-21", today)).toBe("Today");
+		expect(formatEventDay("2026-10-22", today)).toBe("Tomorrow");
+	});
+
+	it("names the weekday within the coming week", () => {
+		expect(formatEventDay("2026-10-24", today)).toBe("Saturday");
+		expect(formatEventDay("2026-10-23", today, "short")).toBe("Fri 23");
+	});
+
+	it("dates events further out", () => {
+		expect(formatEventDay("2026-11-02", today)).toBe("Mon, Nov 2");
+		expect(formatEventDay("2026-11-02", today, "short")).toBe("Nov 2");
 	});
 });

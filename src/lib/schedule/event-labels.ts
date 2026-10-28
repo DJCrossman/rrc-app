@@ -50,14 +50,38 @@ export function formatEventDate(
 	});
 }
 
+// "Today", "Tomorrow" or the weekday for the coming week; a date after that.
+// The short style is for compact lists: "Fri 23", or "Nov 2" further out.
+export function formatEventDay(
+	date: string,
+	today: string,
+	style: "long" | "short" = "long",
+): string {
+	const day = DateTime.fromISO(date);
+	const daysAway = day.diff(DateTime.fromISO(today), "days").days;
+	if (style === "long" && daysAway === 0) return "Today";
+	if (style === "long" && daysAway === 1) return "Tomorrow";
+	const isThisWeek = daysAway >= 0 && daysAway < 7;
+	const pattern =
+		style === "long"
+			? isThisWeek
+				? "cccc"
+				: "ccc, LLL d"
+			: isThisWeek
+				? "ccc d"
+				: "LLL d";
+	return day.toFormat(pattern, { locale: LOCALE });
+}
+
 export function formatGroupLabel(
 	audience: EventAudience,
 	groupIds: string[],
+	groupNames: ReadonlyMap<string, string> = new Map(),
 ): string {
 	if (audience === "club" || groupIds.length === 0) {
 		return "Club-wide";
 	}
-	return groupIds.join(", ");
+	return groupIds.map((id) => groupNames.get(id) ?? id).join(", ");
 }
 
 function toZoned(value: Date | string, timezone: string): DateTime {

@@ -10,7 +10,7 @@ import {
 const UPCOMING_SCAN_LIMIT = 200;
 
 export async function getUpcomingQuery(
-	{ limit }: GetUpcomingInput,
+	{ limit, groupId }: GetUpcomingInput,
 	{ db, athlete }: ViewerContext,
 ) {
 	const now = DateTime.now();
@@ -24,6 +24,11 @@ export async function getUpcomingQuery(
 				},
 				{ endAt: { gte: now.toJSDate() } },
 			],
+			...(groupId && {
+				AND: {
+					OR: [{ audience: "club" }, { groups: { some: { groupId } } }],
+				},
+			}),
 		},
 		include: eventInclude,
 		orderBy: { startAt: "asc" },
@@ -32,7 +37,8 @@ export async function getUpcomingQuery(
 	const today = getClubToday(now);
 	const events = (await mapToEventDtos(db, rows, athlete?.id ?? null)).filter(
 		(event) =>
-			event.inAudience &&
+			// A group's page shows the group's events to anyone looking at it.
+			(groupId || event.inAudience) &&
 			(event.allDay
 				? event.date >= today
 				: new Date(event.endAt ?? event.startAt) >= now.toJSDate()),
@@ -52,5 +58,6 @@ export async function getUpcomingQuery(
 		volunteerShifts: events
 			.filter((event) => event.type === "volunteer")
 			.slice(0, limit),
+		nextTraining: events.find((event) => event.type === "training") ?? null,
 	};
 }

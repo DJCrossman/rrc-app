@@ -4,6 +4,7 @@ import {
 	IconUserPlus,
 	IconUsers,
 } from "@tabler/icons-react";
+import type { ReactNode } from "react";
 import { ChannelNotificationToggle } from "@/components/channel-notification-toggle";
 import { ChannelIcon } from "@/components/chat/channel-icon";
 import { Button } from "@/components/ui/button";
@@ -21,25 +22,34 @@ const MIN_MEMBERS_TO_LEAVE = 3;
 
 interface ChatHeaderProps {
 	channel: ChatChannel | undefined;
-	onAddPeople: () => void;
-	onLeave: () => void;
+	tabs?: ReactNode;
+	onAddPeople?: () => void;
+	onLeave?: () => void;
 }
 
-export function ChatHeader({ channel, onAddPeople, onLeave }: ChatHeaderProps) {
+export function ChatHeader({
+	channel,
+	tabs,
+	onAddPeople,
+	onLeave,
+}: ChatHeaderProps) {
 	const isDm = channel?.kind === "direct_message";
 	return (
 		<div className="flex h-14 shrink-0 items-center justify-between gap-4 border-b px-4 lg:px-6">
-			{channel ? (
-				<div className="flex min-w-0 items-center gap-2 text-base font-semibold">
-					<ChannelIcon
-						channel={channel}
-						className="size-[18px] text-muted-foreground"
-					/>
-					<h2 className="truncate">{channel.name}</h2>
-				</div>
-			) : (
-				<Skeleton className="h-5 w-40" />
-			)}
+			<div className="flex min-w-0 items-center gap-4">
+				{channel ? (
+					<div className="flex min-w-0 items-center gap-2 text-base font-semibold">
+						<ChannelIcon
+							channel={channel}
+							className="size-[18px] text-muted-foreground"
+						/>
+						<h2 className="truncate">{channel.name}</h2>
+					</div>
+				) : (
+					<Skeleton className="h-5 w-40" />
+				)}
+				{tabs}
+			</div>
 			{channel && (
 				<div className="flex shrink-0 items-center gap-2">
 					<span

@@ -7,6 +7,9 @@ export async function deleteGroupCommand(
 	{ db }: Context,
 ) {
 	await findGroupOrThrow(db, id);
-	await db.group.delete({ where: { id } });
+	await db.$transaction([
+		db.channel.deleteMany({ where: { groupId: id } }),
+		db.group.delete({ where: { id } }),
+	]);
 	return true;
 }

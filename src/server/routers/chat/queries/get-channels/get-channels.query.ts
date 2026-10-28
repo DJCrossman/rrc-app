@@ -13,6 +13,7 @@ import {
 	buildUnreadMessageWhere,
 	toUnreadCounts,
 } from "@/server/routers/chat/common/unread";
+import { getMemberIdsByGroup } from "@/server/routers/groups/common";
 
 type Db = ViewerContext["db"];
 
@@ -20,7 +21,7 @@ export async function getChannelsQuery(
 	_input: undefined,
 	{ db, user }: ViewerContext,
 ) {
-	const [channels, reads, memberCount] = await Promise.all([
+	const [{ channels, groups }, reads, athleteCount] = await Promise.all([
 		findVisibleChannels(db, user.id),
 		db.channel_read.findMany({
 			where: { userId: user.id },
@@ -29,10 +30,7 @@ export async function getChannelsQuery(
 		db.athlete.count(),
 	]);
 	const channelIds = channels.map((channel) => channel.id);
-	const groupIds = channels.flatMap((channel) =>
-		channel.groupId ? [channel.groupId] : [],
-	);
-	const [unreadGroups, lastMessages, groups] = await Promise.all([
+	const [unreadGroups, lastMessages, membersByGroup] = await Promise.all([
 		db.message.groupBy({
 			by: ["channelId"],
 			where: buildUnreadMessageWhere({
@@ -44,10 +42,10 @@ export async function getChannelsQuery(
 			_count: { _all: true },
 		}),
 		findLastMessages(db, channelIds),
-		db.group.findMany({
-			where: { id: { in: groupIds } },
-			select: { id: true, name: true },
-		}),
+		getMemberIdsByGroup(
+			db,
+			groups.map((group) => group.id),
+		),
 	]);
 	const groupNames = new Map(groups.map((group) => [group.id, group.name]));
 	const users = await loadChatUsers(db, [
@@ -66,7 +64,9 @@ export async function getChannelsQuery(
 			mapToChannelDto(channel, {
 				userId: user.id,
 				users,
-				memberCount,
+				memberCount: channel.groupId
+					? (membersByGroup.get(channel.groupId)?.length ?? 0)
+					: athleteCount,
 				unreadCount: unreadCounts.get(channel.id) ?? 0,
 				lastMessage: lastMessageByChannel.get(channel.id) ?? null,
 				groupNames,
@@ -83,19 +83,49 @@ async function findVisibleChannels(db: Db, userId: string) {
 			{ kind: "direct_message", members: { some: { userId } } },
 		],
 	} satisfies Prisma.channelWhereInput;
-	const channels = await db.channel.findMany({
+	const [channels, groups] = await Promise.all([
+		db.channel.findMany({ where, include: channelInclude }),
+		db.group.findMany({ select: { id: true, name: true } }),
+	]);
+	const groupIds = new Set(groups.map((group) => group.id));
+	const missingGroupIds = [...groupIds].filter(
+		(groupId) => !channels.some((channel) => channel.groupId === groupId),
+	);
+	const hasEveryone = channels.some((channel) => channel.kind === "everyone");
+	if (hasEveryone && missingGroupIds.length === 0) {
+		return { channels: withoutOrphans(channels, groupIds), groups };
+	}
+	if (!hasEveryone) {
+		await ensureEveryoneChannel(db);
+	}
+	if (missingGroupIds.length > 0) {
+		await db.channel.createMany({
+			data: missingGroupIds.map((groupId) => ({ kind: "group", groupId })),
+			skipDuplicates: true,
+		});
+	}
+	const refreshed = await db.channel.findMany({
 		where,
 		include: channelInclude,
 	});
-	if (channels.some((channel) => channel.kind === "everyone")) {
-		return channels;
-	}
-	await ensureEveryoneChannel(db);
-	return db.channel.findMany({ where, include: channelInclude });
+	return { channels: withoutOrphans(refreshed, groupIds), groups };
+}
+
+// Hides channels left behind by groups deleted before deleting a group also
+// removed its channel.
+function withoutOrphans<T extends { kind: string; groupId: string | null }>(
+	channels: T[],
+	groupIds: ReadonlySet<string>,
+) {
+	return channels.filter(
+		(channel) =>
+			channel.kind !== "group" ||
+			(channel.groupId !== null && groupIds.has(channel.groupId)),
+	);
 }
 
 function getMyVisibleFrom(
-	channels: Awaited<ReturnType<typeof findVisibleChannels>>,
+	channels: Awaited<ReturnType<typeof findVisibleChannels>>["channels"],
 	userId: string,
 ) {
 	return new Map(

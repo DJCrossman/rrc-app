@@ -56,7 +56,7 @@ export function NavChat() {
 				<SidebarMenuButton
 					asChild
 					tooltip="Groups"
-					isActive={isActivePath(pathname, routes.groups.list())}
+					isActive={pathname === routes.groups.list()}
 				>
 					<Link href={routes.groups.list()}>
 						<IconUsersGroup />
@@ -138,8 +138,14 @@ function ChannelSubMenu({
 	return (
 		<SidebarMenuSub className="mr-0 gap-0.5 pr-0">
 			{channels.map((channel) => {
-				const href = routes.chat.channel(channel.id);
-				const isActive = pathname === href;
+				const chatHref = routes.chat.channel(channel.id);
+				const href = channel.groupId
+					? routes.groups.detail(channel.groupId)
+					: chatHref;
+				const isActive =
+					pathname === chatHref ||
+					pathname === href ||
+					pathname.startsWith(`${href}/`);
 				return (
 					<SidebarMenuSubItem key={channel.id}>
 						<SidebarMenuSubButton

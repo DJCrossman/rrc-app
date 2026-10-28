@@ -267,7 +267,11 @@ export function rowToScheduleEvent(
 		location: event.location ?? null,
 		audience: event.audience,
 		groupIds: event.groupIds,
-		groupLabel: formatGroupLabel(event.audience, event.groupIds),
+		groupLabel:
+			original.audience === event.audience &&
+			original.groupIds.join() === event.groupIds.join()
+				? original.groupLabel
+				: formatGroupLabel(event.audience, event.groupIds),
 		workout:
 			original.workout && workout
 				? {

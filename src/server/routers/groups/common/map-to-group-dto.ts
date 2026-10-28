@@ -1,6 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 import type { AthleteRow } from "@/server/routers/athletes/common/map-to-athlete-dto";
-import { isProgramActive } from "./group-membership";
+import { isCoach, isProgramActive } from "./group-membership";
 
 export const groupInclude = {
 	programs: { include: { program: true } },
@@ -38,5 +38,6 @@ export function mapToGroupMemberDto(
 		initials:
 			`${firstName.charAt(0)}${athlete.lastName.charAt(0)}`.toUpperCase(),
 		program: program?.name ?? null,
+		isCoach: isCoach(athlete),
 	};
 }

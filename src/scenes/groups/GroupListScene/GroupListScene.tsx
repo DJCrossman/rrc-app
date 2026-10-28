@@ -118,7 +118,11 @@ export const GroupListScene = ({
 								</div>
 							)}
 						</div>
-						<GroupTable groups={groups} lastSyncedAt={lastSyncedAt} />
+						<GroupTable
+							groups={groups}
+							lastSyncedAt={lastSyncedAt}
+							canEdit={isAdmin}
+						/>
 					</div>
 				</div>
 			</SidebarInset>

@@ -48,12 +48,14 @@ const chartConfig: Record<
 
 interface IProps {
 	data: MetersTimeSeries;
+	scopeLabel?: string;
 	timeRange: "three_months" | "thirty_days" | "seven_days";
 	setTimeRange: (value: "three_months" | "thirty_days" | "seven_days") => void;
 }
 
 export function MetersTimeSeriesChart({
 	data: chartData,
+	scopeLabel,
 	timeRange,
 	setTimeRange,
 }: IProps) {
@@ -85,9 +87,13 @@ export function MetersTimeSeriesChart({
 				<CardTitle>Total Meters</CardTitle>
 				<CardDescription>
 					<span className="hidden @[540px]/card:block">
-						Total for the last 3 months
+						{scopeLabel
+							? `${scopeLabel} · Last 3 months`
+							: "Total for the last 3 months"}
 					</span>
-					<span className="@[540px]/card:hidden">Last 3 months</span>
+					<span className="@[540px]/card:hidden">
+						{scopeLabel ? `${scopeLabel} · ` : ""}Last 3 months
+					</span>
 				</CardDescription>
 				<CardAction>
 					<ToggleGroup

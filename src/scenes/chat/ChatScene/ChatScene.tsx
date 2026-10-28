@@ -5,7 +5,9 @@ import type React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AppSidebar } from "@/components/app-sidebar";
+import { ChatHeader } from "@/components/chat/chat-header";
 import { PeoplePickerDialog } from "@/components/chat/people-picker-dialog";
+import { GroupTabs } from "@/components/group-tabs";
 import { NotificationsBanner } from "@/components/notifications-banner";
 import { SiteHeader } from "@/components/site-header";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -18,7 +20,6 @@ import type { ChatChannel, ChatMessage } from "@/lib/trpc/types";
 import { MAX_DM_MEMBERS } from "@/schemas/chat.schema";
 import {
 	ChatEmptyState,
-	ChatHeader,
 	DeleteMessageDialog,
 	ForwardDialog,
 	MessageComposer,
@@ -84,6 +85,15 @@ export const ChatScene = ({ channelId, threadMessageId }: ChatSceneProps) => {
 				<SiteHeader breadcrumbs={getBreadcrumbs(channel, isAdmin)} />
 				<ChatHeader
 					channel={channel}
+					tabs={
+						channel?.groupId && (
+							<GroupTabs
+								groupId={channel.groupId}
+								channelId={channel.id}
+								active="chat"
+							/>
+						)
+					}
 					onAddPeople={() => {
 						setShareHistory(true);
 						setIsAddingPeople(true);
@@ -291,5 +301,8 @@ function getBreadcrumbs(channel: ChatChannel | undefined, isAdmin: boolean) {
 			{ label: channel.name },
 		];
 	}
-	return [{ label: "Groups" }, { label: channel.name }];
+	return [
+		{ label: "Groups", href: routes.groups.list() },
+		{ label: channel.name },
+	];
 }

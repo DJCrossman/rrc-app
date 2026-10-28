@@ -137,6 +137,16 @@ is no group, channel, message, event or notification model, and no realtime libr
    place of the signup code.
 6. **group pages and dashboard "This week at the club"** — group route with Overview /
    Chat / Schedule tabs; dashboard scope chips and cards; needs all three domains.
+   Built 2026-10-28 on branch `claude/cool-knuth-kbx7tw`: `/groups/[id]` (Overview:
+   Up next, Needs your reply, Latest in chat, Availability, members card, group meters
+   chart, leaderboard limited to members), `/groups/[id]/schedule` (week view locked to
+   the group) and the group's chat at `/chat/[channelId]`, all under one header with the
+   tabs. Group channels are now created for every group (they never were before) and
+   removed with the group; channel member counts come from group membership. Dashboard
+   gets "This week at the club" with All my groups / per-group chips; Schedule shows a
+   chip per group by name, and event cards name their groups instead of showing ids.
+   Not done: the dashboard's group-scope members card, and volunteer shifts (hidden in
+   the design too).
 7. **navigation shell and mobile** — breadcrumbs, mobile bottom tabs, chat list and
    long-press sheet, schedule day strip.
 8. **integration wiring** — relations from `channel.groupId` and `event_group.groupId` to
@@ -145,6 +155,9 @@ is no group, channel, message, event or notification model, and no realtime libr
    and 2026-10-25), so groups fill from program rules only and every member can post.
    Admin access to every page for users without an athlete row is done separately on
    branch `claude/design-breakdown-tasks-468cb3` (reads on `viewerProcedure`).
+   Still open as of 2026-10-28: event audiences (`getEventAudiences`) and group chat
+   access still treat every athlete as in every group, and `channel.groupId` /
+   `event_group.groupId` are plain columns, not relations.
 
 ## Integration contracts for wave 1
 

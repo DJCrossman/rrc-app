@@ -14,7 +14,10 @@ import {
 } from "@/server/routers/athletes/common/map-to-athlete-dto";
 import { countResponses } from "@/server/routers/schedule/common/count-responses";
 import { getEventAudiences } from "@/server/routers/schedule/common/event-audience";
-import { eventInclude } from "@/server/routers/schedule/common/map-to-event-dto";
+import {
+	eventInclude,
+	findGroupNames,
+} from "@/server/routers/schedule/common/map-to-event-dto";
 
 export async function getResponsesQuery(
 	{ eventId }: EventIdInput,
@@ -32,15 +35,18 @@ export async function getResponsesQuery(
 	const statusByAthlete = new Map(
 		event.rsvps.map(({ athleteId, status }) => [athleteId, status]),
 	);
-	const athletes = await db.athlete.findMany({
-		where: {
-			id: { in: [...new Set([...audience, ...statusByAthlete.keys()])] },
-		},
-		include: athleteInclude,
-		orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
-	});
-	const people = athletes.map(mapToResponsePerson);
 	const groupIds = event.groups.map(({ groupId }) => groupId);
+	const [athletes, groupNames] = await Promise.all([
+		db.athlete.findMany({
+			where: {
+				id: { in: [...new Set([...audience, ...statusByAthlete.keys()])] },
+			},
+			include: athleteInclude,
+			orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
+		}),
+		findGroupNames(db, groupIds),
+	]);
+	const people = athletes.map(mapToResponsePerson);
 
 	return {
 		event: {
@@ -49,7 +55,7 @@ export async function getResponsesQuery(
 			typeLabel: EVENT_TYPE_LABELS[event.type],
 			dateLabel: formatEventDate(event.startAt, event.timezone),
 			timeLabel: formatEventTime(event),
-			groupLabel: formatGroupLabel(event.audience, groupIds),
+			groupLabel: formatGroupLabel(event.audience, groupIds, groupNames),
 		},
 		counts: countResponses(event.rsvps, audience),
 		going: people.filter((p) => statusByAthlete.get(p.athleteId) === "yes"),

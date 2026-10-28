@@ -1,6 +1,7 @@
 "use client";
 
 import { IconPencil, IconTrash, IconX } from "@tabler/icons-react";
+import Link from "next/link";
 import type React from "react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
+import { routes } from "@/lib/routes";
 import type { Group, Programs } from "@/lib/trpc/types";
 import type { UpdateGroup } from "@/schemas";
 import { GroupForm } from "../GroupForm/GroupForm";
@@ -68,7 +70,13 @@ export const GroupDetailsDrawer = ({
 						<DrawerTitle className="truncate">{group.name}</DrawerTitle>
 						<DrawerDescription>
 							{group.memberCount}{" "}
-							{group.memberCount === 1 ? "member" : "members"} · chat + schedule
+							{group.memberCount === 1 ? "member" : "members"} ·{" "}
+							<Link
+								href={routes.groups.detail(group.id)}
+								className="underline underline-offset-4 hover:text-foreground"
+							>
+								Open group
+							</Link>
 						</DrawerDescription>
 					</div>
 					<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">

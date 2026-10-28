@@ -13,11 +13,7 @@ export const routes = {
 		home: () => "/",
 	},
 	schedule: {
-		list: (params: ScheduleRouteParams = {}) => toScheduleUrl(params),
-		create: (params: ScheduleRouteParams = {}) =>
-			toScheduleUrl({ ...params, action: "create" }),
-		view: ({ id, ...params }: ScheduleRouteParams & { id: string }) =>
-			toScheduleUrl({ ...params, eventId: id }),
+		...scheduleRoutes("/schedule"),
 		bulkEditTraining: ({ week }: Pick<ScheduleRouteParams, "week"> = {}) =>
 			week
 				? `/schedule/bulk-edit-training?week=${week.toISODate()}`
@@ -40,6 +36,8 @@ export const routes = {
 		list: () => "/groups",
 		create: () => "/groups?action=create",
 		view: (id: string) => `/groups?groupId=${id}`,
+		detail: (id: string) => `/groups/${id}`,
+		schedule: (id: string) => scheduleRoutes(`/groups/${id}/schedule`),
 	},
 	ergs: {
 		list: () => "/ergs",
@@ -67,16 +65,31 @@ export const routes = {
 	},
 };
 
-function toScheduleUrl({
-	week,
-	type,
-	group,
-	eventId,
-	action,
-}: ScheduleRouteParams & {
-	eventId?: string;
-	action?: "create";
-}) {
+export type ScheduleRoutes = ReturnType<typeof scheduleRoutes>;
+
+function scheduleRoutes(path: string) {
+	return {
+		list: (params: ScheduleRouteParams = {}) => toScheduleUrl(path, params),
+		create: (params: ScheduleRouteParams = {}) =>
+			toScheduleUrl(path, { ...params, action: "create" }),
+		view: ({ id, ...params }: ScheduleRouteParams & { id: string }) =>
+			toScheduleUrl(path, { ...params, eventId: id }),
+	};
+}
+
+function toScheduleUrl(
+	path: string,
+	{
+		week,
+		type,
+		group,
+		eventId,
+		action,
+	}: ScheduleRouteParams & {
+		eventId?: string;
+		action?: "create";
+	},
+) {
 	const params = new URLSearchParams();
 	if (week) params.set("week", week.toISODate());
 	if (type && type !== "all") params.set("type", type);
@@ -84,5 +97,5 @@ function toScheduleUrl({
 	if (eventId) params.set("eventId", eventId);
 	if (action) params.set("action", action);
 	const queryString = params.toString();
-	return queryString ? `/schedule?${queryString}` : "/schedule";
+	return queryString ? `${path}?${queryString}` : path;
 }

@@ -39,6 +39,32 @@ export async function getGroupMemberIds(
 	});
 }
 
+export async function getMemberIdsByGroup(
+	db: GroupsDb,
+	groupIds: string[],
+): Promise<Map<string, string[]>> {
+	const rules = groupIds.length
+		? await db.group_program.findMany({
+				where: { groupId: { in: groupIds } },
+				select: { groupId: true, programId: true },
+			})
+		: [];
+	const memberships = await findRuleMemberships(db, [
+		...new Set(rules.map((rule) => rule.programId)),
+	]);
+	return new Map(
+		groupIds.map((groupId) => [
+			groupId,
+			resolveGroupMemberIds({
+				programIds: rules
+					.filter((rule) => rule.groupId === groupId)
+					.map((rule) => rule.programId),
+				memberships,
+			}),
+		]),
+	);
+}
+
 export async function getAthleteGroupIds(
 	db: GroupsDb,
 	athleteId: string,

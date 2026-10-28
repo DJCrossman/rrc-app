@@ -28,7 +28,12 @@ export const mapToEventDto = (
 	{
 		athleteId,
 		audienceIds,
-	}: { athleteId: string | null; audienceIds: ReadonlySet<string> },
+		groupNames,
+	}: {
+		athleteId: string | null;
+		audienceIds: ReadonlySet<string>;
+		groupNames?: ReadonlyMap<string, string>;
+	},
 ) => {
 	const groupIds = event.groups.map(({ groupId }) => groupId);
 	const inAudience = athleteId !== null && audienceIds.has(athleteId);
@@ -52,7 +57,7 @@ export const mapToEventDto = (
 		workout: event.workout ? mapToWorkoutDto(event.workout) : null,
 		audience: event.audience,
 		groupIds,
-		groupLabel: formatGroupLabel(event.audience, groupIds),
+		groupLabel: formatGroupLabel(event.audience, groupIds, groupNames),
 		volunteerSpots: event.volunteerSpots,
 		myRsvp,
 		counts,
@@ -74,11 +79,32 @@ export async function mapToEventDtos(
 	events: EventRow[],
 	athleteId: string | null,
 ) {
-	const audiences = await getEventAudiences(db, events);
+	const [audiences, groupNames] = await Promise.all([
+		getEventAudiences(db, events),
+		findGroupNames(
+			db,
+			events.flatMap((event) => event.groups.map(({ groupId }) => groupId)),
+		),
+	]);
 	return events.map((event) =>
 		mapToEventDto(event, {
 			athleteId,
 			audienceIds: audiences.get(event.id) ?? new Set(),
+			groupNames,
 		}),
 	);
+}
+
+export async function findGroupNames(
+	db: Context["db"],
+	groupIds: string[],
+): Promise<ReadonlyMap<string, string>> {
+	if (groupIds.length === 0) {
+		return new Map();
+	}
+	const groups = await db.group.findMany({
+		where: { id: { in: [...new Set(groupIds)] } },
+		select: { id: true, name: true },
+	});
+	return new Map(groups.map((group) => [group.id, group.name]));
 }
