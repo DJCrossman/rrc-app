@@ -1,7 +1,7 @@
 import type { ChannelKind } from "@/generated/prisma/client";
 import { EVERYONE_CHANNEL_ID } from "@/schemas/chat.schema";
 import type { ViewerContext } from "@/server/context";
-import { getAthleteGroupIds } from "@/server/routers/groups/common";
+import { getViewerGroups, isViewerAdmin } from "@/server/routers/groups/common";
 import { TRPCError } from "@/server/trpc";
 
 type Db = ViewerContext["db"];
@@ -98,12 +98,10 @@ export function canAccessChannel(
 export async function getChannelViewer(
 	ctx: ViewerContext,
 ): Promise<ChannelViewer> {
-	const isAdmin = isChatAdmin(ctx);
-	const groupIds =
-		ctx.athlete && !isAdmin
-			? await getAthleteGroupIds(ctx.db, ctx.athlete.id)
-			: [];
-	return { userId: ctx.user.id, isAdmin, groupIds: new Set(groupIds) };
+	const groups = await getViewerGroups(ctx);
+	return groups.isAdmin
+		? { userId: ctx.user.id, isAdmin: true, groupIds: new Set() }
+		: { userId: ctx.user.id, isAdmin: false, groupIds: groups.groupIds };
 }
 
 // Only group channels need the viewer's groups, so skip looking them up for
@@ -148,8 +146,8 @@ export function ensureGroupChannel(db: Db, groupId: string) {
 	});
 }
 
-export function isChatAdmin({ user, athlete }: ViewerContext) {
-	return user.isAdmin || athlete?.role === "admin";
+export function isChatAdmin(ctx: ViewerContext) {
+	return isViewerAdmin(ctx);
 }
 
 export function findExactDm<T extends { members: { userId: string }[] }>(

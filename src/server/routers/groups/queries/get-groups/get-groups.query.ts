@@ -1,14 +1,20 @@
 import { paginate } from "@/lib/pagination";
-import type { Context } from "@/server/context";
+import type { ViewerContext } from "@/server/context";
 import { findRuleMemberships } from "../../common/group-members";
 import { resolveGroupMemberIds } from "../../common/group-membership";
 import { groupInclude, mapToGroupDto } from "../../common/map-to-group-dto";
+import { canSeeGroup, getViewerGroups } from "../../common/viewer-groups";
 
-export async function getGroupsQuery(_input: undefined, { db }: Context) {
-	const rows = await db.group.findMany({
-		include: groupInclude,
-		orderBy: { name: "asc" },
-	});
+export async function getGroupsQuery(_input: undefined, ctx: ViewerContext) {
+	const { db } = ctx;
+	const [allRows, viewer] = await Promise.all([
+		db.group.findMany({
+			include: groupInclude,
+			orderBy: { name: "asc" },
+		}),
+		getViewerGroups(ctx),
+	]);
+	const rows = allRows.filter((row) => canSeeGroup(viewer, row.id));
 	const memberships = await findRuleMemberships(db, [
 		...new Set(rows.flatMap((row) => row.programs.map((p) => p.programId))),
 	]);

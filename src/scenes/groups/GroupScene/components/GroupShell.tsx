@@ -45,12 +45,11 @@ export const GroupShell = ({ group, active, children }: GroupShellProps) => {
 						{ label: group.name },
 					]}
 				/>
-				<ChatHeader channel={channel} canMute={group.canChat}>
+				<ChatHeader channel={channel}>
 					<GroupTabs
 						groupId={group.id}
 						channelId={group.channelId}
 						active={active}
-						canChat={group.canChat}
 					/>
 				</ChatHeader>
 				<NotificationsBanner className="mx-4 mt-3 w-auto lg:mx-6" />

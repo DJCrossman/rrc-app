@@ -6,15 +6,14 @@ import {
 } from "@/lib/schedule/week";
 import type { GetWeekInput } from "@/schemas";
 import type { ViewerContext } from "@/server/context";
+import { getViewerGroups } from "@/server/routers/groups/common";
 import {
 	eventInclude,
-	mapToEventDtos,
+	mapToVisibleEventDtos,
 } from "@/server/routers/schedule/common/map-to-event-dto";
 
-export async function getWeekQuery(
-	input: GetWeekInput,
-	{ db, athlete }: ViewerContext,
-) {
+export async function getWeekQuery(input: GetWeekInput, ctx: ViewerContext) {
+	const { db } = ctx;
 	const weekStart = parseWeekStart(input.weekStart);
 	const rows = await db.event.findMany({
 		where: {
@@ -33,7 +32,11 @@ export async function getWeekQuery(
 		include: eventInclude,
 		orderBy: [{ allDay: "desc" }, { startAt: "asc" }],
 	});
-	const events = await mapToEventDtos(db, rows, athlete?.id ?? null);
+	const events = await mapToVisibleEventDtos(
+		ctx,
+		rows,
+		await getViewerGroups(ctx),
+	);
 	const today = getClubToday();
 
 	return {

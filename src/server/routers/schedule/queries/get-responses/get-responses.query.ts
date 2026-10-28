@@ -12,6 +12,7 @@ import {
 	athleteInclude,
 	mapToAthleteDto,
 } from "@/server/routers/athletes/common/map-to-athlete-dto";
+import { canSeeGroup, getViewerGroups } from "@/server/routers/groups/common";
 import { countResponses } from "@/server/routers/schedule/common/count-responses";
 import { getEventAudiences } from "@/server/routers/schedule/common/event-audience";
 import {
@@ -21,21 +22,30 @@ import {
 
 export async function getResponsesQuery(
 	{ eventId }: EventIdInput,
-	{ db }: ViewerContext,
+	ctx: ViewerContext,
 ) {
-	const event = await db.event.findUnique({
-		where: { id: eventId },
-		include: eventInclude,
-	});
+	const { db, athlete } = ctx;
+	const [event, viewer] = await Promise.all([
+		db.event.findUnique({
+			where: { id: eventId },
+			include: eventInclude,
+		}),
+		getViewerGroups(ctx),
+	]);
 	if (!event) {
 		throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
 	}
 	const audienceIds = (await getEventAudiences(db, [event])).get(event.id);
 	const audience: ReadonlySet<string> = audienceIds ?? new Set();
+	if (!viewer.isAdmin && !(athlete && audience.has(athlete.id))) {
+		throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+	}
 	const statusByAthlete = new Map(
 		event.rsvps.map(({ athleteId, status }) => [athleteId, status]),
 	);
-	const groupIds = event.groups.map(({ groupId }) => groupId);
+	const groupIds = event.groups
+		.map(({ groupId }) => groupId)
+		.filter((groupId) => canSeeGroup(viewer, groupId));
 	const [athletes, groupNames] = await Promise.all([
 		db.athlete.findMany({
 			where: {

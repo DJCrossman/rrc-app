@@ -17,7 +17,7 @@ const UPCOMING_LIMIT = 4;
 
 interface ClubWeekCardsProps {
 	/** Scope to one group; leave out for everything the viewer is in. */
-	group?: { id: string; channelId: string | undefined; canChat: boolean };
+	group?: { id: string; channelId: string | undefined };
 	scheduleHref: string;
 	/** Shows the next training's availability, linking to its responses. */
 	responsesHref?: (eventId: string) => string;
@@ -57,8 +57,11 @@ export const ClubWeekCards = ({
 				today={today}
 				onRsvp={onRsvp}
 			/>
-			{!group && <MyMessagesCard />}
-			{group?.canChat && <LatestChatCard channelId={group.channelId} />}
+			{group ? (
+				<LatestChatCard channelId={group.channelId} />
+			) : (
+				<MyMessagesCard />
+			)}
 			{responsesHref && (
 				<AvailabilityCard
 					event={upcomingQuery.data?.nextTraining}

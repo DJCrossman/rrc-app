@@ -5,7 +5,8 @@ import {
 	formatEventTime,
 	formatGroupLabel,
 } from "@/lib/schedule/event-labels";
-import type { Context } from "@/server/context";
+import type { Context, ViewerContext } from "@/server/context";
+import { canSeeGroup, type ViewerGroups } from "@/server/routers/groups/common";
 import {
 	mapToWorkoutDto,
 	workoutInclude,
@@ -29,10 +30,13 @@ export const mapToEventDto = (
 		athleteId,
 		audienceIds,
 		groupNames,
+		viewer,
 	}: {
 		athleteId: string | null;
 		audienceIds: ReadonlySet<string>;
 		groupNames?: ReadonlyMap<string, string>;
+		/** Names only the groups this viewer can see in the group label. */
+		viewer?: ViewerGroups;
 	},
 ) => {
 	const groupIds = event.groups.map(({ groupId }) => groupId);
@@ -57,7 +61,11 @@ export const mapToEventDto = (
 		workout: event.workout ? mapToWorkoutDto(event.workout) : null,
 		audience: event.audience,
 		groupIds,
-		groupLabel: formatGroupLabel(event.audience, groupIds, groupNames),
+		groupLabel: formatGroupLabel(
+			event.audience,
+			viewer ? groupIds.filter((id) => canSeeGroup(viewer, id)) : groupIds,
+			groupNames,
+		),
 		volunteerSpots: event.volunteerSpots,
 		myRsvp,
 		counts,
@@ -78,6 +86,7 @@ export async function mapToEventDtos(
 	db: Context["db"],
 	events: EventRow[],
 	athleteId: string | null,
+	viewer?: ViewerGroups,
 ) {
 	const [audiences, groupNames] = await Promise.all([
 		getEventAudiences(db, events),
@@ -91,8 +100,19 @@ export async function mapToEventDtos(
 			athleteId,
 			audienceIds: audiences.get(event.id) ?? new Set(),
 			groupNames,
+			viewer,
 		}),
 	);
+}
+
+// Admins see every event; everyone else sees club events and their groups'.
+export async function mapToVisibleEventDtos(
+	{ db, athlete }: ViewerContext,
+	events: EventRow[],
+	viewer: ViewerGroups,
+) {
+	const dtos = await mapToEventDtos(db, events, athlete?.id ?? null, viewer);
+	return viewer.isAdmin ? dtos : dtos.filter((event) => event.inAudience);
 }
 
 export async function findGroupNames(

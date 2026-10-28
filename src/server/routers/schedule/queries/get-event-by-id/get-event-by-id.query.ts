@@ -1,14 +1,16 @@
 import type { GetEventByIdInput } from "@/schemas";
 import type { ViewerContext } from "@/server/context";
+import { getViewerGroups } from "@/server/routers/groups/common";
 import {
 	eventInclude,
-	mapToEventDtos,
+	mapToVisibleEventDtos,
 } from "@/server/routers/schedule/common/map-to-event-dto";
 
 export async function getEventByIdQuery(
 	input: GetEventByIdInput,
-	{ db, athlete }: ViewerContext,
+	ctx: ViewerContext,
 ) {
+	const { db } = ctx;
 	const row = await db.event.findUnique({
 		where: { id: input.id },
 		include: eventInclude,
@@ -16,6 +18,10 @@ export async function getEventByIdQuery(
 	if (!row) {
 		return null;
 	}
-	const [event] = await mapToEventDtos(db, [row], athlete?.id ?? null);
-	return event;
+	const [event] = await mapToVisibleEventDtos(
+		ctx,
+		[row],
+		await getViewerGroups(ctx),
+	);
+	return event ?? null;
 }

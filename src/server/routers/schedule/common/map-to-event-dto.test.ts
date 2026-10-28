@@ -106,4 +106,30 @@ describe("mapToEventDto", () => {
 		);
 		expect(dto.volunteer).toEqual({ filled: 1, spots: 2, signedUp: false });
 	});
+
+	it("names only the groups the viewer can see", () => {
+		const groupEvent: EventRow = {
+			...baseEvent,
+			audience: "groups",
+			groups: [{ groupId: "grp_masters" }, { groupId: "grp_juniors" }],
+		};
+		const groupNames = new Map([
+			["grp_masters", "Masters"],
+			["grp_juniors", "Juniors"],
+		]);
+		const member = mapToEventDto(groupEvent, {
+			athleteId: "ath_me",
+			audienceIds,
+			groupNames,
+			viewer: { isAdmin: false, groupIds: new Set(["grp_masters"]) },
+		});
+		const admin = mapToEventDto(groupEvent, {
+			athleteId: "ath_me",
+			audienceIds,
+			groupNames,
+			viewer: { isAdmin: true },
+		});
+		expect(member.groupLabel).toBe("Masters");
+		expect(admin.groupLabel).toBe("Masters, Juniors");
+	});
 });

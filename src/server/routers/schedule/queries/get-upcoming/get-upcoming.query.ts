@@ -2,17 +2,24 @@ import { DateTime } from "luxon";
 import { CLUB_TIMEZONE, getClubToday } from "@/lib/schedule/week";
 import type { GetUpcomingInput } from "@/schemas";
 import type { ViewerContext } from "@/server/context";
+import { canSeeGroup, getViewerGroups } from "@/server/routers/groups/common";
 import {
 	eventInclude,
-	mapToEventDtos,
+	mapToVisibleEventDtos,
 } from "@/server/routers/schedule/common/map-to-event-dto";
+import { TRPCError } from "@/server/trpc";
 
 const UPCOMING_SCAN_LIMIT = 200;
 
 export async function getUpcomingQuery(
 	{ limit, groupId }: GetUpcomingInput,
-	{ db, athlete }: ViewerContext,
+	ctx: ViewerContext,
 ) {
+	const { db } = ctx;
+	const viewer = await getViewerGroups(ctx);
+	if (groupId && !canSeeGroup(viewer, groupId)) {
+		throw new TRPCError({ code: "NOT_FOUND", message: "Group not found" });
+	}
 	const now = DateTime.now();
 	const rows = await db.event.findMany({
 		where: {
@@ -35,9 +42,9 @@ export async function getUpcomingQuery(
 		take: UPCOMING_SCAN_LIMIT,
 	});
 	const today = getClubToday(now);
-	const events = (await mapToEventDtos(db, rows, athlete?.id ?? null)).filter(
+	const events = (await mapToVisibleEventDtos(ctx, rows, viewer)).filter(
 		(event) =>
-			// A group's page shows the group's events to anyone looking at it.
+			// On a group's page, admins outside the group still see its events.
 			(groupId || event.inAudience) &&
 			(event.allDay
 				? event.date >= today

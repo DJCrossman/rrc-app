@@ -155,11 +155,13 @@ is no group, channel, message, event or notification model, and no realtime libr
    and 2026-10-25), so groups fill from program rules only and every member can post.
    Admin access to every page for users without an athlete row is done separately on
    branch `claude/design-breakdown-tasks-468cb3` (reads on `viewerProcedure`).
-   Group membership is enforced as of 2026-10-28: a group event's audience is the
-   members of its groups (RSVPs, nudges, responses, "Needs your reply" and the calendar
-   feed follow), and a group's chat is open to its members and admins only; others can
-   still see the group's Overview and Schedule. Coaches see a group's chat only if
-   their program is one of its rules. Still open: `channel.groupId` /
+   Group membership is enforced as of 2026-10-28, and non-admins only see the groups
+   they're in: the Groups list, group pages, chat channels and schedule chips are
+   limited to their groups, and the schedule (week, event details, responses, upcoming)
+   shows only club events and their groups' events, naming only their groups. A group
+   event's audience is the members of its groups (RSVPs, nudges, responses and the
+   calendar feed follow). Admins see every group and event. Coaches are in a group only
+   if their program is one of its rules. Still open: `channel.groupId` /
    `event_group.groupId` are plain columns, not relations.
 
 ## Integration contracts for wave 1
