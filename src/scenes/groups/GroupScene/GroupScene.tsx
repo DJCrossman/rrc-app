@@ -38,7 +38,11 @@ export const GroupScene = ({ group }: GroupSceneProps) => {
 			<div className="@container/main flex flex-1 flex-col gap-4 py-4 md:gap-6 md:py-6">
 				<div className="px-4 lg:px-6">
 					<ClubWeekCards
-						group={{ id: group.id, channelId: group.channelId }}
+						group={{
+							id: group.id,
+							channelId: group.channelId,
+							canChat: group.canChat,
+						}}
 						scheduleHref={scheduleRoutes.list()}
 						responsesHref={(eventId) => scheduleRoutes.view({ id: eventId })}
 					>

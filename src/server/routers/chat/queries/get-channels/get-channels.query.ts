@@ -1,7 +1,11 @@
 import { Prisma } from "@/generated/prisma/client";
 import { paginate } from "@/lib/pagination";
 import type { ViewerContext } from "@/server/context";
-import { ensureEveryoneChannel } from "@/server/routers/chat/common/chat-access";
+import {
+	canAccessChannel,
+	ensureEveryoneChannel,
+	getChannelViewer,
+} from "@/server/routers/chat/common/chat-access";
 import { loadChatUsers } from "@/server/routers/chat/common/chat-users";
 import {
 	channelInclude,
@@ -17,18 +21,21 @@ import { getMemberIdsByGroup } from "@/server/routers/groups/common";
 
 type Db = ViewerContext["db"];
 
-export async function getChannelsQuery(
-	_input: undefined,
-	{ db, user }: ViewerContext,
-) {
-	const [{ channels, groups }, reads, athleteCount] = await Promise.all([
-		findVisibleChannels(db, user.id),
-		db.channel_read.findMany({
-			where: { userId: user.id },
-			select: { channelId: true, lastReadAt: true },
-		}),
-		db.athlete.count(),
-	]);
+export async function getChannelsQuery(_input: undefined, ctx: ViewerContext) {
+	const { db, user } = ctx;
+	const [{ channels: allChannels, groups }, viewer, reads, athleteCount] =
+		await Promise.all([
+			findVisibleChannels(db, user.id),
+			getChannelViewer(ctx),
+			db.channel_read.findMany({
+				where: { userId: user.id },
+				select: { channelId: true, lastReadAt: true },
+			}),
+			db.athlete.count(),
+		]);
+	const channels = allChannels.filter((channel) =>
+		canAccessChannel(channel, viewer),
+	);
 	const channelIds = channels.map((channel) => channel.id);
 	const [unreadGroups, lastMessages, membersByGroup] = await Promise.all([
 		db.message.groupBy({

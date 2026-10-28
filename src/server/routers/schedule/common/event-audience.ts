@@ -1,5 +1,6 @@
 import type { EventAudience } from "@/schemas";
 import type { Context } from "@/server/context";
+import { getMemberIdsByGroup } from "@/server/routers/groups/common";
 
 type AudienceEvent = {
 	id: string;
@@ -14,11 +15,50 @@ export async function getEventAudiences(
 	if (events.length === 0) {
 		return new Map();
 	}
-	// Until groups land in wave 2, every athlete is in every event's audience,
-	// including group events; wave 2 resolves groups via getGroupMemberIds.
-	const athletes = await db.athlete.findMany({ select: { id: true } });
-	const everyone: ReadonlySet<string> = new Set(athletes.map(({ id }) => id));
-	return new Map(events.map((event) => [event.id, everyone]));
+	const groupIds = [
+		...new Set(
+			events.flatMap((event) =>
+				isClubWide(event) ? [] : event.groups.map(({ groupId }) => groupId),
+			),
+		),
+	];
+	const [athletes, membersByGroup] = await Promise.all([
+		events.some(isClubWide)
+			? db.athlete.findMany({ select: { id: true } })
+			: [],
+		getMemberIdsByGroup(db, groupIds),
+	]);
+	return resolveEventAudiences(events, {
+		everyone: athletes.map(({ id }) => id),
+		membersByGroup,
+	});
+}
+
+// Club events reach every athlete; group events reach the members of their
+// groups, each athlete once however many of the groups they're in.
+export function resolveEventAudiences(
+	events: AudienceEvent[],
+	{
+		everyone,
+		membersByGroup,
+	}: {
+		everyone: string[];
+		membersByGroup: ReadonlyMap<string, string[]>;
+	},
+): Map<string, ReadonlySet<string>> {
+	const club: ReadonlySet<string> = new Set(everyone);
+	return new Map(
+		events.map((event) => [
+			event.id,
+			isClubWide(event)
+				? club
+				: new Set(
+						event.groups.flatMap(
+							({ groupId }) => membersByGroup.get(groupId) ?? [],
+						),
+					),
+		]),
+	);
 }
 
 export async function isInEventAudience(
@@ -28,4 +68,9 @@ export async function isInEventAudience(
 ): Promise<boolean> {
 	const audiences = await getEventAudiences(db, [event]);
 	return audiences.get(event.id)?.has(athleteId) ?? false;
+}
+
+// Matches formatGroupLabel: a group event with no groups left is club-wide.
+function isClubWide(event: AudienceEvent) {
+	return event.audience === "club" || event.groups.length === 0;
 }

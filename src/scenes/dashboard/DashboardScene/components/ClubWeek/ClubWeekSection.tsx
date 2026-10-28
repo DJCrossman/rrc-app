@@ -42,6 +42,8 @@ export const ClubWeekSection = () => {
 						channelId: channelsQuery.data?.data.find(
 							(channel) => channel.groupId === group.id,
 						)?.id,
+						// The chips are the viewer's own groups.
+						canChat: true,
 					}
 				}
 				scheduleHref={routes.schedule.list({ group: group?.id })}

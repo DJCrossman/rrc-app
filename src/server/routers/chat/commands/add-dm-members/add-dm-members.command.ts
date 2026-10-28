@@ -6,9 +6,10 @@ import { TRPCError } from "@/server/trpc";
 
 export async function addDmMembersCommand(
 	input: AddDmMembers,
-	{ db, user }: ViewerContext,
+	ctx: ViewerContext,
 ) {
-	const channel = await findMyDm(db, input.channelId, user.id);
+	const { db, user } = ctx;
+	const channel = await findMyDm(ctx, input.channelId);
 	const current = new Set(channel.members.map((member) => member.userId));
 	const newIds = input.userIds.filter((id) => !current.has(id));
 	if (current.size + newIds.length > MAX_DM_MEMBERS) {

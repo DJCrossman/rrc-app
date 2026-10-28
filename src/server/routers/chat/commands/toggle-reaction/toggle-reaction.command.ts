@@ -5,9 +5,10 @@ import { TRPCError } from "@/server/trpc";
 
 export async function toggleReactionCommand(
 	input: ToggleReaction,
-	{ db, user }: ViewerContext,
+	ctx: ViewerContext,
 ) {
-	const message = await findAccessibleMessage(db, input.messageId, user.id);
+	const { db, user } = ctx;
+	const message = await findAccessibleMessage(ctx, input.messageId);
 	if (message.deletedAt) {
 		throw new TRPCError({
 			code: "BAD_REQUEST",

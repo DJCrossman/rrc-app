@@ -12,7 +12,7 @@ export async function getMessagesQuery(
 	ctx: ViewerContext,
 ) {
 	const { db, user } = ctx;
-	const channel = await findAccessibleChannel(db, input.channelId, user.id);
+	const channel = await findAccessibleChannel(ctx, input.channelId);
 	const visibleFrom = getVisibleFrom(channel, user.id);
 	const [rows, read] = await Promise.all([
 		db.message.findMany({

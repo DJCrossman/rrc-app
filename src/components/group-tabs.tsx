@@ -13,9 +13,16 @@ interface GroupTabsProps {
 	groupId: string;
 	channelId: string;
 	active: GroupTab;
+	/** Only the group's members (and admins) can open its chat. */
+	canChat?: boolean;
 }
 
-export function GroupTabs({ groupId, channelId, active }: GroupTabsProps) {
+export function GroupTabs({
+	groupId,
+	channelId,
+	active,
+	canChat = true,
+}: GroupTabsProps) {
 	const tabs = [
 		{
 			tab: "overview",
@@ -42,21 +49,23 @@ export function GroupTabs({ groupId, channelId, active }: GroupTabsProps) {
 			aria-label="Group sections"
 			className="flex shrink-0 gap-0.5 rounded-lg bg-muted p-[3px]"
 		>
-			{tabs.map(({ tab, label, icon: Icon, href }) => (
-				<Link
-					key={tab}
-					href={href}
-					aria-current={tab === active ? "page" : undefined}
-					title={label}
-					className={cn(
-						"flex h-[26px] items-center gap-1.5 rounded-md px-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",
-						tab === active && "bg-background text-foreground shadow-xs",
-					)}
-				>
-					<Icon className="size-3.5" />
-					<span className="hidden sm:inline">{label}</span>
-				</Link>
-			))}
+			{tabs
+				.filter(({ tab }) => canChat || tab !== "chat")
+				.map(({ tab, label, icon: Icon, href }) => (
+					<Link
+						key={tab}
+						href={href}
+						aria-current={tab === active ? "page" : undefined}
+						title={label}
+						className={cn(
+							"flex h-[26px] items-center gap-1.5 rounded-md px-2.5 text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground",
+							tab === active && "bg-background text-foreground shadow-xs",
+						)}
+					>
+						<Icon className="size-3.5" />
+						<span className="hidden sm:inline">{label}</span>
+					</Link>
+				))}
 		</nav>
 	);
 }

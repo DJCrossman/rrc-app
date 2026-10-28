@@ -2,13 +2,15 @@
 
 import type React from "react";
 import { AppSidebar } from "@/components/app-sidebar";
-import { ChatHeader } from "@/components/chat/chat-header";
+import {
+	ChatHeader,
+	type ChatHeaderChannel,
+} from "@/components/chat/chat-header";
 import { type GroupTab, GroupTabs } from "@/components/group-tabs";
 import { NotificationsBanner } from "@/components/notifications-banner";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { routes } from "@/lib/routes";
-import { trpcClient } from "@/lib/trpc/client";
 import type { Group } from "@/lib/trpc/types";
 
 interface GroupShellProps {
@@ -18,10 +20,13 @@ interface GroupShellProps {
 }
 
 export const GroupShell = ({ group, active, children }: GroupShellProps) => {
-	const channelsQuery = trpcClient.chat.getChannels.useQuery();
-	const channel = channelsQuery.data?.data.find(
-		({ id }) => id === group.channelId,
-	);
+	const channel: ChatHeaderChannel = {
+		id: group.channelId,
+		kind: "group",
+		name: group.name,
+		memberCount: group.memberCount,
+		members: [],
+	};
 
 	return (
 		<SidebarProvider
@@ -40,11 +45,12 @@ export const GroupShell = ({ group, active, children }: GroupShellProps) => {
 						{ label: group.name },
 					]}
 				/>
-				<ChatHeader channel={channel}>
+				<ChatHeader channel={channel} canMute={group.canChat}>
 					<GroupTabs
 						groupId={group.id}
 						channelId={group.channelId}
 						active={active}
+						canChat={group.canChat}
 					/>
 				</ChatHeader>
 				<NotificationsBanner className="mx-4 mt-3 w-auto lg:mx-6" />

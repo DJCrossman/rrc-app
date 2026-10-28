@@ -20,8 +20,15 @@ import { MAX_DM_MEMBERS } from "@/schemas/chat.schema";
 
 const MIN_MEMBERS_TO_LEAVE = 3;
 
+export type ChatHeaderChannel = Pick<
+	ChatChannel,
+	"id" | "kind" | "name" | "memberCount" | "members"
+>;
+
 interface ChatHeaderProps {
-	channel: ChatChannel | undefined;
+	channel: ChatHeaderChannel | undefined;
+	/** Off for people who can't read the channel, so there's nothing to mute. */
+	canMute?: boolean;
 	children?: ReactNode;
 	onAddPeople?: () => void;
 	onLeave?: () => void;
@@ -29,6 +36,7 @@ interface ChatHeaderProps {
 
 export function ChatHeader({
 	channel,
+	canMute = true,
 	children,
 	onAddPeople,
 	onLeave,
@@ -99,10 +107,12 @@ export function ChatHeader({
 							</DropdownMenuContent>
 						</DropdownMenu>
 					)}
-					<ChannelNotificationToggle
-						channelId={channel.id}
-						className="size-8 border border-input"
-					/>
+					{canMute && (
+						<ChannelNotificationToggle
+							channelId={channel.id}
+							className="size-8 border border-input"
+						/>
+					)}
 				</div>
 			)}
 		</div>

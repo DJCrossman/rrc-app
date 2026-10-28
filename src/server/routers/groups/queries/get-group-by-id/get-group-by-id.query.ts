@@ -1,6 +1,9 @@
 import type { GetGroupByIdInput } from "@/schemas";
-import type { Context } from "@/server/context";
-import { ensureGroupChannel } from "@/server/routers/chat/common/chat-access";
+import type { ViewerContext } from "@/server/context";
+import {
+	ensureGroupChannel,
+	isChatAdmin,
+} from "@/server/routers/chat/common/chat-access";
 import { getGroupMembers } from "../../common/group-members";
 import {
 	groupInclude,
@@ -10,8 +13,9 @@ import {
 
 export async function getGroupByIdQuery(
 	input: GetGroupByIdInput,
-	{ db }: Context,
+	ctx: ViewerContext,
 ) {
+	const { db, athlete } = ctx;
 	const row = await db.group.findUnique({
 		where: { id: input.id },
 		include: groupInclude,
@@ -27,6 +31,7 @@ export async function getGroupByIdQuery(
 	return {
 		...mapToGroupDto(row, members.length),
 		channelId: channel.id,
+		canChat: isChatAdmin(ctx) || members.some(({ id }) => id === athlete?.id),
 		members: members.map((athlete) =>
 			mapToGroupMemberDto(athlete, ruleProgramIds),
 		),
