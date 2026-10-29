@@ -10,10 +10,10 @@ export function MetersTimeSeriesChartSkeleton() {
 	return (
 		<Card className="@container/card">
 			<CardHeader>
-				<Skeleton className="h-5 w-40" />
-				<Skeleton className="mt-2 h-4 w-56" />
+				<Skeleton className="h-5 w-full max-w-40" />
+				<Skeleton className="mt-2 h-4 w-full max-w-56" />
 				<CardAction>
-					<Skeleton className="h-8 w-40" />
+					<Skeleton className="h-8 w-28 @[767px]/card:w-40" />
 				</CardAction>
 			</CardHeader>
 			<CardContent>
