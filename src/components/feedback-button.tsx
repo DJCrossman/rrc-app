@@ -7,26 +7,17 @@ import {
 	SidebarMenuButton,
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { openFeedback } from "@/lib/feedback";
 
 export function FeedbackButton() {
 	return (
 		<SidebarMenu>
 			<SidebarMenuItem>
-				<SidebarMenuButton
-					render={
-						<a
-							href={FEEDBACK_FORM_URL}
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							<IconMessage />
-							<span>Feedback</span>
-						</a>
-					}
-				/>
+				<SidebarMenuButton onClick={() => openFeedback()}>
+					<IconMessage />
+					<span>Feedback</span>
+				</SidebarMenuButton>
 			</SidebarMenuItem>
 		</SidebarMenu>
 	);
 }
-
-export const FEEDBACK_FORM_URL = "https://forms.gle/FTKB91TKCfSxzhVJ9";

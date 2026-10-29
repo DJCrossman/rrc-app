@@ -16,12 +16,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type ComponentType, type ReactNode, useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
-import { FEEDBACK_FORM_URL } from "@/components/feedback-button";
 import { SiteHeader } from "@/components/site-header";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { MOBILE_BREAKPOINT } from "@/hooks/useIsMobile";
+import { openFeedback } from "@/lib/feedback";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 
@@ -115,7 +115,7 @@ export const MoreScene = () => {
 						</MoreRow>
 					</MoreGroup>
 					<MoreGroup>
-						<MoreRow href={FEEDBACK_FORM_URL} icon={IconMessage} external>
+						<MoreRow onClick={() => openFeedback()} icon={IconMessage}>
 							Send feedback
 						</MoreRow>
 						<MoreRow
@@ -167,19 +167,20 @@ const TINTS = {
 
 const MoreRow = ({
 	href,
+	onClick,
 	icon: Icon,
 	tint = "neutral",
-	external,
 	prefetch,
 	children,
 }: {
-	href: string;
 	icon: ComponentType<IconProps>;
 	tint?: keyof typeof TINTS;
-	external?: boolean;
 	prefetch?: boolean;
 	children: ReactNode;
-}) => {
+} & (
+	| { href: string; onClick?: never }
+	| { href?: never; onClick: () => void }
+)) => {
 	const content = (
 		<>
 			<span
@@ -191,7 +192,7 @@ const MoreRow = ({
 				<Icon className="size-[18px]" />
 			</span>
 			<span className="flex-1 truncate text-base">{children}</span>
-			{!external && (
+			{!onClick && (
 				<IconChevronRight className="size-5 shrink-0 text-muted-foreground" />
 			)}
 		</>
@@ -200,16 +201,15 @@ const MoreRow = ({
 		"flex min-h-13 items-center gap-3 px-3.5 hover:bg-muted",
 		tint === "red" && "text-destructive",
 	);
-	if (external) {
+	if (onClick) {
 		return (
-			<a
-				href={href}
-				target="_blank"
-				rel="noopener noreferrer"
-				className={className}
+			<button
+				type="button"
+				onClick={onClick}
+				className={cn(className, "w-full text-left")}
 			>
 				{content}
-			</a>
+			</button>
 		);
 	}
 	return (

@@ -1,6 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
+import { toastError } from "@/lib/toast";
 import { trpcClient } from "@/lib/trpc/client";
 
 export function useMemberInvites() {
@@ -22,21 +23,21 @@ export function useMemberInvites() {
 			}
 			await utils.members.getMembers.invalidate();
 		},
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 	const resend = trpcClient.members.resendInvitation.useMutation({
 		onSuccess: async (invitation) => {
 			toast.success(`Invitation sent again to ${invitation.email}`);
 			await utils.members.getMembers.invalidate();
 		},
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 	const revoke = trpcClient.members.revokeInvitation.useMutation({
 		onSuccess: async () => {
 			toast.success("Invitation revoked");
 			await utils.members.getMembers.invalidate();
 		},
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 
 	return { invite, resend, revoke };

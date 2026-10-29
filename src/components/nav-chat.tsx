@@ -9,7 +9,6 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 import { ChannelIcon } from "@/components/chat/channel-icon";
 import { PeoplePickerDialog } from "@/components/chat/people-picker-dialog";
 import { isActivePath } from "@/components/nav-main";
@@ -25,6 +24,7 @@ import { useCurrentUser } from "@/hooks/useAuth";
 import { useNotifications } from "@/hooks/useNotifications";
 import { channelNotificationScope } from "@/lib/notifications";
 import { routes } from "@/lib/routes";
+import { toastError } from "@/lib/toast";
 import { trpcClient } from "@/lib/trpc/client";
 import type { ChatChannels } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
@@ -41,7 +41,7 @@ export function NavChat() {
 		refetchInterval: CHANNELS_POLL_INTERVAL_MS,
 	});
 	const startDm = trpcClient.chat.startDm.useMutation({
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 	const { preferences } = useNotifications();
 	const { isAdmin } = useCurrentUser();

@@ -182,6 +182,22 @@ Turn notifications on from the dashboard banner or **Settings → Notifications*
 **Send test notification** to check the pipeline end to end. Push needs a secure context,
 so use `localhost` or HTTPS.
 
+## Feedback
+
+The **Feedback** button (sidebar, or **More → Send feedback** on phones) and the **Report**
+actions on error pages and unexpected server-error toasts open a form that files a GitHub
+issue on `DJCrossman/rrc-app`. The repo is public, so issues carry the reporter's athlete and
+user IDs, never their name or email.
+
+Create a fine-grained personal access token scoped to that repo with **Issues: read and
+write**, then set in `.env`:
+
+```bash
+REGINA_ROWING_FEEDBACK_TOKEN=<token>
+```
+
+Without it the app boots normally and the form says feedback isn't set up yet.
+
 ## AI Screenshot Parsing
 
 The app can parse:

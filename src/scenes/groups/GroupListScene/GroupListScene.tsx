@@ -14,6 +14,7 @@ import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { routes } from "@/lib/routes";
+import { toastError } from "@/lib/toast";
 import { trpcClient } from "@/lib/trpc/client";
 import type { Group, Groups, Programs } from "@/lib/trpc/types";
 import {
@@ -42,18 +43,18 @@ export const GroupListScene = ({
 			router.push(routes.groups.view(group.id));
 			router.refresh();
 		},
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 	const updateGroup = trpcClient.groups.updateGroup.useMutation({
 		onSuccess: () => router.refresh(),
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 	const deleteGroup = trpcClient.groups.deleteGroup.useMutation({
 		onSuccess: () => {
 			router.push(routes.groups.list());
 			router.refresh();
 		},
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 	const syncRca = trpcClient.activities.syncRca.useMutation({
 		onSuccess: (result) => {
@@ -62,7 +63,7 @@ export const GroupListScene = ({
 			});
 			router.refresh();
 		},
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 
 	const lastSyncedAt = programs.reduce<string | null>(

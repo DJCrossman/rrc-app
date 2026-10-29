@@ -5,6 +5,7 @@ import { athletesRouter } from "./routers/athletes/router";
 import { boatsRouter } from "./routers/boats/router";
 import { chatRouter } from "./routers/chat/router";
 import { ergsRouter } from "./routers/ergs/router";
+import { feedbackRouter } from "./routers/feedback/router";
 import { groupsRouter } from "./routers/groups/router";
 import { membersRouter } from "./routers/members/router";
 import { notificationsRouter } from "./routers/notifications/router";
@@ -29,6 +30,7 @@ export const appRouter = router({
 	schedule: scheduleRouter,
 	notifications: notificationsRouter,
 	chat: chatRouter,
+	feedback: feedbackRouter,
 });
 
 export type AppRouter = typeof appRouter;

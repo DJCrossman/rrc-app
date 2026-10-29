@@ -1,9 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { routes } from "@/lib/routes";
+import { toastError } from "@/lib/toast";
 import { trpcClient } from "@/lib/trpc/client";
 
 type MessageTarget = { userId: string | null };
@@ -17,7 +17,7 @@ export function useMessageMember() {
 			await utils.chat.getChannels.invalidate();
 			router.push(routes.chat.channel(channelId));
 		},
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 
 	return {

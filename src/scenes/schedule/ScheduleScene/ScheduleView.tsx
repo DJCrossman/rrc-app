@@ -16,7 +16,7 @@ import {
 	formatWeekRange,
 	startOfWeek,
 } from "@/lib/schedule/week";
-import { withErrorToast } from "@/lib/toast";
+import { toastError, withErrorToast } from "@/lib/toast";
 import { trpcClient } from "@/lib/trpc/client";
 import type {
 	AnalyticMetrics,
@@ -92,12 +92,12 @@ export const ScheduleView = ({
 	const updateEvent = trpcClient.schedule.updateEvent.useMutation();
 	const deleteEvent = trpcClient.schedule.deleteEvent.useMutation();
 	const calendarToken = trpcClient.schedule.getCalendarToken.useMutation({
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 	const rotateCalendarToken =
 		trpcClient.schedule.rotateCalendarToken.useMutation({
 			onSuccess: () => toast.success("Your old calendar link stopped working"),
-			onError: (error) => toast.error(error.message),
+			onError: toastError,
 		});
 
 	const weekStart = DateTime.fromISO(schedule.weekStart, {

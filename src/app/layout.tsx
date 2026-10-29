@@ -2,6 +2,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type React from "react";
+import { FeedbackDrawer } from "@/components/feedback-drawer";
 import { AuthenticatedLayout } from "@/components/layouts";
 import { Toaster } from "@/components/ui/sonner";
 import { TRPCReactProvider } from "@/lib/trpc/Provider";
@@ -40,6 +41,7 @@ export default function RootLayout({
 					<TRPCReactProvider>
 						<AuthenticatedLayout>
 							{children}
+							<FeedbackDrawer />
 							<Toaster />
 						</AuthenticatedLayout>
 					</TRPCReactProvider>

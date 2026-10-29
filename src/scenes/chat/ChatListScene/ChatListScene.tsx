@@ -4,7 +4,6 @@ import { IconPencil, IconSearch } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ChannelIcon } from "@/components/chat/channel-icon";
 import { InitialsAvatar } from "@/components/chat/initials-avatar";
@@ -17,6 +16,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MOBILE_BREAKPOINT } from "@/hooks/useIsMobile";
 import { routes } from "@/lib/routes";
+import { toastError } from "@/lib/toast";
 import { trpcClient } from "@/lib/trpc/client";
 import type { ChatChannel } from "@/lib/trpc/types";
 import { cn } from "@/lib/utils";
@@ -35,7 +35,7 @@ export const ChatListScene = () => {
 		refetchInterval: CHANNELS_POLL_INTERVAL_MS,
 	});
 	const startDm = trpcClient.chat.startDm.useMutation({
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 
 	// The page only exists for the mobile tab bar; wider screens use the sidebar channel list.

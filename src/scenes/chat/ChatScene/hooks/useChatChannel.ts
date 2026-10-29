@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
+import { toastError } from "@/lib/toast";
 import { trpcClient } from "@/lib/trpc/client";
 import { useMarkChannelRead } from "./useMarkChannelRead";
 
@@ -64,7 +64,6 @@ export function useChatChannel({
 		isFresh ? (messagesQuery.data.pages[0]?.data[0]?.id ?? "") : null,
 	);
 
-	const showError = (error: { message: string }) => toast.error(error.message);
 	const refreshChannel = (id: string) =>
 		Promise.all([
 			utils.chat.getMessages.invalidate({ channelId: id }),
@@ -72,7 +71,7 @@ export function useChatChannel({
 		]);
 	const sendMessage = trpcClient.chat.sendMessage.useMutation({
 		onSuccess: () => refreshChannel(channelId),
-		onError: showError,
+		onError: toastError,
 	});
 	const replyInThread = trpcClient.chat.replyInThread.useMutation({
 		onSuccess: () =>
@@ -80,7 +79,7 @@ export function useChatChannel({
 				utils.chat.getThread.invalidate(),
 				refreshChannel(channelId),
 			]),
-		onError: showError,
+		onError: toastError,
 	});
 	const toggleReaction = trpcClient.chat.toggleReaction.useMutation({
 		onSuccess: () =>
@@ -88,27 +87,27 @@ export function useChatChannel({
 				utils.chat.getMessages.invalidate({ channelId }),
 				utils.chat.getThread.invalidate(),
 			]),
-		onError: showError,
+		onError: toastError,
 	});
 	const markUnread = trpcClient.chat.markUnread.useMutation({
 		onSuccess: (result) => {
 			setReadMarker(result);
 			return utils.chat.getChannels.invalidate();
 		},
-		onError: showError,
+		onError: toastError,
 	});
-	const startDm = trpcClient.chat.startDm.useMutation({ onError: showError });
+	const startDm = trpcClient.chat.startDm.useMutation({ onError: toastError });
 	const addDmMembers = trpcClient.chat.addDmMembers.useMutation({
 		onSuccess: () => utils.chat.getChannels.invalidate(),
-		onError: showError,
+		onError: toastError,
 	});
 	const leaveDm = trpcClient.chat.leaveDm.useMutation({
 		onSuccess: () => utils.chat.getChannels.invalidate(),
-		onError: showError,
+		onError: toastError,
 	});
 	const forwardMessage = trpcClient.chat.forwardMessage.useMutation({
 		onSuccess: (result) => refreshChannel(result.channelId),
-		onError: showError,
+		onError: toastError,
 	});
 	const deleteMessage = trpcClient.chat.deleteMessage.useMutation({
 		onSuccess: () =>
@@ -116,7 +115,7 @@ export function useChatChannel({
 				utils.chat.getThread.invalidate(),
 				refreshChannel(channelId),
 			]),
-		onError: showError,
+		onError: toastError,
 	});
 
 	return {

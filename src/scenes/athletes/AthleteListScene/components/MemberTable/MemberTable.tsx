@@ -56,6 +56,7 @@ import {
 } from "@/components/ui/table";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { routes } from "@/lib/routes";
+import { toastError } from "@/lib/toast";
 import { trpcClient } from "@/lib/trpc/client";
 import type { Member, MembersResult } from "@/lib/trpc/types";
 import { FilterChip } from "@/scenes/schedule/ScheduleScene/components";
@@ -212,7 +213,7 @@ export function MemberTable({ initialData, onInvite }: IMemberTableProps) {
 			});
 			await utils.members.getMembers.invalidate();
 		},
-		onError: (error) => toast.error(error.message),
+		onError: toastError,
 	});
 
 	const programsQuery = trpcClient.programs.getPrograms.useQuery();

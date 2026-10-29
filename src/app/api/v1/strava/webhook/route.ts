@@ -7,6 +7,7 @@ import {
 	stravaWebhookEventSchema,
 } from "@/server/routers/activities/commands/process-strava-webhook-event/process-strava-webhook-event.command";
 import { createConcept2Service } from "@/server/services/concept2-service";
+import { createGitHubService } from "@/server/services/github-service";
 import { createPushService } from "@/server/services/push-service";
 import { createRcaService } from "@/server/services/rca-service";
 import { createStravaService } from "@/server/services/strava-service";
@@ -101,6 +102,7 @@ export async function POST(request: Request) {
 				concept2: createConcept2Service(),
 				rca: createRcaService(),
 				push: createPushService({ db }),
+				github: createGitHubService(),
 			};
 			await processStravaWebhookEventCommand(event, { db, services });
 		} catch (err) {
