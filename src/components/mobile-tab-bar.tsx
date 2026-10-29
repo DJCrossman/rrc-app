@@ -54,7 +54,7 @@ export function MobileTabBar() {
 	return (
 		<nav
 			aria-label="Primary"
-			className="fixed inset-x-0 bottom-0 z-20 grid h-(--mobile-nav-height) grid-cols-5 border-t bg-sidebar px-1.5 pt-1.5 pb-[max(env(safe-area-inset-bottom),0.375rem)] text-sidebar-foreground md:hidden"
+			className="fixed inset-x-0 bottom-(--mobile-nav-offset) z-20 grid h-(--mobile-nav-height) grid-cols-5 border-t bg-sidebar px-1.5 pt-1.5 pb-(--mobile-nav-inset) text-sidebar-foreground md:hidden"
 		>
 			{tabs.map(({ title, href, icon: Icon, activePaths, badge }) => {
 				const isActive = (activePaths ?? [href]).some((path) =>

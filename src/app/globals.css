@@ -51,9 +51,18 @@
 
 :root {
 	--radius: 0.625rem;
-	--mobile-nav-height: calc(
-		3.625rem +
-		max(env(safe-area-inset-bottom), 0.375rem)
+	/* Android Chrome animates safe-area-inset-bottom as its bottom chin hides, so
+	   size the tab bar by the static max inset and only offset it by the live one. */
+	--mobile-nav-inset: max(
+		env(safe-area-max-inset-bottom, 0px),
+		env(safe-area-inset-bottom, 0px),
+		0.375rem
+	);
+	--mobile-nav-height: calc(3.625rem + var(--mobile-nav-inset));
+	--mobile-nav-offset: min(
+		env(safe-area-inset-bottom, 0px) -
+		env(safe-area-max-inset-bottom, 0px),
+		0px
 	);
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.141 0.005 285.823);
