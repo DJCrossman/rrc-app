@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
 import type { ViewerContext } from "@/server/context";
+import { getWeekStreak, startOfWeek } from "../../common/get-week-streak";
 import { toMetersTimeSeries } from "../../common/to-meters-time-series";
 
 export async function getAnalyticsQuery(
@@ -56,22 +57,12 @@ export async function getAnalyticsQuery(
 		...new Set(allDates.map((a) => a.startDate.toISOString().split("T")[0])),
 	].sort((a, b) => b.localeCompare(a));
 
-	let currentStreak = 0;
-	let cursor = now.startOf("day");
-	for (const day of uniqueDays) {
-		const cursorStr = cursor.toISODate();
-		if (day === cursorStr) {
-			currentStreak++;
-			cursor = cursor.minus({ days: 1 });
-		} else if (day < (cursorStr ?? "")) {
-			break;
-		}
-	}
+	const currentStreak = getWeekStreak(
+		allDates.map((a) => a.startDate),
+		now,
+	);
 
-	// Sunday that starts the current week. Luxon weekday is Mon=1…Sun=7, so
-	// `weekday % 7` is the number of days since Sunday (Sun→0), which keeps today
-	// in the row even when today is Sunday.
-	const weekStart = now.minus({ days: now.weekday % 7 }).startOf("day");
+	const weekStart = startOfWeek(now);
 	const weekDays = Array.from({ length: 7 }, (_, i) => {
 		const date = weekStart.plus({ days: i });
 		const isoDate = date.toISODate() ?? "";

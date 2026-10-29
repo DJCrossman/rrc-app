@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 import { paginate } from "@/lib/pagination";
 import type { Context } from "@/server/context";
 import { mapToAthleteDto } from "@/server/routers/athletes/common/map-to-athlete-dto";
+import { getWeekStreak } from "../../common/get-week-streak";
 
 export async function getLeaderboardQuery(_input: undefined, { db }: Context) {
 	const [allAthletes, totalCount] = await Promise.all([
@@ -22,6 +23,7 @@ export async function getLeaderboardQuery(_input: undefined, { db }: Context) {
 		db.athlete.count(),
 	]);
 
+	const now = DateTime.now();
 	const data = allAthletes.map((row) => {
 		const athleteDto = mapToAthleteDto(row);
 		const ergActivities = row.activities.filter((a) => a.type === "erg");
@@ -34,15 +36,10 @@ export async function getLeaderboardQuery(_input: undefined, { db }: Context) {
 			.filter((a) => a.distance === 6000)
 			.map((a) => a.elapsedTime);
 
-		const activityDays = new Set(
-			row.activities.map((a) => a.startDate.toISOString().split("T")[0]),
+		const streak = getWeekStreak(
+			row.activities.map((a) => a.startDate),
+			now,
 		);
-		let streak = 0;
-		let streakCursor = DateTime.now().startOf("day");
-		while (activityDays.has(streakCursor.toISODate() ?? "")) {
-			streak++;
-			streakCursor = streakCursor.minus({ days: 1 });
-		}
 
 		return {
 			id: athleteDto.id,
