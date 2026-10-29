@@ -119,6 +119,7 @@ export async function connectionStrings(
 
 /** Reset a branch back on top of its parent (discards branch-local changes). */
 export async function resetBranch(name: string, env: NeonEnv): Promise<number> {
+	if (isKeptBranch(name, "reset")) return 1;
 	const { exitCode } = await runNeon(
 		["branches", "reset", name, "--parent"],
 		env,
@@ -131,6 +132,14 @@ export async function deleteBranch(
 	name: string,
 	env: NeonEnv,
 ): Promise<number> {
+	if (isKeptBranch(name, "delete")) return 1;
 	const { exitCode } = await runNeon(["branches", "delete", name], env);
 	return exitCode;
+}
+
+/** `main` holds the real data; nothing in these scripts may reset or delete it. */
+function isKeptBranch(name: string, action: "reset" | "delete") {
+	if (name !== "main") return false;
+	console.error(`❌ Refusing to ${action} Neon branch 'main'.`);
+	return true;
 }
