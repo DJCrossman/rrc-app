@@ -1,5 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type React from "react";
 import { AuthenticatedLayout } from "@/components/layouts";
@@ -20,6 +20,10 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: "Regina Rowing Club",
 	description: "Application for the Regina Rowing Club",
+};
+
+export const viewport: Viewport = {
+	viewportFit: "cover",
 };
 
 export default function RootLayout({

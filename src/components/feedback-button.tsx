@@ -14,7 +14,11 @@ export function FeedbackButton() {
 			<SidebarMenuItem>
 				<SidebarMenuButton
 					render={
-						<a href={GOOGLE_FORM_URL} target="_blank" rel="noopener noreferrer">
+						<a
+							href={FEEDBACK_FORM_URL}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
 							<IconMessage />
 							<span>Feedback</span>
 						</a>
@@ -25,4 +29,4 @@ export function FeedbackButton() {
 	);
 }
 
-const GOOGLE_FORM_URL = "https://forms.gle/FTKB91TKCfSxzhVJ9";
+export const FEEDBACK_FORM_URL = "https://forms.gle/FTKB91TKCfSxzhVJ9";

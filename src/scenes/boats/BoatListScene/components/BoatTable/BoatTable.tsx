@@ -4,6 +4,7 @@ import {
 	IconCaretDown,
 	IconCaretUp,
 	IconChevronDown,
+	IconChevronRight,
 	IconPlus,
 } from "@tabler/icons-react";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -51,11 +52,18 @@ import {
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
 import type { Boat, BoatsResult } from "@/lib/trpc/types";
+import { FilterChip } from "@/scenes/schedule/ScheduleScene/components";
 import { SeatTypes } from "@/schemas";
 
 const DEFAULT_PAGE_SIZE = 20;
 const boatSizes = ["all", ...SeatTypes] as const;
 const sortColumns = ["name", "manufacturer", "seats", "rigging"] as const;
+const SEAT_CHIP_LABELS: Record<(typeof SeatTypes)[number], string> = {
+	"1": "1x",
+	"2": "2x/2-",
+	"4": "4x/4+",
+	"8": "8+",
+};
 
 const columns: ColumnDef<Boat>[] = [
 	{
@@ -150,7 +158,21 @@ export function BoatTable({ initialData }: IBoatTableProps) {
 
 	return (
 		<div className="w-full flex-col justify-start gap-6">
-			<div className="flex items-center justify-between p-4 lg:px-6">
+			<div className="flex gap-2 overflow-x-auto px-4 pb-3 md:hidden">
+				{boatSizes.map((size) => (
+					<FilterChip
+						key={size}
+						isActive={(seats ?? "all") === size}
+						onClick={() => {
+							setSeats(SeatTypes.find((seat) => seat === size));
+							setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+						}}
+					>
+						{size === "all" ? "All" : SEAT_CHIP_LABELS[size]}
+					</FilterChip>
+				))}
+			</div>
+			<div className="flex items-center justify-between p-4 max-md:hidden lg:px-6">
 				<Label htmlFor="view-selector" className="sr-only">
 					View
 				</Label>
@@ -214,7 +236,43 @@ export function BoatTable({ initialData }: IBoatTableProps) {
 				</div>
 			</div>
 			<div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-				<div className="overflow-hidden rounded-lg border">
+				<ul className="flex flex-col gap-2 md:hidden">
+					{data.data.length === 0 && (
+						<li className="p-4 text-center text-sm text-muted-foreground">
+							No results.
+						</li>
+					)}
+					{data.data.map((boat) => (
+						<li key={boat.id}>
+							<Link
+								href={routes.boats.view(boat.id)}
+								className="flex items-center gap-3.5 rounded-xl border bg-card p-3.5 text-card-foreground hover:bg-muted"
+							>
+								<span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-base font-bold text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
+									{formatSeatCode(boat)}
+								</span>
+								<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+									<span className="truncate text-[17px] font-semibold">
+										{boat.name}
+									</span>
+									<span className="truncate text-sm text-muted-foreground">
+										{formatManufacturer(boat.manufacturer)} ·{" "}
+										{boat.rigging.charAt(0).toUpperCase() +
+											boat.rigging.slice(1)}
+									</span>
+								</span>
+								<span className="flex shrink-0 flex-col items-end gap-0.5">
+									<span className="text-sm font-semibold whitespace-nowrap tabular-nums">
+										{formatWeightRange(boat.weightRange)}
+									</span>
+									<span className="text-xs text-muted-foreground">crew wt</span>
+								</span>
+								<IconChevronRight className="size-5 shrink-0 text-muted-foreground" />
+							</Link>
+						</li>
+					))}
+				</ul>
+				<div className="overflow-hidden rounded-lg border max-md:hidden">
 					<Table>
 						<TableHeader className="bg-muted sticky top-0 z-10">
 							{table.getHeaderGroups().map((headerGroup) => (
@@ -280,4 +338,9 @@ export function BoatTable({ initialData }: IBoatTableProps) {
 			</div>
 		</div>
 	);
+}
+
+function formatSeatCode({ seats, rigging }: Pick<Boat, "seats" | "rigging">) {
+	if (rigging === "sculling") return `${seats}x`;
+	return seats === "2" ? "2-" : `${seats}+`;
 }

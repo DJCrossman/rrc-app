@@ -1,14 +1,19 @@
 "use client";
 
-import { IconPencil, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import { ActivityTable } from "@/components/activities";
+import {
+	DetailTile,
+	DetailTiles,
+	SectionLabel,
+} from "@/components/drawer-details";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
-	DrawerClose,
+	DrawerCloseButton,
 	DrawerContent,
 	DrawerDescription,
+	DrawerFooter,
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
@@ -65,21 +70,23 @@ export const BoatDetailsDrawer = ({
 			direction="right"
 		>
 			<DrawerContent>
-				<DrawerHeader className="flex flex-row items-center justify-between border-b">
-					<div>
-						<DrawerTitle>{boat.name}</DrawerTitle>
-						<DrawerDescription>
-							Boat details and activity history
-						</DrawerDescription>
+				<DrawerHeader className="flex flex-row items-center justify-between gap-3 border-b">
+					<div className="flex min-w-0 items-center gap-3">
+						<span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-base font-bold text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
+							{formatSeatSetup(boat)}
+						</span>
+						<div className="min-w-0">
+							<DrawerTitle className="truncate text-lg">
+								{boat.name}
+							</DrawerTitle>
+							<DrawerDescription>
+								{formatManufacturer(boat.manufacturer)} · {formatRigging(boat)}
+							</DrawerDescription>
+						</div>
 					</div>
-					<div className="flex items-center gap-2">
-						<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
-							<IconX className="h-4 w-4" />
-							<span className="sr-only">Close</span>
-						</DrawerClose>
-					</div>
+					<DrawerCloseButton />
 				</DrawerHeader>
-				<div className="flex-1 overflow-y-auto p-6 space-y-6">
+				<div className="flex-1 space-y-6 overflow-y-auto p-4 md:p-6">
 					{isEditing ? (
 						<BoatForm
 							initialValues={boat}
@@ -88,74 +95,48 @@ export const BoatDetailsDrawer = ({
 						/>
 					) : (
 						<>
-							<div className="flex items-center justify-between mb-4">
-								<h2 className="text-xl font-semibold">Details</h2>
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setIsEditing(true)}
-								>
-									<IconPencil className="h-4 w-4 mr-2" />
-									Edit
-								</Button>
-							</div>
-							<div className="space-y-4">
-								<div>
-									<strong className="text-sm text-muted-foreground">
-										Manufacturer
-									</strong>
-									<p className="text-base">
-										{formatManufacturer(boat.manufacturer)}
-									</p>
+							<DetailTiles>
+								<DetailTile label="Manufacturer">
+									{formatManufacturer(boat.manufacturer)}
+								</DetailTile>
+								<DetailTile label="Seats">{formatSeatSetup(boat)}</DetailTile>
+								<DetailTile label="Rigging">{formatRigging(boat)}</DetailTile>
+								<DetailTile label="Weight Range">
+									{formatWeightRange(boat.weightRange)}
+								</DetailTile>
+								<DetailTile label="Meters rowed" className="col-span-2">
+									{formatMeters(boat.meters)}
+								</DetailTile>
+							</DetailTiles>
+							<div className="space-y-3">
+								<SectionLabel>Recent activity</SectionLabel>
+								<div className="overflow-x-auto">
+									<ActivityTable
+										data={activities}
+										showColumns={[
+											"startDate",
+											"name",
+											"athlete.name",
+											"isStrava",
+											"distance",
+										]}
+									/>
 								</div>
-								<div>
-									<strong className="text-sm text-muted-foreground">
-										Seats
-									</strong>
-									<p className="text-base">{formatSeatSetup(boat)}</p>
-								</div>
-								<div>
-									<strong className="text-sm text-muted-foreground">
-										Rigging
-									</strong>
-									<p className="text-base">
-										{boat.rigging.charAt(0).toUpperCase() +
-											boat.rigging.slice(1)}
-									</p>
-								</div>
-								<div>
-									<strong className="text-sm text-muted-foreground">
-										Meters
-									</strong>
-									<p className="text-base">{formatMeters(boat.meters)}</p>
-								</div>
-								<div>
-									<strong className="text-sm text-muted-foreground">
-										Weight Range
-									</strong>
-									<p className="text-base">
-										{formatWeightRange(boat.weightRange)}
-									</p>
-								</div>
-							</div>
-
-							<div className="space-y-4 pt-6 border-t">
-								<h2 className="text-xl font-semibold">Activities</h2>
-								<ActivityTable
-									data={activities}
-									showColumns={[
-										"startDate",
-										"name",
-										"athlete.name",
-										"isStrava",
-										"distance",
-									]}
-								/>
 							</div>
 						</>
 					)}
 				</div>
+				{!isEditing && (
+					<DrawerFooter className="flex-row border-t">
+						<Button className="flex-1" onClick={() => setIsEditing(true)}>
+							Edit boat
+						</Button>
+					</DrawerFooter>
+				)}
 			</DrawerContent>
 		</Drawer>
 	);
 };
+
+const formatRigging = ({ rigging }: Pick<Boat, "rigging">) =>
+	rigging.charAt(0).toUpperCase() + rigging.slice(1);

@@ -1,9 +1,11 @@
 "use client";
 
 import { IconX } from "@tabler/icons-react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
+	DrawerCloseButton,
 	DrawerContent,
 	DrawerDescription,
 	DrawerTitle,
@@ -35,17 +37,24 @@ interface ThreadPanelProps
 export function ThreadPanel({ isMobile, ...props }: ThreadPanelProps) {
 	if (isMobile) {
 		return (
-			<Drawer
-				open
-				direction="right"
-				onOpenChange={(open) => !open && props.onClose()}
-			>
-				<DrawerContent className="data-[vaul-drawer-direction=right]:w-full data-[vaul-drawer-direction=right]:sm:max-w-none">
-					<DrawerTitle className="sr-only">Thread</DrawerTitle>
-					<DrawerDescription className="sr-only">
-						Replies in {props.channelName}
-					</DrawerDescription>
-					<ThreadContent {...props} />
+			<Drawer open onOpenChange={(open) => !open && props.onClose()}>
+				<DrawerContent className="h-[calc(100svh-2.5rem)]">
+					<ThreadContent
+						{...props}
+						header={
+							<div className="flex shrink-0 items-start justify-between gap-3 border-b px-4 pt-2 pb-3">
+								<div className="min-w-0">
+									<DrawerTitle className="text-[22px] leading-tight font-bold tracking-tight">
+										Thread
+									</DrawerTitle>
+									<DrawerDescription className="truncate text-[13px]">
+										#{props.channelName}
+									</DrawerDescription>
+								</div>
+								<DrawerCloseButton />
+							</div>
+						}
+					/>
 				</DrawerContent>
 			</Drawer>
 		);
@@ -67,30 +76,33 @@ function ThreadContent({
 	isUnavailable,
 	onClose,
 	onReply,
+	header,
 	...handlers
-}: Omit<ThreadPanelProps, "isMobile">) {
+}: Omit<ThreadPanelProps, "isMobile"> & { header?: ReactNode }) {
 	const replyCount = thread?.replies.length ?? 0;
 	const bottomRef = useScrollToOwnMessage(thread?.replies ?? []);
 	return (
 		<div className="flex h-full min-h-0 flex-1 flex-col">
-			<div className="flex h-[52px] shrink-0 items-center justify-between gap-2 border-b px-4">
-				<div className="flex min-w-0 items-baseline gap-2">
-					<h2 className="text-[15px] font-semibold">Thread</h2>
-					<span className="truncate text-[13px] text-muted-foreground">
-						{channelName}
-					</span>
+			{header ?? (
+				<div className="flex h-[52px] shrink-0 items-center justify-between gap-2 border-b px-4">
+					<div className="flex min-w-0 items-baseline gap-2">
+						<h2 className="text-[15px] font-semibold">Thread</h2>
+						<span className="truncate text-[13px] text-muted-foreground">
+							{channelName}
+						</span>
+					</div>
+					<Button
+						type="button"
+						variant="ghost"
+						size="icon"
+						className="size-[30px] rounded-md"
+						aria-label="Close thread"
+						onClick={onClose}
+					>
+						<IconX />
+					</Button>
 				</div>
-				<Button
-					type="button"
-					variant="ghost"
-					size="icon"
-					className="size-[30px] rounded-md"
-					aria-label="Close thread"
-					onClick={onClose}
-				>
-					<IconX />
-				</Button>
-			</div>
+			)}
 			<div className="flex min-h-0 flex-1 flex-col-reverse overflow-y-auto">
 				<div className="mb-auto py-4">
 					{isLoading && <MessageListSkeleton rows={3} />}

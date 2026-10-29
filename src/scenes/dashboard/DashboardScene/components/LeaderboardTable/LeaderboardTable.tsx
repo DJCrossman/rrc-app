@@ -16,6 +16,7 @@ import {
 import { FlameIcon, SnowflakeIcon } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { InitialsAvatar } from "@/components/chat/initials-avatar";
 import { DataTablePagination } from "@/components/data-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -195,12 +196,14 @@ export function LeaderboardTable({
 
 	return (
 		<div className="w-full flex-col justify-start gap-6">
-			<div className="flex items-center justify-between p-4 lg:px-6">
+			<div className="flex items-center justify-between gap-3 p-4 max-md:flex-wrap lg:px-6">
+				<h2 className="text-base font-semibold md:hidden">Leaderboard</h2>
 				<Label htmlFor="view-selector" className="sr-only">
 					Programs
 				</Label>
 				<MultiSelect
 					className="min-w-[240px]"
+					commandProps={{ className: "max-md:order-last" }}
 					placeholder="All Programs"
 					options={programOptions}
 					value={selectedProgramOptions}
@@ -214,12 +217,61 @@ export function LeaderboardTable({
 						render={<Link href={routes.activities.create()} />}
 					>
 						<IconPlus />
-						<span className="hidden lg:inline">Track Activity</span>
+						<span className="hidden max-md:inline lg:inline">
+							Track Activity
+						</span>
 					</Button>
 				</div>
 			</div>
 			<div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-				<div className="overflow-hidden rounded-lg border">
+				<ol className="divide-y overflow-hidden rounded-lg border bg-card md:hidden">
+					{table.getRowModel().rows.length === 0 && (
+						<li className="p-4 text-center text-sm text-muted-foreground">
+							No results.
+						</li>
+					)}
+					{table.getRowModel().rows.map((row, index) => (
+						<li
+							key={row.id}
+							className="flex min-h-13 items-center gap-3 px-3.5 py-2"
+						>
+							<span className="w-5 shrink-0 text-center text-[13px] font-bold text-muted-foreground tabular-nums">
+								{pagination.pageIndex * pagination.pageSize + index + 1}
+							</span>
+							<InitialsAvatar
+								initials={getInitials(row.original.name)}
+								size="sm"
+								className="rounded-full"
+							/>
+							<span className="flex min-w-0 flex-1 flex-col">
+								<span className="truncate text-sm font-medium">
+									{row.original.name}
+								</span>
+								{row.original.activeMembership && (
+									<span className="truncate text-xs text-muted-foreground">
+										{row.original.activeMembership.name}
+									</span>
+								)}
+							</span>
+							<span className="flex items-center gap-1 text-xs tabular-nums">
+								{row.original.streak > 0 ? (
+									<span className="text-red-600 dark:text-red-400">
+										{row.original.streak}{" "}
+										<FlameIcon className="inline" size={12} />
+									</span>
+								) : (
+									<span className="text-blue-600 dark:text-blue-400">
+										0 <SnowflakeIcon className="inline" size={12} />
+									</span>
+								)}
+							</span>
+							<span className="shrink-0 text-sm font-semibold whitespace-nowrap tabular-nums">
+								{formatMeters(row.original.meters)}
+							</span>
+						</li>
+					))}
+				</ol>
+				<div className="overflow-hidden rounded-lg border max-md:hidden">
 					<Table>
 						<TableHeader className="bg-muted sticky top-0 z-10">
 							{table.getHeaderGroups().map((headerGroup) => (
@@ -286,4 +338,12 @@ export function LeaderboardTable({
 			</div>
 		</div>
 	);
+}
+
+function getInitials(name: string) {
+	return name
+		.split(" ")
+		.map((part) => part.charAt(0).toUpperCase())
+		.slice(0, 2)
+		.join("");
 }

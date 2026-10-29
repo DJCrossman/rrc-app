@@ -1,21 +1,32 @@
 "use client";
 
-import { IconPencil, IconShare3, IconX } from "@tabler/icons-react";
+import { IconShare3 } from "@tabler/icons-react";
 import { DateTime } from "luxon";
 import { useState } from "react";
 import { ShareToChatDialog } from "@/components/chat/share-to-chat-dialog";
+import {
+	DetailList,
+	DetailRow,
+	DetailTile,
+	DetailTiles,
+} from "@/components/drawer-details";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
-	DrawerClose,
+	DrawerCloseButton,
 	DrawerContent,
 	DrawerDescription,
+	DrawerFooter,
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
 import { useCurrentUser } from "@/hooks/useAuth";
-import { formatDuration } from "@/lib/formatters/formatDuration";
-import { formatMeters } from "@/lib/formatters/formatMeters";
+import {
+	formatCompactDuration,
+	formatCompactSplit,
+	formatMeters,
+} from "@/lib/formatters";
 import { routes } from "@/lib/routes";
 import type { Activity, Boats, Ergs, Workouts } from "@/lib/trpc/types";
 import type { CreateActivity, UpdateActivity } from "@/schemas";
@@ -67,27 +78,35 @@ export const ActivityDetailsDrawer = ({
 			dismissible={!isImageFullscreen}
 		>
 			<DrawerContent>
-				<DrawerHeader className="flex flex-row items-center justify-between border-b">
-					<div>
-						<DrawerTitle>{activity.name}</DrawerTitle>
-						<DrawerDescription>Activity details</DrawerDescription>
-					</div>
-					<div className="flex items-center gap-2">
-						{hasAthlete && activity.athlete.id === user.id && (
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => setIsSharing(true)}
+				<DrawerHeader className="flex flex-row items-start justify-between gap-3 border-b">
+					<div className="flex min-w-0 flex-col gap-1.5">
+						<div className="flex flex-wrap items-center gap-1.5">
+							<Badge
+								variant="secondary"
+								className={
+									activity.type === "water"
+										? "bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400"
+										: "bg-violet-500/10 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400"
+								}
 							>
-								<IconShare3 />
-								Share to chat
-							</Button>
-						)}
-						<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
-							<IconX className="h-4 w-4" />
-							<span className="sr-only">Close</span>
-						</DrawerClose>
+								{activity.type === "water" ? "Water" : "Erg"}
+							</Badge>
+							{activity.isStrava && <Badge variant="outline">Strava</Badge>}
+						</div>
+						<DrawerTitle className="truncate text-lg">
+							{activity.name}
+						</DrawerTitle>
+						<DrawerDescription>
+							{DateTime.fromISO(activity.startDate).toLocaleString({
+								weekday: "short",
+								month: "short",
+								day: "numeric",
+								hour: "numeric",
+								minute: "2-digit",
+							})}
+						</DrawerDescription>
 					</div>
+					<DrawerCloseButton />
 				</DrawerHeader>
 				<ShareToChatDialog
 					open={isSharing}
@@ -95,7 +114,7 @@ export const ActivityDetailsDrawer = ({
 					title={activity.name}
 					path={routes.activities.view(activity.id)}
 				/>
-				<div className="flex-1 overflow-y-auto p-6 space-y-6">
+				<div className="flex-1 space-y-6 overflow-y-auto p-4 md:p-6">
 					{isEditing && (
 						<ActivityForm
 							boats={boats}
@@ -141,67 +160,67 @@ export const ActivityDetailsDrawer = ({
 					)}
 					{!isEditing && (
 						<>
-							{/* Activity Details Section */}
-							<div className="flex items-center justify-between mb-4">
-								<h2 className="text-xl font-semibold">Details</h2>
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setIsEditing(true)}
-								>
-									<IconPencil className="h-4 w-4 mr-2" />
-									Edit
-								</Button>
-							</div>
-							<div className="space-y-4">
-								<div>
-									<strong>Type:</strong>{" "}
-									{activity.type === "water" ? "Water" : "ERG"}
-								</div>
-								<div>
-									<strong>Athlete:</strong> {activity.athlete.name}
-								</div>
-								{activity.type === "water" && activity.boat && (
-									<div>
-										<strong>Boat:</strong> {activity.boat.name}
-									</div>
+							<DetailTiles>
+								<DetailTile label="Distance">
+									{formatMeters(activity.distance)}
+								</DetailTile>
+								<DetailTile label="Time">
+									{formatCompactDuration(activity.elapsedTime)}
+								</DetailTile>
+								{activity.distance > 0 && (
+									<DetailTile label="Avg split">
+										{formatCompactSplit(
+											activity.elapsedTime,
+											activity.distance,
+										)}
+										<span className="text-xs font-normal text-muted-foreground">
+											{" "}
+											/500m
+										</span>
+									</DetailTile>
 								)}
-								{activity.type === "erg" && activity.erg && (
-									<div>
-										<strong>ERG:</strong> {activity.erg.name}
-									</div>
-								)}
-								{activity.workout && (
-									<div>
-										<strong>Workout:</strong> {activity.workout.description}
-									</div>
-								)}
-								<div>
-									<strong>Date:</strong>{" "}
-									{DateTime.fromISO(activity.startDate).toLocaleString(
-										DateTime.DATETIME_MED,
-									)}
-								</div>
-								<div>
-									<strong>Distance:</strong> {formatMeters(activity.distance)}
-								</div>
-								<div>
-									<strong>Time:</strong> {formatDuration(activity.elapsedTime)}
-								</div>
-								<div>
-									<strong>Workout Type:</strong>{" "}
+								<DetailTile label="Workout type">
 									{activity.workoutType.charAt(0).toUpperCase() +
 										activity.workoutType.slice(1)}
-								</div>
-								{activity.isStrava && (
-									<div>
-										<strong>Strava:</strong> Synced from Strava
-									</div>
+								</DetailTile>
+							</DetailTiles>
+							<DetailList>
+								<DetailRow label="Athlete">{activity.athlete.name}</DetailRow>
+								{activity.type === "water" && activity.boat && (
+									<DetailRow label="Boat">{activity.boat.name}</DetailRow>
 								)}
-							</div>
+								{activity.type === "erg" && activity.erg && (
+									<DetailRow label="ERG">{activity.erg.name}</DetailRow>
+								)}
+								{activity.workout && (
+									<DetailRow label="Workout">
+										{activity.workout.description}
+									</DetailRow>
+								)}
+								{activity.isStrava && (
+									<DetailRow label="Source">Synced from Strava</DetailRow>
+								)}
+							</DetailList>
 						</>
 					)}
 				</div>
+				{!isEditing && (
+					<DrawerFooter className="flex-row border-t">
+						{hasAthlete && activity.athlete.id === user.id && (
+							<Button
+								variant="outline"
+								className="flex-1"
+								onClick={() => setIsSharing(true)}
+							>
+								<IconShare3 />
+								Share to chat
+							</Button>
+						)}
+						<Button className="flex-1" onClick={() => setIsEditing(true)}>
+							Edit
+						</Button>
+					</DrawerFooter>
+				)}
 			</DrawerContent>
 		</Drawer>
 	);

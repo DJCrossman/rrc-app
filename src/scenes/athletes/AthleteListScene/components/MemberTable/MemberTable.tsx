@@ -22,6 +22,7 @@ import { DateTime } from "luxon";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { InitialsAvatar } from "@/components/chat/initials-avatar";
 import { DataTablePagination } from "@/components/data-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,8 +58,7 @@ import { useCurrentUser } from "@/hooks/useAuth";
 import { routes } from "@/lib/routes";
 import { trpcClient } from "@/lib/trpc/client";
 import type { Member, MembersResult } from "@/lib/trpc/types";
-import { InviteMemberDialog } from "../InviteMemberDialog/InviteMemberDialog";
-import { useMemberInvites } from "../useMemberInvites";
+import { FilterChip } from "@/scenes/schedule/ScheduleScene/components";
 import { MemberRowActions } from "./MemberRowActions";
 
 const DEFAULT_PAGE_SIZE = 20;
@@ -176,9 +176,10 @@ const columns: ColumnDef<Member>[] = [
 
 interface IMemberTableProps {
 	initialData: MembersResult;
+	onInvite: () => void;
 }
 
-export function MemberTable({ initialData }: IMemberTableProps) {
+export function MemberTable({ initialData, onInvite }: IMemberTableProps) {
 	const [pagination, setPagination] = useState<PaginationState>({
 		pageIndex: 0,
 		pageSize: DEFAULT_PAGE_SIZE,
@@ -187,11 +188,9 @@ export function MemberTable({ initialData }: IMemberTableProps) {
 	const [programIds, setProgramIds] = useState<string[]>([]);
 	const [isActive, setIsActive] = useState<boolean | undefined>(undefined);
 	const [search, setSearch] = useState("");
-	const [isInviteOpen, setIsInviteOpen] = useState(false);
 	const debouncedSearch = useDebounce(search.trim(), 300);
 	const { isAdmin } = useCurrentUser();
 	const utils = trpcClient.useUtils();
-	const { invite } = useMemberInvites();
 
 	const sort = sorting[0];
 	const { data } = trpcClient.members.getMembers.useQuery(
@@ -246,7 +245,49 @@ export function MemberTable({ initialData }: IMemberTableProps) {
 
 	return (
 		<div className="w-full flex-col justify-start gap-6">
-			<div className="flex items-center justify-between p-4 lg:px-6">
+			<div className="flex flex-col gap-3 px-4 pb-3 md:hidden">
+				<div className="relative">
+					<IconSearch className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-muted-foreground" />
+					<Input
+						type="search"
+						aria-label="Search members"
+						placeholder="Search members"
+						className="h-11 rounded-xl pl-10 text-base"
+						value={search}
+						onChange={(event) => {
+							setSearch(event.target.value);
+							setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+						}}
+					/>
+				</div>
+				<div className="flex gap-2 overflow-x-auto">
+					{activeMembershipOptions.map((membership) => (
+						<FilterChip
+							key={membership}
+							isActive={
+								(isActive === undefined ? "all" : String(isActive)) ===
+								membership
+							}
+							onClick={() => {
+								setIsActive(
+									membership === "all" ? undefined : membership === "true",
+								);
+								setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+							}}
+						>
+							{membership === "all"
+								? "All"
+								: membership === "true"
+									? "Active"
+									: "Inactive"}
+						</FilterChip>
+					))}
+				</div>
+				<p className="text-sm text-muted-foreground">
+					{data.totalCount} {data.totalCount === 1 ? "member" : "members"}
+				</p>
+			</div>
+			<div className="flex items-center justify-between p-4 max-md:hidden lg:px-6">
 				<div className="flex items-center gap-2">
 					<div className="relative">
 						<IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -317,7 +358,7 @@ export function MemberTable({ initialData }: IMemberTableProps) {
 
 				<div className="flex items-center gap-2">
 					{isAdmin && (
-						<Button size="sm" onClick={() => setIsInviteOpen(true)}>
+						<Button size="sm" onClick={onInvite}>
 							<IconMailPlus />
 							<span className="hidden lg:inline">Invite member</span>
 						</Button>
@@ -365,7 +406,81 @@ export function MemberTable({ initialData }: IMemberTableProps) {
 				</div>
 			</div>
 			<div className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6">
-				<div className="overflow-hidden rounded-lg border">
+				<ul className="divide-y overflow-hidden rounded-xl border bg-card text-card-foreground md:hidden">
+					{data.data.length === 0 && (
+						<li className="p-4 text-center text-sm text-muted-foreground">
+							No results.
+						</li>
+					)}
+					{data.data.map((member) => (
+						<li key={member.id} className="flex items-start gap-3 px-3.5 py-3">
+							{member.account === "invited" && !member.athlete ? (
+								<span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-dashed text-sm text-muted-foreground">
+									@
+								</span>
+							) : (
+								<InitialsAvatar
+									initials={getInitials(member.name)}
+									name={member.name}
+									className="size-10 rounded-full"
+								/>
+							)}
+							<span className="flex min-w-0 flex-1 flex-col gap-1">
+								<span className="flex flex-wrap items-center gap-1.5">
+									{member.athleteId ? (
+										<Link
+											href={routes.members.view(member.athleteId)}
+											className="truncate text-[17px] font-semibold"
+										>
+											{member.name}
+										</Link>
+									) : (
+										<span className="truncate text-[17px] font-semibold">
+											{member.name}
+										</span>
+									)}
+									{member.isAdmin && (
+										<Badge
+											variant="secondary"
+											className="px-1.5 text-[10px] font-semibold tracking-wide uppercase"
+										>
+											Admin
+										</Badge>
+									)}
+									{getAccountLabel(member) && (
+										<Badge
+											variant="outline"
+											className="text-muted-foreground px-1.5 text-[10px] font-semibold tracking-wide uppercase"
+										>
+											{getAccountLabel(member)}
+										</Badge>
+									)}
+								</span>
+								<span className="truncate text-sm text-muted-foreground">
+									{member.account === "invited" && member.invitedAt
+										? `Invited ${DateTime.fromISO(member.invitedAt).toLocaleString({ month: "short", day: "numeric" })} · as ${member.isAdmin ? "Admin" : "Member"}`
+										: (member.email ?? "No email on file")}
+								</span>
+								{(member.athlete?.groups.length ?? 0) > 0 && (
+									<span className="flex flex-wrap gap-1">
+										{member.athlete?.groups.map((group) => (
+											<Badge
+												key={group.id}
+												variant="secondary"
+												className="px-1.5"
+												render={<Link href={routes.groups.view(group.id)} />}
+											>
+												{group.name}
+											</Badge>
+										))}
+									</span>
+								)}
+							</span>
+							<MemberRowActions member={member} />
+						</li>
+					))}
+				</ul>
+				<div className="overflow-hidden rounded-lg border max-md:hidden">
 					<Table>
 						<TableHeader className="bg-muted sticky top-0 z-10">
 							{table.getHeaderGroups().map((headerGroup) => (
@@ -429,14 +544,6 @@ export function MemberTable({ initialData }: IMemberTableProps) {
 					<DataTablePagination table={table} />
 				</div>
 			</div>
-			<InviteMemberDialog
-				isOpen={isInviteOpen}
-				onClose={() => setIsInviteOpen(false)}
-				onSubmit={async (data) => {
-					const { sent } = await invite.mutateAsync(data);
-					if (sent.length > 0) setIsInviteOpen(false);
-				}}
-			/>
 		</div>
 	);
 }
@@ -446,4 +553,12 @@ function getAccountLabel(member: Member): string | null {
 	if (member.account === "none") return "No account";
 	if (!member.athlete) return "No profile yet";
 	return null;
+}
+
+function getInitials(name: string) {
+	return name
+		.split(" ")
+		.map((part) => part.charAt(0).toUpperCase())
+		.slice(0, 2)
+		.join("");
 }

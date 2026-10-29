@@ -1,6 +1,10 @@
-import { redirect } from "next/navigation";
-import { routes } from "@/lib/routes";
+import type { Metadata } from "next";
+import { ChatListScene } from "@/scenes/chat";
+
+export const metadata: Metadata = {
+	title: "Chat · Regina Rowing Club",
+};
 
 export default function ChatPage() {
-	redirect(routes.chat.everyone());
+	return <ChatListScene />;
 }

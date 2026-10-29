@@ -32,29 +32,22 @@ const formatCompactSplit = (
 
 export const StatCard = ({ title, stat, distance }: StatCardProps) => {
 	return (
-		<div className="border rounded-lg p-4">
-			<h3 className="font-semibold mb-2">{title}</h3>
+		<div className="flex flex-col gap-1 rounded-xl border bg-background px-3.5 py-3">
+			<span className="text-[13px] text-muted-foreground">{title}</span>
 			{stat ? (
-				<div className="space-y-1">
-					<div className="text-2xl font-mono font-bold">
+				<>
+					<span className="text-[17px] font-semibold tabular-nums">
 						{formatCompactDuration(stat.duration)}
-					</div>
-					<div className="text-sm text-muted-foreground font-mono">
-						{formatCompactSplit(stat.duration, distance)}
-						<span className="text-xs">/500m</span>
-					</div>
-					<div className="text-sm text-muted-foreground">
-						{DateTime.fromISO(stat.date).toFormat("yyyy-MM-dd")}
-					</div>
-				</div>
+					</span>
+					<span className="text-xs text-muted-foreground tabular-nums">
+						{formatCompactSplit(stat.duration, distance)}/500m ·{" "}
+						{DateTime.fromISO(stat.date).toFormat("MMM d, yyyy")}
+					</span>
+				</>
 			) : (
-				<div className="space-y-1">
-					<div className="text-2xl font-mono font-bold">N/A</div>
-					<div className="text-sm text-muted-foreground font-mono">
-						{"\u00A0"}
-					</div>
-					<div className="text-sm text-muted-foreground">{"\u00A0"}</div>
-				</div>
+				<span className="text-[17px] font-semibold text-muted-foreground">
+					—
+				</span>
 			)}
 		</div>
 	);

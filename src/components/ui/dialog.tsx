@@ -50,6 +50,7 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           'bg-background transition data-starting-style:opacity-0 data-ending-style:opacity-0 data-starting-style:scale-95 data-ending-style:scale-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg',
+          'max-sm:top-auto max-sm:bottom-0 max-sm:left-0 max-sm:max-h-[calc(100svh-2.5rem)] max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:overflow-y-auto max-sm:rounded-t-2xl max-sm:rounded-b-none max-sm:border-x-0 max-sm:border-b-0 max-sm:pb-[max(env(safe-area-inset-bottom),1.5rem)] max-sm:data-starting-style:translate-y-full max-sm:data-ending-style:translate-y-full',
           className,
         )}
         {...props}

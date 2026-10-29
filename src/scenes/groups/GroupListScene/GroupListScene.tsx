@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { toast } from "sonner";
 import { AppSidebar } from "@/components/app-sidebar";
+import { MobilePageHeader } from "@/components/mobile-page-header";
 import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
@@ -86,7 +87,26 @@ export const GroupListScene = ({
 				<SiteHeader breadcrumbs={[{ label: "Groups" }]} />
 				<div className="flex flex-1 flex-col">
 					<div className="@container/main flex flex-1 flex-col gap-2">
-						<div className="flex flex-wrap items-start justify-between gap-4 p-4 lg:px-6">
+						<MobilePageHeader
+							title="Groups"
+							backHref={routes.more.home()}
+							backLabel="More"
+							description="Groups target events and get their own chat channel. Link RCA programs to fill them automatically."
+							className="pb-3"
+							actions={
+								isAdmin && (
+									<Button
+										size="icon-lg"
+										className="rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+										aria-label="New group"
+										render={<Link href={routes.groups.create()} />}
+									>
+										<IconPlus />
+									</Button>
+								)
+							}
+						/>
+						<div className="flex flex-wrap items-start justify-between gap-4 p-4 max-md:hidden lg:px-6">
 							<div className="space-y-1">
 								<Heading as="h1">Groups</Heading>
 								<p className="text-muted-foreground max-w-2xl text-sm">

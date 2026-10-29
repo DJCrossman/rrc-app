@@ -1,11 +1,11 @@
 "use client";
 
-import { IconSparkles, IconX } from "@tabler/icons-react";
+import { IconSparkles } from "@tabler/icons-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
-	DrawerClose,
+	DrawerCloseButton,
 	DrawerContent,
 	DrawerDescription,
 	DrawerHeader,
@@ -46,10 +46,7 @@ export const EventCreateDrawer = ({
 						Add a training, regatta or volunteer shift
 					</DrawerDescription>
 				</div>
-				<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-					<IconX className="h-4 w-4" />
-					<span className="sr-only">Close</span>
-				</DrawerClose>
+				<DrawerCloseButton />
 			</DrawerHeader>
 			<div className="flex-1 overflow-y-auto p-6">
 				{isOpen && (

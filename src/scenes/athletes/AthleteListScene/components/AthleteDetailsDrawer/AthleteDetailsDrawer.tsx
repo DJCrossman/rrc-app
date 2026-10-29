@@ -1,32 +1,32 @@
 "use client";
 
-import { IconMessage, IconPencil, IconX } from "@tabler/icons-react";
+import { IconMessage, IconPhone } from "@tabler/icons-react";
 import { DateTime, Interval } from "luxon";
 import Link from "next/link";
 import { useState } from "react";
 import { ActivityTable } from "@/components/activities";
+import {
+	DetailList,
+	DetailRow,
+	DetailTiles,
+	SectionLabel,
+} from "@/components/drawer-details";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
-	DrawerClose,
+	DrawerCloseButton,
 	DrawerContent,
 	DrawerDescription,
+	DrawerFooter,
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
 import { formatRole } from "@/lib/formatters";
 import { formatGender } from "@/lib/formatters/formatGender";
 import { routes } from "@/lib/routes";
 import type { Activities, Athlete } from "@/lib/trpc/types";
+import { cn } from "@/lib/utils";
 import type { CreateAthlete, UpdateAthlete } from "@/schemas";
 import type { AthleteStats } from "@/schemas/athlete.schema";
 import { AthleteForm } from "../AthleteForm/AthleteForm";
@@ -88,32 +88,23 @@ export const AthleteDetailsDrawer = ({
 			direction="right"
 		>
 			<DrawerContent>
-				<DrawerHeader className="flex flex-row items-center justify-between border-b">
-					<div>
-						<DrawerTitle>{athlete.name}</DrawerTitle>
+				<DrawerHeader
+					className={cn(
+						"flex flex-row items-center gap-3",
+						isEditing ? "justify-between border-b" : "justify-end pb-0",
+					)}
+				>
+					<div className={cn("min-w-0", !isEditing && "sr-only")}>
+						<DrawerTitle className="truncate text-lg">
+							{athlete.name}
+						</DrawerTitle>
 						<DrawerDescription>
 							Member details and activity history
 						</DrawerDescription>
 					</div>
-					<div className="flex items-center gap-2">
-						{canMessage(athlete) && (
-							<Button
-								variant="outline"
-								size="sm"
-								disabled={isPending}
-								onClick={() => message(athlete)}
-							>
-								<IconMessage />
-								Message
-							</Button>
-						)}
-						<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
-							<IconX className="h-4 w-4" />
-							<span className="sr-only">Close</span>
-						</DrawerClose>
-					</div>
+					<DrawerCloseButton />
 				</DrawerHeader>
-				<div className="flex-1 overflow-y-auto p-6 space-y-6">
+				<div className="flex-1 space-y-6 overflow-y-auto px-4 pb-4 md:px-6 md:pb-6">
 					{isEditing ? (
 						<AthleteForm
 							initialValues={{
@@ -133,164 +124,165 @@ export const AthleteDetailsDrawer = ({
 						/>
 					) : (
 						<>
-							{/* Athlete Details Section */}
-							<div className="flex items-center justify-between mb-4">
-								<h2 className="text-xl font-semibold">Details</h2>
-								{canEdit && (
-									<Button
-										variant="outline"
-										size="sm"
-										onClick={() => setIsEditing(true)}
-									>
-										<IconPencil className="h-4 w-4 mr-2" />
-										Edit
-									</Button>
-								)}
-							</div>
-							<div className="space-y-4">
-								<div className="space-y-4">
-									<div>
-										<strong>Phone:</strong>{" "}
-										<a
-											href={`tel:${athlete.phone}`}
-											className="text-blue-600 hover:underline"
-										>
-											{athlete.phone}
-										</a>
-									</div>
-									<div>
-										<strong>Roles:</strong>{" "}
-										<Badge
-											key={athlete.role}
-											variant="outline"
-											className="mr-2"
-										>
-											{formatRole(athlete.role)}
-										</Badge>
-									</div>
-									<div>
-										<strong>Age:</strong>{" "}
-										{Math.floor(
-											DateTime.now()
-												.diff(DateTime.fromISO(athlete.dateOfBirth), "years")
-												.toObject().years || 0,
-										)}
-									</div>
-									<div>
-										<strong>Gender:</strong> {formatGender(athlete)}
-									</div>
-									<div>
-										<strong>Joined:</strong>
-										<br />
-										{!athlete.dateJoined
-											? "N/A"
-											: DateTime.fromISO(athlete.dateJoined).toLocaleString(
-													DateTime.DATE_FULL,
-												)}
-									</div>
-								</div>
-							</div>
-
-							{/* Groups Section */}
-							<div className="space-y-4">
-								<h2 className="text-xl font-semibold">Groups</h2>
-								{athlete.groups.length > 0 ? (
-									<div className="flex flex-wrap gap-2">
+							<div className="flex flex-col items-center gap-3 text-center">
+								<span className="flex size-18 items-center justify-center rounded-full bg-blue-500/10 text-2xl font-bold text-blue-600 dark:bg-blue-500/20 dark:text-blue-400">
+									{[athlete.firstName, athlete.lastName]
+										.map((part) => part.charAt(0).toUpperCase())
+										.join("")}
+								</span>
+								<h2 className="text-2xl font-bold tracking-tight">
+									{athlete.firstName} {athlete.lastName}
+								</h2>
+								{athlete.groups.length > 0 && (
+									<div className="flex flex-wrap justify-center gap-1.5">
 										{athlete.groups.map((group) => (
 											<Badge
 												key={group.id}
-												variant="outline"
+												variant="secondary"
 												render={<Link href={routes.groups.view(group.id)} />}
 											>
 												{group.name}
 											</Badge>
 										))}
 									</div>
-								) : (
-									<p className="text-sm text-muted-foreground">
-										Not in any groups.
-									</p>
 								)}
-							</div>
-
-							{/* Indoors Stats Section */}
-							<div className="space-y-4">
-								<h2 className="text-xl font-semibold">Indoors Stats</h2>
-								<div className="grid grid-cols-2 gap-4">
-									{/* Last 2K */}
-									<StatCard
-										title="Last 2K"
-										stat={athleteStats?.lastTwoKmRaceDuration ?? null}
-										distance={2000}
-									/>
-									<StatCard
-										title="Best 2K"
-										stat={athleteStats?.bestTwoKmRaceDuration ?? null}
-										distance={2000}
-									/>
-									<StatCard
-										title="Last 6K"
-										stat={athleteStats?.lastSixKmRaceDuration ?? null}
-										distance={6000}
-									/>
-									<StatCard
-										title="Best 6K"
-										stat={athleteStats?.bestSixKmRaceDuration ?? null}
-										distance={6000}
+								<div className="flex w-full gap-2.5 pt-1">
+									{canMessage(athlete) && (
+										<Button
+											className="flex-1"
+											disabled={isPending}
+											onClick={() => message(athlete)}
+										>
+											<IconMessage />
+											Message
+										</Button>
+									)}
+									<Button
+										variant="outline"
+										className="flex-1"
+										render={
+											<a href={`tel:${athlete.phone}`}>
+												<IconPhone />
+												Call
+											</a>
+										}
 									/>
 								</div>
 							</div>
-
-							{/* Programs Section */}
-							<div className="space-y-4">
-								<h2 className="text-xl font-semibold">Programs</h2>
+							<DetailTiles>
+								<StatCard
+									title="Last 2K"
+									stat={athleteStats?.lastTwoKmRaceDuration ?? null}
+									distance={2000}
+								/>
+								<StatCard
+									title="Best 2K"
+									stat={athleteStats?.bestTwoKmRaceDuration ?? null}
+									distance={2000}
+								/>
+								<StatCard
+									title="Last 6K"
+									stat={athleteStats?.lastSixKmRaceDuration ?? null}
+									distance={6000}
+								/>
+								<StatCard
+									title="Best 6K"
+									stat={athleteStats?.bestSixKmRaceDuration ?? null}
+									distance={6000}
+								/>
+							</DetailTiles>
+							<DetailList>
+								<DetailRow label="Role">{formatRole(athlete.role)}</DetailRow>
+								<DetailRow label="Phone">
+									<a
+										href={`tel:${athlete.phone}`}
+										className="text-blue-600 hover:underline dark:text-blue-400"
+									>
+										{athlete.phone}
+									</a>
+								</DetailRow>
+								{athlete.email && (
+									<DetailRow label="Email">{athlete.email}</DetailRow>
+								)}
+								<DetailRow label="Age">
+									{Math.floor(
+										DateTime.now()
+											.diff(DateTime.fromISO(athlete.dateOfBirth), "years")
+											.toObject().years || 0,
+									)}
+								</DetailRow>
+								<DetailRow label="Gender">{formatGender(athlete)}</DetailRow>
+								<DetailRow label="Date Joined">
+									{athlete.dateJoined
+										? DateTime.fromISO(athlete.dateJoined).toLocaleString({
+												month: "short",
+												year: "numeric",
+											})
+										: "N/A"}
+								</DetailRow>
+								{(athlete.heightInCm || athlete.weightInKg) && (
+									<DetailRow label="Height / Weight">
+										{[
+											athlete.heightInCm && `${athlete.heightInCm} cm`,
+											athlete.weightInKg && `${athlete.weightInKg} kg`,
+										]
+											.filter(Boolean)
+											.join(" · ")}
+									</DetailRow>
+								)}
+							</DetailList>
+							<div className="space-y-3">
+								<SectionLabel>RCA memberships</SectionLabel>
 								{athlete.memberships && athlete.memberships.length > 0 ? (
-									<Table>
-										<TableHeader>
-											<TableRow>
-												<TableHead className="w-27.5">Date</TableHead>
-												<TableHead>Name</TableHead>
-											</TableRow>
-										</TableHeader>
-										<TableBody>
-											{athlete.memberships.map((m) => (
-												<TableRow key={m.id}>
-													<TableCell className="align-top w-27.5">
-														{m.startDate && m.endDate
-															? Interval.fromDateTimes(
-																	DateTime.fromISO(m.startDate),
-																	DateTime.fromISO(m.endDate),
-																).toLocaleString(DateTime.DATE_MED)
-															: "—"}
-													</TableCell>
-													<TableCell className="font-medium">
-														{m.name}
-													</TableCell>
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
+									<ul className="flex flex-col gap-2">
+										{athlete.memberships.map((m) => (
+											<li
+												key={m.id}
+												className="flex items-center justify-between gap-3 rounded-xl border px-3.5 py-3 text-[15px]"
+											>
+												<span className="min-w-0 truncate font-medium">
+													{m.name}
+												</span>
+												<span className="shrink-0 text-[13px] text-muted-foreground">
+													{m.startDate && m.endDate
+														? Interval.fromDateTimes(
+																DateTime.fromISO(m.startDate),
+																DateTime.fromISO(m.endDate),
+															).toLocaleString({ month: "short" })
+														: "—"}
+												</span>
+											</li>
+										))}
+									</ul>
 								) : (
 									<p className="text-sm text-muted-foreground">No programs.</p>
 								)}
 							</div>
-
-							{/* Activities Section */}
-							<div className="space-y-4">
-								<ActivityTable
-									data={activities}
-									showColumns={[
-										"startDate",
-										"name",
-										"boat.name",
-										"isStrava",
-										"distance",
-									]}
-								/>
+							<div className="space-y-3">
+								<SectionLabel>Activities</SectionLabel>
+								<div className="overflow-x-auto">
+									<ActivityTable
+										data={activities}
+										showColumns={[
+											"startDate",
+											"name",
+											"boat.name",
+											"isStrava",
+											"distance",
+										]}
+									/>
+								</div>
 							</div>
 						</>
 					)}
 				</div>
+				{!isEditing && canEdit && (
+					<DrawerFooter className="flex-row border-t">
+						<Button className="flex-1" onClick={() => setIsEditing(true)}>
+							Edit member
+						</Button>
+					</DrawerFooter>
+				)}
 			</DrawerContent>
 		</Drawer>
 	);

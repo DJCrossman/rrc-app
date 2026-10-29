@@ -16,13 +16,6 @@ import {
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import type { MetersTimeSeries } from "@/lib/trpc/types";
@@ -47,10 +40,12 @@ const chartConfig: Record<
 };
 
 const timeRangeItems = {
-	three_months: "Last 3 months",
-	thirty_days: "Last 30 days",
-	seven_days: "Last 7 days",
-};
+	three_months: { label: "Last 3 months", short: "3m" },
+	thirty_days: { label: "Last 30 days", short: "30d" },
+	seven_days: { label: "Last 7 days", short: "7d" },
+} as const;
+
+const TIME_RANGES = ["three_months", "thirty_days", "seven_days"] as const;
 
 interface IProps {
 	data: MetersTimeSeries;
@@ -94,11 +89,12 @@ export function MetersTimeSeriesChart({
 				<CardDescription>
 					<span className="hidden @[540px]/card:block">
 						{scopeLabel
-							? `${scopeLabel} · Last 3 months`
-							: "Total for the last 3 months"}
+							? `${scopeLabel} · ${timeRangeItems[timeRange].label}`
+							: `Total for the ${timeRangeItems[timeRange].label.toLowerCase()}`}
 					</span>
 					<span className="@[540px]/card:hidden">
-						{scopeLabel ? `${scopeLabel} · ` : ""}Last 3 months
+						{scopeLabel ? `${scopeLabel} · ` : ""}
+						{timeRangeItems[timeRange].label}
 					</span>
 				</CardDescription>
 				<CardAction>
@@ -111,38 +107,33 @@ export function MetersTimeSeriesChart({
 						variant="outline"
 						className="hidden *:data-[slot=toggle-group-item]:!px-4 @[767px]/card:flex"
 					>
-						<ToggleGroupItem value="three_months">
-							Last 3 months
-						</ToggleGroupItem>
-						<ToggleGroupItem value="thirty_days">Last 30 days</ToggleGroupItem>
-						<ToggleGroupItem value="seven_days">Last 7 days</ToggleGroupItem>
+						{TIME_RANGES.map((value) => (
+							<ToggleGroupItem key={value} value={value}>
+								{timeRangeItems[value].label}
+							</ToggleGroupItem>
+						))}
 					</ToggleGroup>
-					<Select
-						items={timeRangeItems}
-						value={timeRange}
-						onValueChange={(value) => {
+					<ToggleGroup
+						value={[timeRange]}
+						onValueChange={(values) => {
+							const value = values[0];
 							if (value) setTimeRange(value);
 						}}
+						variant="outline"
+						size="sm"
+						aria-label="Time range"
+						className="@[767px]/card:hidden"
 					>
-						<SelectTrigger
-							className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate @[767px]/card:hidden"
-							size="sm"
-							aria-label="Select a value"
-						>
-							<SelectValue placeholder="Last 3 months" />
-						</SelectTrigger>
-						<SelectContent className="rounded-xl">
-							<SelectItem value="three_months" className="rounded-lg">
-								Last 3 months
-							</SelectItem>
-							<SelectItem value="thirty_days" className="rounded-lg">
-								Last 30 days
-							</SelectItem>
-							<SelectItem value="seven_days" className="rounded-lg">
-								Last 7 days
-							</SelectItem>
-						</SelectContent>
-					</Select>
+						{TIME_RANGES.map((value) => (
+							<ToggleGroupItem
+								key={value}
+								value={value}
+								aria-label={timeRangeItems[value].label}
+							>
+								{timeRangeItems[value].short}
+							</ToggleGroupItem>
+						))}
+					</ToggleGroup>
 				</CardAction>
 			</CardHeader>
 			<CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">

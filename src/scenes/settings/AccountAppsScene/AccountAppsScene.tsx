@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { type SyncSource, useSyncStatus } from "@/hooks/useSyncStatus";
 import { trpcClient } from "@/lib/trpc/client";
+import { cn } from "@/lib/utils";
 
 export type IntegrationApplication =
 	| {
@@ -169,7 +170,7 @@ export const AccountAppsScene = ({
 	if (!hasAthlete) {
 		return (
 			<div className="space-y-6">
-				<div>
+				<div className="max-md:hidden">
 					<h2 className="text-2xl font-bold tracking-tight">
 						Connected Applications
 					</h2>
@@ -184,7 +185,7 @@ export const AccountAppsScene = ({
 
 	return (
 		<div className="space-y-6">
-			<div>
+			<div className="max-md:hidden">
 				<h2 className="text-2xl font-bold tracking-tight">
 					Connected Applications
 				</h2>
@@ -193,31 +194,45 @@ export const AccountAppsScene = ({
 				</p>
 			</div>
 
-			<div className="grid gap-6 md:grid-cols-2">
+			<div className="grid gap-4 md:grid-cols-2 md:gap-6">
 				{integrations.map((app) => {
 					const isConnected = checkIfConnected({ user, app });
 					const showCredentialForm =
 						!isConnected && app.authType === "credentials";
 					return (
-						<Card key={app.id}>
-							<CardHeader>
+						<Card key={app.id} className="max-md:gap-4 max-md:py-4">
+							<CardHeader className="max-md:px-4">
 								<div className="flex items-start justify-between">
 									<div className="flex items-center gap-4">
 										<ApplicationIcon id={app.id} />
 										<div>
-											<CardTitle>{app.name}</CardTitle>
+											<CardTitle className="max-md:text-lg">
+												{app.name}
+											</CardTitle>
 											<Badge
 												variant={isConnected ? "default" : "secondary"}
-												className="mt-2"
+												className="mt-2 max-md:hidden"
 											>
 												{isConnected ? "Connected" : "Not Connected"}
 											</Badge>
+											<p
+												className={cn(
+													"mt-1 text-sm font-medium md:hidden",
+													isConnected
+														? "text-emerald-600 dark:text-emerald-400"
+														: "text-muted-foreground",
+												)}
+											>
+												{isConnected ? "Connected" : "Not connected"}
+											</p>
 										</div>
 									</div>
 								</div>
 							</CardHeader>
-							<CardContent className="space-y-4">
-								<CardDescription>{app.description}</CardDescription>
+							<CardContent className="space-y-4 max-md:px-4">
+								<CardDescription className="max-md:text-[15px]">
+									{app.description}
+								</CardDescription>
 								{showCredentialForm && (
 									<CredentialsForm
 										app={app}
@@ -225,7 +240,7 @@ export const AccountAppsScene = ({
 									/>
 								)}
 							</CardContent>
-							<CardFooter className="gap-2">
+							<CardFooter className="gap-2 max-md:px-4">
 								{!isConnected && app.authType === "oauth" && (
 									<Button
 										className="w-full"

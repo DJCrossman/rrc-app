@@ -45,7 +45,7 @@ export const GroupShell = ({ group, active, children }: GroupShellProps) => {
 						{ label: group.name },
 					]}
 				/>
-				<ChatHeader channel={channel}>
+				<ChatHeader channel={channel} backHref={routes.groups.list()}>
 					<GroupTabs
 						groupId={group.id}
 						channelId={group.channelId}

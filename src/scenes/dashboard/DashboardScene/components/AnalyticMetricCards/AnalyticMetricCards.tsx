@@ -39,7 +39,7 @@ export function AnalyticMetricCards({ data }: IProps) {
 	}, []);
 
 	return (
-		<div className="grid grid-cols-2 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs dark:*:data-[slot=card]:bg-card lg:px-6 @xl/main:grid-cols-4">
+		<div className="grid grid-cols-2 gap-3 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs max-md:*:data-[slot=card]:gap-2 max-md:*:data-[slot=card]:py-3.5 max-md:**:data-[slot=card-header]:px-3.5 max-md:**:data-[slot=card-content]:px-3.5 max-md:**:data-[slot=card-footer]:px-3.5 max-md:**:data-[slot=card-description]:text-xs md:gap-4 dark:*:data-[slot=card]:bg-card lg:px-6 @xl/main:grid-cols-4">
 			<Card className="@container/card flex-1 min-w-[calc(50%-0.375rem)] @xl/main:min-w-[calc(25%-0.75rem)]">
 				<CardHeader>
 					<CardDescription>Active Streak</CardDescription>
@@ -54,7 +54,7 @@ export function AnalyticMetricCards({ data }: IProps) {
 					{data.activeStreak.currentStreak === 1 ? "week" : "weeks"}
 				</CardContent>
 				<CardFooter className="flex-col items-start gap-2 text-sm">
-					<div className="grid grid-cols-7 gap-1.5 w-full">
+					<div className="grid w-full grid-cols-7 gap-1 sm:gap-1.5">
 						{data.activeStreak.weekDays.map((day) => {
 							const date = DateTime.fromISO(day.date);
 							return (
@@ -62,10 +62,10 @@ export function AnalyticMetricCards({ data }: IProps) {
 									key={day.date}
 									className="flex flex-col items-center gap-1"
 								>
-									<div className="text-xs text-muted-foreground font-medium d-none sm:block">
+									<div className="hidden text-xs font-medium text-muted-foreground sm:block">
 										{date.toFormat("ccc")}
 									</div>
-									<div className="text-xs text-muted-foreground font-medium d-block sm:hidden">
+									<div className="text-xs font-medium text-muted-foreground sm:hidden">
 										{date.toFormat("ccccc")}
 									</div>
 									<div

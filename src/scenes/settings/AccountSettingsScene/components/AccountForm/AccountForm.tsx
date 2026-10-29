@@ -211,7 +211,9 @@ export function AccountForm({
 					)}
 				/>
 				<div className="flex justify-end">
-					<Button type="submit">Save Changes</Button>
+					<Button type="submit" className="w-full md:w-auto">
+						Save Changes
+					</Button>
 				</div>
 			</form>
 		</Form>

@@ -8,7 +8,6 @@ import {
 	IconShare3,
 	IconTrash,
 	IconUsersGroup,
-	IconX,
 } from "@tabler/icons-react";
 import type React from "react";
 import { useState } from "react";
@@ -17,7 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
-	DrawerClose,
+	DrawerCloseButton,
 	DrawerContent,
 	DrawerHeader,
 	DrawerTitle,
@@ -100,10 +99,7 @@ export const EventDetailsDrawer = ({
 							<IconShare3 />
 							Share to chat
 						</Button>
-						<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-							<IconX className="h-4 w-4" />
-							<span className="sr-only">Close</span>
-						</DrawerClose>
+						<DrawerCloseButton />
 					</div>
 				</DrawerHeader>
 				<ShareToChatDialog

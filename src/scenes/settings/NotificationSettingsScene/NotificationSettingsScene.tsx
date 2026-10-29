@@ -85,14 +85,14 @@ export const NotificationSettingsScene = () => {
 	};
 
 	return (
-		<Card>
-			<CardHeader>
+		<Card className="max-md:gap-0 max-md:py-0">
+			<CardHeader className="max-md:hidden">
 				<CardTitle>Notifications</CardTitle>
 				<CardDescription>
 					Choose what the club sends to this device.
 				</CardDescription>
 			</CardHeader>
-			<CardContent className="space-y-6">
+			<CardContent className="space-y-6 max-md:space-y-0 max-md:divide-y max-md:px-0">
 				<PreferenceRow
 					id="notifications-all"
 					title="Push notifications"
@@ -102,9 +102,11 @@ export const NotificationSettingsScene = () => {
 					onCheckedChange={onToggleAll}
 				/>
 				{blocker && !notifications.isLoading && (
-					<p className="text-sm text-muted-foreground">{blocker}</p>
+					<p className="text-sm text-muted-foreground max-md:px-4 max-md:py-3">
+						{blocker}
+					</p>
 				)}
-				<Separator />
+				<Separator className="max-md:hidden" />
 				<PreferenceRow
 					id="notifications-schedule"
 					title="Schedule changes"
@@ -116,18 +118,22 @@ export const NotificationSettingsScene = () => {
 					}
 				/>
 			</CardContent>
-			<CardFooter className="flex-wrap justify-between gap-4">
-				<p className="text-sm text-muted-foreground">
+			<CardFooter className="flex-wrap justify-between gap-4 max-md:border-t max-md:p-4">
+				<p className="text-sm text-muted-foreground max-md:hidden">
 					Sends a notification to every device where you've turned them on.
 				</p>
 				<Button
 					variant="outline"
 					onClick={() => sendTest.mutate()}
 					disabled={!isOn || sendTest.isPending}
+					className="w-full md:w-auto"
 				>
 					{sendTest.isPending && <Loader2 className="animate-spin" />}
 					Send test notification
 				</Button>
+				<p className="text-[15px] text-muted-foreground md:hidden">
+					Mute an individual chat from the bell at the top of that conversation.
+				</p>
 			</CardFooter>
 		</Card>
 	);
@@ -149,7 +155,7 @@ function PreferenceRow({
 	onCheckedChange: (checked: boolean) => void;
 }) {
 	return (
-		<div className="flex items-start justify-between gap-4">
+		<div className="flex items-start justify-between gap-4 max-md:px-4 max-md:py-4">
 			<div className="space-y-1">
 				<Label htmlFor={id}>{title}</Label>
 				<p className="text-sm text-muted-foreground">{description}</p>

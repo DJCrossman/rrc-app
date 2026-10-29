@@ -1,12 +1,12 @@
 "use client";
 
-import { IconPencil, IconX } from "@tabler/icons-react";
+import { IconPencil } from "@tabler/icons-react";
 import { useState } from "react";
 import { ActivityTable } from "@/components/activities";
 import { Button } from "@/components/ui/button";
 import {
 	Drawer,
-	DrawerClose,
+	DrawerCloseButton,
 	DrawerContent,
 	DrawerDescription,
 	DrawerHeader,
@@ -68,10 +68,7 @@ export const ErgDetailsDrawer = ({
 						</DrawerDescription>
 					</div>
 					<div className="flex items-center gap-2">
-						<DrawerClose className="rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-secondary">
-							<IconX className="h-4 w-4" />
-							<span className="sr-only">Close</span>
-						</DrawerClose>
+						<DrawerCloseButton />
 					</div>
 				</DrawerHeader>
 				<div className="flex-1 overflow-y-auto p-6 space-y-6">

@@ -67,6 +67,7 @@ function PeoplePicker({
 
 	return (
 		<>
+			<CommandInput placeholder="Add people" />
 			{selected.length > 0 && (
 				<div className="flex flex-wrap gap-1.5 border-b px-3 py-2">
 					{selected.map((person) => (
@@ -79,16 +80,14 @@ function PeoplePicker({
 									current.filter((item) => item.id !== person.id),
 								)
 							}
-							className="flex items-center gap-1.5 rounded-md bg-muted py-0.5 pr-1.5 pl-0.5 text-xs hover:bg-accent"
+							className="flex items-center gap-1.5 rounded-full bg-blue-500/10 py-1 pr-2 pl-3 text-[13px] font-medium text-blue-600 hover:bg-blue-500/20 dark:bg-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-500/30"
 						>
-							<InitialsAvatar initials={person.initials} size="xs" />
 							{person.name}
-							<IconX className="size-3 text-muted-foreground" />
+							<IconX className="size-3.5" />
 						</button>
 					))}
 				</div>
 			)}
-			<CommandInput placeholder="Search members…" />
 			<CommandList>
 				<CommandEmpty>
 					{membersQuery.isPending ? "Loading members…" : "No members found."}
@@ -109,25 +108,37 @@ function PeoplePicker({
 									)
 								}
 							>
-								<InitialsAvatar initials={person.initials} size="sm" />
-								<span className="flex-1">{person.name}</span>
-								<IconCheck
-									className={cn("size-4", !isSelected && "invisible")}
+								<InitialsAvatar
+									initials={person.initials}
+									size="sm"
+									className="rounded-full"
 								/>
+								<span className="flex-1">{person.name}</span>
+								<span
+									className={cn(
+										"flex size-7 shrink-0 items-center justify-center rounded-full border",
+										isSelected
+											? "border-blue-600 bg-blue-600 text-white"
+											: "border-muted-foreground/40 text-muted-foreground/60",
+									)}
+								>
+									<IconCheck className="size-4 text-current" />
+								</span>
 							</CommandItem>
 						);
 					})}
 				</CommandGroup>
 			</CommandList>
 			{children}
-			<div className="flex items-center justify-between gap-3 border-t px-3 py-2.5">
-				<span className="text-xs text-muted-foreground">
+			<div className="flex items-center justify-between gap-3 border-t px-3 py-2.5 max-sm:flex-col-reverse max-sm:items-stretch max-sm:py-3">
+				<span className="text-xs text-muted-foreground max-sm:text-center">
 					{isFull
 						? `That's the most you can add (${maxSelectable})`
 						: `${selected.length} selected`}
 				</span>
 				<Button
 					size="sm"
+					className="max-sm:h-11 max-sm:rounded-xl max-sm:bg-blue-600 max-sm:text-[15px] max-sm:text-white max-sm:hover:bg-blue-700"
 					disabled={selected.length === 0 || isSubmitting}
 					onClick={() => {
 						setIsSubmitting(true);

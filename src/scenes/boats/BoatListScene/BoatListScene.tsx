@@ -1,10 +1,14 @@
 "use client";
 
+import { IconPlus } from "@tabler/icons-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { default as React } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { BulkUploadDrawer } from "@/components/bulk-upload-drawer";
+import { MobilePageHeader } from "@/components/mobile-page-header";
 import { SiteHeader } from "@/components/site-header";
+import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getSuggestedWeightRange } from "@/lib/data/boat-weight-suggestions";
@@ -75,7 +79,22 @@ export const BoatListScene = ({
 				<SiteHeader breadcrumbs={[{ label: "Boats" }]} />
 				<div className="flex flex-1 flex-col">
 					<div className="@container/main flex flex-1 flex-col gap-2">
-						<div className="flex items-center justify-between p-4 lg:px-6">
+						<MobilePageHeader
+							title="Boats"
+							backHref={routes.more.home()}
+							backLabel="More"
+							actions={
+								<Button
+									size="icon-lg"
+									className="rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+									aria-label="Add boat"
+									render={<Link href={routes.boats.create()} />}
+								>
+									<IconPlus />
+								</Button>
+							}
+						/>
+						<div className="flex items-center justify-between p-4 max-md:hidden lg:px-6">
 							<Heading as="h1">Boats</Heading>
 						</div>
 						<div className="flex flex-col gap-4 md:gap-6">

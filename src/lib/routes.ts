@@ -50,6 +50,7 @@ export const routes = {
 		view: (id: string) => `/activities?activityId=${id}`,
 	},
 	chat: {
+		list: () => "/chat",
 		channel: (id: string) => `/chat/${id}`,
 		thread: (channelId: string, messageId: string) =>
 			`/chat/${channelId}?thread=${messageId}`,
@@ -57,6 +58,9 @@ export const routes = {
 	},
 	onboarding: {
 		start: () => "/onboarding",
+	},
+	more: {
+		home: () => "/more",
 	},
 	settings: {
 		account: () => "/settings/account",
