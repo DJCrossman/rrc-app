@@ -12,7 +12,7 @@ export const concept2UserSchema = z.object({
 	profile_image: z.string().nullable(),
 	age_restricted: z.boolean(),
 	email_permission: z.boolean(),
-	max_heart_rate: z.null(),
+	max_heart_rate: z.number().nullable(),
 	logbook_privacy: z.string(),
 });
 
