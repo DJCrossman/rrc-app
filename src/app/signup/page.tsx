@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { isValidSignupCode } from "@/lib/auth";
 import { SignUpScene } from "@/scenes/auth/SignUpScene";
 
 export const metadata: Metadata = {
@@ -30,5 +31,11 @@ export default async function SignUpPage({
 	if (status === "complete") {
 		redirect("/");
 	}
-	return <SignUpScene initialCode={code} invitationTicket={ticket} />;
+	return (
+		<SignUpScene
+			initialCode={code}
+			isCodeVerified={!!code && isValidSignupCode(code)}
+			invitationTicket={ticket}
+		/>
+	);
 }

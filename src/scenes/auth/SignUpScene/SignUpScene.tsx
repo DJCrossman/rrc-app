@@ -24,9 +24,11 @@ function getErrorMessage(error: unknown, fallback: string): string {
 
 export const SignUpScene = ({
 	initialCode,
+	isCodeVerified,
 	invitationTicket,
 }: {
 	initialCode?: string;
+	isCodeVerified?: boolean;
 	invitationTicket?: string;
 }) => {
 	const router = useRouter();
@@ -34,7 +36,7 @@ export const SignUpScene = ({
 	const clerk = useClerk();
 
 	const [phase, setPhase] = useState<Phase>(
-		invitationTicket ? "account" : "code",
+		invitationTicket || isCodeVerified ? "account" : "code",
 	);
 	const [signupCode, setSignupCode] = useState(initialCode ?? "");
 	const [firstName, setFirstName] = useState("");

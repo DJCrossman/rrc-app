@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { envVars } from "@/lib/env";
+import { isValidSignupCode } from "@/lib/auth";
 
 export async function POST(request: Request) {
 	try {
 		const { code } = await request.json();
 
-		// If no signup code is configured, allow any input
-		if (envVars.SIGNUP_CODE && code !== envVars.SIGNUP_CODE) {
+		if (!isValidSignupCode(code)) {
 			return NextResponse.json(
 				{
 					error:

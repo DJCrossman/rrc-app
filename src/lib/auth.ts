@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import { envVars } from "@/lib/env";
 
 /**
  * Protects server actions by requiring authentication
@@ -23,4 +24,12 @@ export async function requireAuth(): Promise<string> {
 export async function getCurrentUserId(): Promise<string | null> {
 	const { userId } = await auth();
 	return userId;
+}
+
+/**
+ * Checks a signup code against the configured SIGNUP_CODE.
+ * Any code is accepted when no SIGNUP_CODE is configured.
+ */
+export function isValidSignupCode(code: unknown): boolean {
+	return !envVars.SIGNUP_CODE || code === envVars.SIGNUP_CODE;
 }
