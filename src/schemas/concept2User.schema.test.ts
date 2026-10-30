@@ -29,4 +29,13 @@ describe("concept2UserSchema", () => {
 		});
 		expect(parsed.success).toBe(true);
 	});
+
+	it("accepts a user whose profile fields are missing or null", () => {
+		const parsed = concept2UserSchema.safeParse({
+			id: 1234,
+			gender: null,
+			dob: null,
+		});
+		expect(parsed.success).toBe(true);
+	});
 });
