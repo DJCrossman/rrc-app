@@ -1,39 +1,76 @@
 import { describe, expect, it } from "vitest";
-import { resolveActivityAthleteId } from "./activity-scope";
+import { resolveActivityAthleteIds } from "./activity-scope";
 
-describe("resolveActivityAthleteId", () => {
+describe("resolveActivityAthleteIds", () => {
 	it("always scopes a member to their own activities", () => {
 		expect(
-			resolveActivityAthleteId({
+			resolveActivityAthleteIds({
 				isAdmin: false,
 				currentAthleteId: "ath_me",
-				requestedAthleteId: "ath_other",
+				requestedAthleteIds: ["ath_other"],
 			}),
-		).toBe("ath_me");
+		).toEqual(["ath_me"]);
 	});
 
 	it("rejects a member without an athlete row", () => {
 		expect(() =>
-			resolveActivityAthleteId({ isAdmin: false, currentAthleteId: null }),
+			resolveActivityAthleteIds({ isAdmin: false, currentAthleteId: null }),
 		).toThrow(expect.objectContaining({ code: "FORBIDDEN" }));
 	});
 
-	it("lets an admin look at a requested athlete, else their own", () => {
+	it("lets an admin look at a requested athlete, else everyone", () => {
 		expect(
-			resolveActivityAthleteId({
+			resolveActivityAthleteIds({
 				isAdmin: true,
 				currentAthleteId: "ath_me",
-				requestedAthleteId: "ath_other",
+				requestedAthleteIds: ["ath_other"],
 			}),
-		).toBe("ath_other");
+		).toEqual(["ath_other"]);
 		expect(
-			resolveActivityAthleteId({ isAdmin: true, currentAthleteId: "ath_me" }),
-		).toBe("ath_me");
+			resolveActivityAthleteIds({ isAdmin: true, currentAthleteId: "ath_me" }),
+		).toBeUndefined();
 	});
 
 	it("shows an admin without an athlete row every activity", () => {
 		expect(
-			resolveActivityAthleteId({ isAdmin: true, currentAthleteId: null }),
+			resolveActivityAthleteIds({ isAdmin: true, currentAthleteId: null }),
 		).toBeUndefined();
+	});
+
+	it("lets an admin look at several requested athletes", () => {
+		expect(
+			resolveActivityAthleteIds({
+				isAdmin: true,
+				currentAthleteId: "ath_me",
+				requestedAthleteIds: ["ath_a", "ath_b"],
+			}),
+		).toEqual(["ath_a", "ath_b"]);
+	});
+
+	it("shows an admin who requests an empty list every activity", () => {
+		expect(
+			resolveActivityAthleteIds({
+				isAdmin: true,
+				currentAthleteId: "ath_me",
+				requestedAthleteIds: [],
+			}),
+		).toBeUndefined();
+	});
+
+	it("scopes a member to their own activities whoever else they request", () => {
+		expect(
+			resolveActivityAthleteIds({
+				isAdmin: false,
+				currentAthleteId: "ath_me",
+				requestedAthleteIds: ["ath_a", "ath_b"],
+			}),
+		).toEqual(["ath_me"]);
+		expect(
+			resolveActivityAthleteIds({
+				isAdmin: false,
+				currentAthleteId: "ath_me",
+				requestedAthleteIds: ["ath_other", "ath_me"],
+			}),
+		).toEqual(["ath_me"]);
 	});
 });

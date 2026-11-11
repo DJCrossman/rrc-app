@@ -1,10 +1,14 @@
 "use client";
 
+import { IconPlus, IconRefresh } from "@tabler/icons-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AthleteProfilePrompt } from "@/components/athlete-profile-prompt";
+import { MobilePageHeader } from "@/components/mobile-page-header";
 import { SiteHeader } from "@/components/site-header";
+import { Button } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useCurrentUser } from "@/hooks/useAuth";
@@ -14,6 +18,7 @@ import type {
 	ActivitiesResult,
 	Activity,
 	Athlete,
+	Athletes,
 	Boats,
 	Ergs,
 	Workouts,
@@ -26,9 +31,12 @@ import {
 	ActivityTable,
 } from "./components";
 import type { UploadErgActivityScreenshot } from "./components/ActivityForm/ActivityForm";
+import { SyncMenu } from "./components/ActivityTable/SyncMenu";
 
 interface ActivityListSceneProps {
 	initialData?: ActivitiesResult;
+	athletes?: Athletes;
+	athleteIds?: string[];
 	selectedActivity?: Activity;
 	currentAthlete?: Athlete;
 	boats: Boats;
@@ -68,6 +76,8 @@ export const ActivityListScene = ({
 		pageSize: 20,
 		totalPages: 1,
 	},
+	athletes,
+	athleteIds,
 	selectedActivity,
 	currentAthlete,
 	boats,
@@ -77,11 +87,14 @@ export const ActivityListScene = ({
 }: ActivityListSceneProps) => {
 	const router = useRouter();
 	const { hasAthlete } = useCurrentUser();
+	const listHref = athleteIds?.length
+		? `${routes.activities.list()}?athleteIds=${athleteIds.join(",")}`
+		: routes.activities.list();
 	const utils = trpcClient.useUtils();
 	const createActivity = trpcClient.activities.createActivity.useMutation({
 		onSuccess: async () => {
 			await utils.activities.getActivities.invalidate();
-			router.push(routes.activities.list());
+			router.push(listHref);
 			router.refresh();
 		},
 	});
@@ -107,17 +120,52 @@ export const ActivityListScene = ({
 				<SiteHeader breadcrumbs={[{ label: "Activities" }]} />
 				<div className="flex flex-1 flex-col">
 					<div className="@container/main flex flex-1 flex-col gap-2">
+						<MobilePageHeader
+							title="Activities"
+							actions={
+								<>
+									<SyncMenu
+										trigger={
+											<Button
+												variant="outline"
+												size="icon-lg"
+												className="rounded-xl"
+												aria-label="Sync activities"
+											>
+												<IconRefresh />
+											</Button>
+										}
+									/>
+									<Button
+										size="icon-lg"
+										className="rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+										aria-label="Add Activity"
+										render={
+											<Link
+												href={`${routes.activities.create()}${athleteIds?.length ? `&athleteIds=${athleteIds.join(",")}` : ""}`}
+											/>
+										}
+									>
+										<IconPlus />
+									</Button>
+								</>
+							}
+						/>
 						{!hasAthlete && (
 							<div className="px-4 lg:px-6">
 								<AthleteProfilePrompt />
 							</div>
 						)}
 						<IntegrationAlert />
-						<div className="flex items-center justify-between p-4 lg:px-6">
+						<div className="flex items-center justify-between p-4 max-md:hidden lg:px-6">
 							<Heading as="h1">Activities</Heading>
 						</div>
 						<div className="flex flex-col gap-4 md:gap-6">
-							<ActivityTable initialData={initialData} />
+							<ActivityTable
+								initialData={initialData}
+								athletes={athletes}
+								athleteIds={athleteIds}
+							/>
 						</div>
 					</div>
 				</div>
@@ -133,7 +181,7 @@ export const ActivityListScene = ({
 						await createActivity.mutateAsync(data);
 					}}
 					onUploadErgActivityScreenshot={uploadErgActivityScreenshot}
-					onClose={() => router.push(routes.activities.list())}
+					onClose={() => router.push(listHref)}
 				/>
 			)}
 			<ActivityDetailsDrawer
@@ -146,7 +194,7 @@ export const ActivityListScene = ({
 					await updateActivity.mutateAsync(data);
 				}}
 				onUploadErgActivityScreenshot={uploadErgActivityScreenshot}
-				onClose={() => router.push(routes.activities.list())}
+				onClose={() => router.push(listHref)}
 			/>
 		</SidebarProvider>
 	);

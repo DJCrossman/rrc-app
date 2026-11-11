@@ -1,20 +1,22 @@
 import { TRPCError } from "@trpc/server";
 
-export function resolveActivityAthleteId({
+export function resolveActivityAthleteIds({
 	isAdmin,
 	currentAthleteId,
-	requestedAthleteId,
+	requestedAthleteIds,
 }: {
 	isAdmin: boolean;
 	currentAthleteId: string | null;
-	requestedAthleteId?: string;
-}): string | undefined {
-	if (isAdmin) return requestedAthleteId ?? currentAthleteId ?? undefined;
+	requestedAthleteIds?: string[];
+}): string[] | undefined {
+	if (isAdmin) {
+		return requestedAthleteIds?.length ? requestedAthleteIds : undefined;
+	}
 	if (!currentAthleteId) {
 		throw new TRPCError({
 			code: "FORBIDDEN",
 			message: "Athlete account required",
 		});
 	}
-	return currentAthleteId;
+	return [currentAthleteId];
 }

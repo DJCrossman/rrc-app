@@ -12,6 +12,7 @@ export const getActivitiesInputSchema = withPagination({
 }).extend({
 	boatId: z.string().optional(),
 	athleteId: z.string().optional(),
+	athleteIds: z.array(z.string()).optional(),
 	ergId: z.string().optional(),
 	type: z.enum(ActivityType).optional(),
 	workoutType: z.enum(WorkoutType).optional(),
@@ -25,6 +26,7 @@ export async function getActivitiesQuery(
 	const {
 		boatId,
 		athleteId,
+		athleteIds,
 		ergId,
 		type,
 		workoutType,
@@ -37,6 +39,7 @@ export async function getActivitiesQuery(
 	const where = {
 		...(boatId ? { boatId, type: "water" as const } : {}),
 		...(athleteId ? { athleteId } : {}),
+		...(athleteIds?.length ? { athleteId: { in: athleteIds } } : {}),
 		...(ergId ? { ergId, type: "erg" as const } : {}),
 		...(type ? { type } : {}),
 		...(workoutType ? { workoutType } : {}),

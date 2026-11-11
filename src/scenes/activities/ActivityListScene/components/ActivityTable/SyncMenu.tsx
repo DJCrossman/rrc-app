@@ -2,6 +2,7 @@
 
 import { IconChevronDown } from "@tabler/icons-react";
 import { Loader2 } from "lucide-react";
+import type { ReactElement } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -13,7 +14,11 @@ import { useCurrentUser } from "@/hooks/useAuth";
 import { type SyncSource, useSyncStatus } from "@/hooks/useSyncStatus";
 import { trpcClient } from "@/lib/trpc/client";
 
-export function SyncMenu() {
+interface SyncMenuProps {
+	trigger?: ReactElement;
+}
+
+export function SyncMenu({ trigger }: SyncMenuProps) {
 	const { user } = useCurrentUser();
 	const { runningSources, cooldownSources } = useSyncStatus();
 	const utils = trpcClient.useUtils();
@@ -51,14 +56,16 @@ export function SyncMenu() {
 		<DropdownMenu>
 			<DropdownMenuTrigger
 				render={
-					<Button
-						variant="outline"
-						size="sm"
-						className="rounded-l-none border-l-0 px-2"
-						aria-label="Sync activities"
-					>
-						<IconChevronDown />
-					</Button>
+					trigger ?? (
+						<Button
+							variant="outline"
+							size="sm"
+							className="rounded-l-none border-l-0 px-2"
+							aria-label="Sync activities"
+						>
+							<IconChevronDown />
+						</Button>
+					)
 				}
 			/>
 			<DropdownMenuContent align="end">

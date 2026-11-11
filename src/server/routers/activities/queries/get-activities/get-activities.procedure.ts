@@ -1,5 +1,5 @@
 import { viewerProcedure } from "@/server/procedures";
-import { resolveActivityAthleteId } from "./activity-scope";
+import { resolveActivityAthleteIds } from "./activity-scope";
 import {
 	getActivitiesInputSchema,
 	getActivitiesQuery,
@@ -11,10 +11,14 @@ export const getActivitiesProcedure = viewerProcedure
 		getActivitiesQuery(
 			{
 				...input,
-				athleteId: resolveActivityAthleteId({
+				athleteId: undefined,
+				athleteIds: resolveActivityAthleteIds({
 					isAdmin: ctx.user.isAdmin,
 					currentAthleteId: ctx.athlete?.id ?? null,
-					requestedAthleteId: input.athleteId,
+					requestedAthleteIds: [
+						...(input.athleteId ? [input.athleteId] : []),
+						...(input.athleteIds ?? []),
+					],
 				}),
 			},
 			ctx,

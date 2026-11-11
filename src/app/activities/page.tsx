@@ -1,10 +1,15 @@
 import { z } from "zod";
 import { ActivityListScene } from "@/scenes/activities";
 import { createServerCaller } from "@/server/caller";
+import { createTRPCContext } from "@/server/context";
 
 const querySchema = z.object({
 	activityId: z.string().optional(),
 	action: z.literal("create").optional(),
+	athleteIds: z
+		.string()
+		.transform((value) => value.split(",").filter(Boolean))
+		.optional(),
 });
 
 export default async function ActivitiesPage({
@@ -12,23 +17,30 @@ export default async function ActivitiesPage({
 }: {
 	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-	const { activityId, action } = querySchema.parse(await searchParams);
+	const { activityId, action, athleteIds } = querySchema.parse(
+		await searchParams,
+	);
 	const caller = await createServerCaller();
+	const { user } = await createTRPCContext();
 
 	const [
 		[currentAthleteResult, activitiesResult, selectedActivityResult],
 		{ data: boats },
 		{ data: ergs },
 		{ data: workouts },
+		{ data: athletes },
 	] = await Promise.all([
 		Promise.allSettled([
 			caller.athletes.getCurrentAthlete(),
-			caller.activities.getActivities(),
+			caller.activities.getActivities({ athleteIds }),
 			caller.activities.getActivityById({ id: activityId }),
 		]),
 		caller.boats.getBoats(),
 		caller.ergs.getErgs(),
 		caller.workouts.getWorkouts(),
+		user?.isAdmin
+			? caller.athletes.getAthletes({ pageSize: 200 })
+			: Promise.resolve({ data: undefined }),
 	]);
 
 	const currentAthlete =
@@ -47,6 +59,8 @@ export default async function ActivitiesPage({
 	return (
 		<ActivityListScene
 			initialData={activitiesResponse}
+			athletes={athletes}
+			athleteIds={athleteIds}
 			selectedActivity={selectedActivity}
 			currentAthlete={currentAthlete}
 			boats={boats}

@@ -1,5 +1,5 @@
-import { ListPageSkeleton } from "@/components/list-page-skeleton";
+import { ActivityListSceneSkeleton } from "@/scenes/activities";
 
 export default function ActivitiesLoading() {
-	return <ListPageSkeleton title="Activities" columns={5} rows={10} />;
+	return <ActivityListSceneSkeleton />;
 }

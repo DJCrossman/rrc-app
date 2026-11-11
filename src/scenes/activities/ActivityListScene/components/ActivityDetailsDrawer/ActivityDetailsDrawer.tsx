@@ -204,18 +204,16 @@ export const ActivityDetailsDrawer = ({
 						</>
 					)}
 				</div>
-				{!isEditing && (
+				{!isEditing && hasAthlete && activity.athlete.id === user.id && (
 					<DrawerFooter className="flex-row border-t">
-						{hasAthlete && activity.athlete.id === user.id && (
-							<Button
-								variant="outline"
-								className="flex-1"
-								onClick={() => setIsSharing(true)}
-							>
-								<IconShare3 />
-								Share to chat
-							</Button>
-						)}
+						<Button
+							variant="outline"
+							className="flex-1"
+							onClick={() => setIsSharing(true)}
+						>
+							<IconShare3 />
+							Share to chat
+						</Button>
 						<Button className="flex-1" onClick={() => setIsEditing(true)}>
 							Edit
 						</Button>
