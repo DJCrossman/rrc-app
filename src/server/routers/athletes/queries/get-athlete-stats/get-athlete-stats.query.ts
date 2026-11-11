@@ -1,6 +1,6 @@
 import type { AthleteStats, GetAthleteStatsInput } from "@/schemas";
-import { concept2ActivitySchema } from "@/schemas/concept2Activity.schema";
 import type { Context } from "@/server/context";
+import { isErgTest } from "@/server/routers/analytics/common/is-erg-test";
 
 export async function getAthleteStatsQuery(
 	input: GetAthleteStatsInput,
@@ -11,6 +11,7 @@ export async function getAthleteStatsQuery(
 		orderBy: { startDate: "desc" },
 		select: {
 			id: true,
+			type: true,
 			distance: true,
 			elapsedTime: true,
 			startDate: true,
@@ -22,37 +23,12 @@ export async function getAthleteStatsQuery(
 		activity: (typeof ergActivities)[number],
 		targetDistance: number,
 	): { duration: number; date: string; activityId: string } | undefined => {
-		if (activity.distance === targetDistance) {
+		if (isErgTest(activity, targetDistance)) {
 			return {
 				duration: activity.elapsedTime,
 				date: activity.startDate.toISOString(),
 				activityId: activity.id,
 			};
-		}
-
-		if (activity.conceptTwoData) {
-			const parsed = concept2ActivitySchema.safeParse(activity.conceptTwoData);
-			if (parsed.success) {
-				const intervals = parsed.data.workout?.intervals;
-				if (intervals && intervals.length > 0) {
-					const allMatchTarget = intervals.every(
-						(interval) =>
-							interval.type === "distance" &&
-							interval.distance === targetDistance,
-					);
-					if (allMatchTarget) {
-						const totalTimeMs = intervals.reduce(
-							(sum, interval) => sum + interval.time * 1000,
-							0,
-						);
-						return {
-							duration: totalTimeMs / intervals.length,
-							date: activity.startDate.toISOString(),
-							activityId: activity.id,
-						};
-					}
-				}
-			}
 		}
 
 		return undefined;

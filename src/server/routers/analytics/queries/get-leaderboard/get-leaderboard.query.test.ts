@@ -70,6 +70,83 @@ describe("getLeaderboardQuery", () => {
 		expect(row.streak).toBe(3);
 	});
 
+	it("ignores Concept2 interval sessions when picking the 2K and 6K bests", async () => {
+		const athlete = createAthlete([
+			activity({
+				daysAgo: 10,
+				distance: 2000,
+				elapsedTime: 391000,
+				conceptTwoData: {
+					workout_type: "FixedDistanceInterval",
+					workout: {
+						intervals: [
+							{ type: "distance", distance: 1000, time: 1950 },
+							{ type: "distance", distance: 1000, time: 1960 },
+						],
+					},
+				},
+			}),
+			activity({
+				daysAgo: 12,
+				distance: 2000,
+				elapsedTime: 420000,
+				conceptTwoData: { workout_type: "FixedDistanceSplits" },
+			}),
+			activity({
+				daysAgo: 14,
+				distance: 6000,
+				elapsedTime: 1290000,
+				conceptTwoData: {
+					workout_type: "FixedDistanceInterval",
+					workout: {
+						intervals: [
+							{ type: "distance", distance: 2000, time: 4300 },
+							{ type: "distance", distance: 2000, time: 4310 },
+							{ type: "distance", distance: 2000, time: 4290 },
+						],
+					},
+				},
+			}),
+			activity({
+				daysAgo: 16,
+				distance: 6000,
+				elapsedTime: 1380000,
+				conceptTwoData: { workout_type: "FixedDistanceSplits" },
+			}),
+		]);
+
+		const [row] = (
+			await getLeaderboardQuery(
+				{ period: "three_months" },
+				createContext([athlete]),
+			)
+		).data;
+
+		expect(row.bestTwoKm).toBe(420000);
+		expect(row.bestSixKm).toBe(1380000);
+	});
+
+	it("ignores an interval session from a trimmed webhook payload", async () => {
+		const athlete = createAthlete([
+			activity({
+				daysAgo: 10,
+				distance: 2000,
+				elapsedTime: 391000,
+				conceptTwoData: { workout_type: "FixedDistanceInterval" },
+			}),
+			activity({ daysAgo: 12, distance: 2000, elapsedTime: 420000 }),
+		]);
+
+		const [row] = (
+			await getLeaderboardQuery(
+				{ period: "three_months" },
+				createContext([athlete]),
+			)
+		).data;
+
+		expect(row.bestTwoKm).toBe(420000);
+	});
+
 	it("lists the groups of the athlete's active programs instead of memberships", async () => {
 		const [row] = (
 			await getLeaderboardQuery(
@@ -139,15 +216,18 @@ function activity({
 	daysAgo,
 	distance,
 	elapsedTime = 600,
+	conceptTwoData,
 }: {
 	daysAgo: number;
 	distance: number;
 	elapsedTime?: number;
+	conceptTwoData?: unknown;
 }) {
 	return {
 		distance,
 		elapsedTime,
 		type: "erg",
 		startDate: new Date(NOW.getTime() - daysAgo * 24 * 60 * 60 * 1000),
+		conceptTwoData,
 	};
 }

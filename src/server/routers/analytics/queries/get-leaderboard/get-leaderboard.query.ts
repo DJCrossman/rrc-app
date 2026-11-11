@@ -5,6 +5,7 @@ import type { Context } from "@/server/context";
 import { mapToAthleteWithGroups } from "@/server/routers/athletes/common/map-to-athlete-with-groups";
 import { findGroupRules } from "@/server/routers/groups/common";
 import { getWeekStreak } from "../../common/get-week-streak";
+import { isErgTest } from "../../common/is-erg-test";
 
 export async function getLeaderboardQuery(
 	{ period }: GetLeaderboardInput,
@@ -20,6 +21,7 @@ export async function getLeaderboardQuery(
 						elapsedTime: true,
 						type: true,
 						startDate: true,
+						conceptTwoData: true,
 					},
 				},
 			},
@@ -36,16 +38,15 @@ export async function getLeaderboardQuery(
 		.toJSDate();
 	const data = allAthletes.map((row) => {
 		const athleteDto = mapToAthleteWithGroups(row, rules);
-		const ergActivities = row.activities.filter((a) => a.type === "erg");
 		const meters = row.activities
 			.filter((a) => a.startDate >= since)
 			.reduce((sum, a) => sum + a.distance, 0);
 
-		const twoKms = ergActivities
-			.filter((a) => a.distance === 2000)
+		const twoKms = row.activities
+			.filter((a) => isErgTest(a, 2000))
 			.map((a) => a.elapsedTime);
-		const sixKms = ergActivities
-			.filter((a) => a.distance === 6000)
+		const sixKms = row.activities
+			.filter((a) => isErgTest(a, 6000))
 			.map((a) => a.elapsedTime);
 
 		const streak = getWeekStreak(

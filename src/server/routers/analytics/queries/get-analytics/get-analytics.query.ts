@@ -2,6 +2,7 @@ import { DateTime } from "luxon";
 import { AnalyticsPeriodDays } from "@/schemas";
 import type { ViewerContext } from "@/server/context";
 import { getWeekStreak, startOfWeek } from "../../common/get-week-streak";
+import { isErgTest } from "../../common/is-erg-test";
 import { toMetersTimeSeries } from "../../common/to-meters-time-series";
 
 export async function getAnalyticsQuery(
@@ -76,43 +77,26 @@ export async function getAnalyticsQuery(
 		};
 	});
 
-	const [lastTwoKmRow, lastSixKmRow, prevTwoKmRow, prevSixKmRow] =
-		await Promise.all([
-			athleteId
-				? db.activity.findFirst({
-						where: { athleteId, type: "erg", distance: 2000 },
-						orderBy: { startDate: "desc" },
-					})
-				: null,
-			athleteId
-				? db.activity.findFirst({
-						where: { athleteId, type: "erg", distance: 6000 },
-						orderBy: { startDate: "desc" },
-					})
-				: null,
-			athleteId
-				? db.activity.findFirst({
-						where: {
-							athleteId,
-							type: "erg",
-							distance: 2000,
-							startDate: { lt: currStart },
-						},
-						orderBy: { startDate: "desc" },
-					})
-				: null,
-			athleteId
-				? db.activity.findFirst({
-						where: {
-							athleteId,
-							type: "erg",
-							distance: 6000,
-							startDate: { lt: currStart },
-						},
-						orderBy: { startDate: "desc" },
-					})
-				: null,
-		]);
+	const testCandidates = athleteId
+		? await db.activity.findMany({
+				where: { athleteId, type: "erg", distance: { in: [2000, 6000] } },
+				select: {
+					id: true,
+					type: true,
+					distance: true,
+					elapsedTime: true,
+					startDate: true,
+					conceptTwoData: true,
+				},
+				orderBy: { startDate: "desc" },
+			})
+		: [];
+	const twoKmTests = testCandidates.filter((a) => isErgTest(a, 2000));
+	const sixKmTests = testCandidates.filter((a) => isErgTest(a, 6000));
+	const lastTwoKmRow = twoKmTests[0];
+	const lastSixKmRow = sixKmTests[0];
+	const prevTwoKmRow = twoKmTests.find((a) => a.startDate < currStart);
+	const prevSixKmRow = sixKmTests.find((a) => a.startDate < currStart);
 
 	const lastTwoKm = lastTwoKmRow
 		? {
