@@ -72,7 +72,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								title: "Schedule",
 								url: routes.schedule.list(),
 								icon: IconCalendarEvent,
-								badge: "New",
 							},
 							{
 								title: "Boats",
