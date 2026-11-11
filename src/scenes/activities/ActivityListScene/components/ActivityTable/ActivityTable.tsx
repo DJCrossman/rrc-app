@@ -53,12 +53,14 @@ export function ActivityTable({
 	const [type, setType] = useState<(typeof ActivityType)[number] | undefined>(
 		undefined,
 	);
+	const [ergTest, setErgTest] = useState<"2k" | "6k" | undefined>(undefined);
 
 	const { data } = trpcClient.activities.getActivities.useQuery(
 		{
 			page: pagination.pageIndex + 1,
 			pageSize: pagination.pageSize,
 			type,
+			ergTest,
 			athleteIds,
 		},
 		{ initialData, placeholderData: keepPreviousData },
@@ -105,13 +107,14 @@ export function ActivityTable({
 						{activityTypeOptions.map((option) => (
 							<FilterChip
 								key={option}
-								isActive={(type ?? "all") === option}
+								isActive={!ergTest && (type ?? "all") === option}
 								onClick={() => {
 									setType(
 										ActivityType.find(
 											(activityType) => activityType === option,
 										),
 									);
+									setErgTest(undefined);
 									setPagination((prev) => ({ ...prev, pageIndex: 0 }));
 								}}
 							>
@@ -120,6 +123,19 @@ export function ActivityTable({
 									: option === "water"
 										? "Water"
 										: "Erg"}
+							</FilterChip>
+						))}
+						{(["2k", "6k"] as const).map((option) => (
+							<FilterChip
+								key={option}
+								isActive={ergTest === option}
+								onClick={() => {
+									setErgTest(option);
+									setType(undefined);
+									setPagination((prev) => ({ ...prev, pageIndex: 0 }));
+								}}
+							>
+								{option.toUpperCase()}
 							</FilterChip>
 						))}
 					</div>
