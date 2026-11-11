@@ -22,6 +22,7 @@ import {
 	DrawerHeader,
 	DrawerTitle,
 } from "@/components/ui/drawer";
+import { useCurrentUser } from "@/hooks/useAuth";
 import { formatRole } from "@/lib/formatters";
 import { formatGender } from "@/lib/formatters/formatGender";
 import { routes } from "@/lib/routes";
@@ -61,6 +62,7 @@ export const AthleteDetailsDrawer = ({
 		setIsEditing(startEditing);
 	}
 	const { canMessage, message, isPending } = useMessageMember();
+	const { user } = useCurrentUser();
 
 	const handleClose = () => {
 		setIsEditing(false);
@@ -80,6 +82,8 @@ export const AthleteDetailsDrawer = ({
 	if (!athlete) {
 		return null;
 	}
+
+	const isCurrentUser = athlete.id === user.id;
 
 	return (
 		<Drawer
@@ -146,28 +150,30 @@ export const AthleteDetailsDrawer = ({
 										))}
 									</div>
 								)}
-								<div className="flex w-full gap-2.5 pt-1">
-									{canMessage(athlete) && (
+								{!isCurrentUser && (
+									<div className="flex w-full gap-2.5 pt-1">
+										{canMessage(athlete) && (
+											<Button
+												className="flex-1"
+												disabled={isPending}
+												onClick={() => message(athlete)}
+											>
+												<IconMessage />
+												Message
+											</Button>
+										)}
 										<Button
+											variant="outline"
 											className="flex-1"
-											disabled={isPending}
-											onClick={() => message(athlete)}
-										>
-											<IconMessage />
-											Message
-										</Button>
-									)}
-									<Button
-										variant="outline"
-										className="flex-1"
-										render={
-											<a href={`tel:${athlete.phone}`}>
-												<IconPhone />
-												Call
-											</a>
-										}
-									/>
-								</div>
+											render={
+												<a href={`tel:${athlete.phone}`}>
+													<IconPhone />
+													Call
+												</a>
+											}
+										/>
+									</div>
+								)}
 							</div>
 							<DetailTiles>
 								<StatCard
@@ -276,11 +282,21 @@ export const AthleteDetailsDrawer = ({
 						</>
 					)}
 				</div>
-				{!isEditing && canEdit && (
+				{!isEditing && (canEdit || isCurrentUser) && (
 					<DrawerFooter className="flex-row border-t">
-						<Button className="flex-1" onClick={() => setIsEditing(true)}>
-							Edit member
-						</Button>
+						{canEdit && (
+							<Button className="flex-1" onClick={() => setIsEditing(true)}>
+								Edit member
+							</Button>
+						)}
+						{!canEdit && (
+							<Button
+								className="flex-1"
+								render={<Link href={routes.settings.account()} />}
+							>
+								Edit profile
+							</Button>
+						)}
 					</DrawerFooter>
 				)}
 			</DrawerContent>

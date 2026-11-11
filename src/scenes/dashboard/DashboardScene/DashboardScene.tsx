@@ -1,5 +1,6 @@
 "use client";
 
+import { keepPreviousData } from "@tanstack/react-query";
 import { type default as React, useState } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AthleteProfilePrompt } from "@/components/athlete-profile-prompt";
@@ -27,7 +28,10 @@ export const DashboardScene = () => {
 
 	const { hasAthlete } = useCurrentUser();
 	const analyticsQuery = trpcClient.analytics.getAnalytics.useQuery();
-	const leaderboardQuery = trpcClient.analytics.getLeaderboard.useQuery();
+	const leaderboardQuery = trpcClient.analytics.getLeaderboard.useQuery(
+		{ period },
+		{ placeholderData: keepPreviousData },
+	);
 
 	return (
 		<SidebarProvider

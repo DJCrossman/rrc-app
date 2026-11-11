@@ -1,11 +1,16 @@
 import { DateTime } from "luxon";
 import { paginate } from "@/lib/pagination";
+import { AnalyticsPeriodDays, type GetLeaderboardInput } from "@/schemas";
 import type { Context } from "@/server/context";
-import { mapToAthleteDto } from "@/server/routers/athletes/common/map-to-athlete-dto";
+import { mapToAthleteWithGroups } from "@/server/routers/athletes/common/map-to-athlete-with-groups";
+import { findGroupRules } from "@/server/routers/groups/common";
 import { getWeekStreak } from "../../common/get-week-streak";
 
-export async function getLeaderboardQuery(_input: undefined, { db }: Context) {
-	const [allAthletes, totalCount] = await Promise.all([
+export async function getLeaderboardQuery(
+	{ period }: GetLeaderboardInput,
+	{ db }: Context,
+) {
+	const [allAthletes, totalCount, rules] = await Promise.all([
 		db.athlete.findMany({
 			include: {
 				memberships: { include: { program: true } },
@@ -21,13 +26,20 @@ export async function getLeaderboardQuery(_input: undefined, { db }: Context) {
 			orderBy: { id: "asc" },
 		}),
 		db.athlete.count(),
+		findGroupRules(db),
 	]);
 
 	const now = DateTime.now();
+	const since = now
+		.minus({ days: AnalyticsPeriodDays[period] })
+		.startOf("day")
+		.toJSDate();
 	const data = allAthletes.map((row) => {
-		const athleteDto = mapToAthleteDto(row);
+		const athleteDto = mapToAthleteWithGroups(row, rules);
 		const ergActivities = row.activities.filter((a) => a.type === "erg");
-		const meters = row.activities.reduce((sum, a) => sum + a.distance, 0);
+		const meters = row.activities
+			.filter((a) => a.startDate >= since)
+			.reduce((sum, a) => sum + a.distance, 0);
 
 		const twoKms = ergActivities
 			.filter((a) => a.distance === 2000)
@@ -46,8 +58,7 @@ export async function getLeaderboardQuery(_input: undefined, { db }: Context) {
 			name: athleteDto.name,
 			heightInCm: athleteDto.heightInCm,
 			weightInKg: athleteDto.weightInKg,
-			memberships: athleteDto.memberships,
-			activeMembership: athleteDto.activeMembership,
+			groups: athleteDto.groups,
 			meters,
 			points: 0,
 			bestTwoKm: twoKms.length > 0 ? Math.min(...twoKms) : undefined,

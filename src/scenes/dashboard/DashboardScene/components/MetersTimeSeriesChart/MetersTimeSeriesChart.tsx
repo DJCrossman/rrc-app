@@ -1,5 +1,6 @@
 "use client";
 
+import { DateTime } from "luxon";
 import { useEffect } from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import {
@@ -19,6 +20,7 @@ import {
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import type { MetersTimeSeries } from "@/lib/trpc/types";
+import { AnalyticsPeriodDays } from "@/schemas";
 
 export const description = "An interactive area chart";
 
@@ -68,19 +70,10 @@ export function MetersTimeSeriesChart({
 		}
 	}, [isMobile, setTimeRange]);
 
-	const filteredData = chartData.filter((item) => {
-		const date = new Date(item.date);
-		const referenceDate = new Date("2024-06-30");
-		let daysToSubtract = 90;
-		if (timeRange === "thirty_days") {
-			daysToSubtract = 30;
-		} else if (timeRange === "seven_days") {
-			daysToSubtract = 7;
-		}
-		const startDate = new Date(referenceDate);
-		startDate.setDate(startDate.getDate() - daysToSubtract);
-		return date >= startDate;
-	});
+	const since = DateTime.utc()
+		.minus({ days: AnalyticsPeriodDays[timeRange] })
+		.toISODate();
+	const filteredData = chartData.filter((item) => item.date >= since);
 
 	return (
 		<Card className="@container/card">

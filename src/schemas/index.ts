@@ -1,4 +1,5 @@
 export * from "./activities.schema";
+export * from "./analytics.schema";
 export * from "./athlete.schema";
 export * from "./boat.schema";
 export * from "./concept2Activity.schema";

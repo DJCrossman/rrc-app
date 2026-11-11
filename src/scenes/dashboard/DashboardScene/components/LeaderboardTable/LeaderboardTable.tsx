@@ -52,17 +52,21 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
 		enableSorting: true,
 	},
 	{
-		accessorKey: "activeMembership",
-		header: "Program",
-		cell: ({ row }) => {
-			const active = row.original.activeMembership;
-			if (!active) return null;
-			return (
-				<Badge variant="outline" className="text-muted-foreground px-1.5">
-					{active.name}
-				</Badge>
-			);
-		},
+		accessorKey: "groups",
+		header: "Groups",
+		cell: ({ row }) => (
+			<div className="flex flex-wrap gap-1">
+				{row.original.groups.map((group) => (
+					<Badge
+						key={group.id}
+						variant="outline"
+						className="text-muted-foreground px-1.5"
+					>
+						{group.name}
+					</Badge>
+				))}
+			</div>
+		),
 		enableSorting: false,
 	},
 	{
@@ -134,15 +138,15 @@ const columns: ColumnDef<Leaderboard[number]>[] = [
 
 interface ILeaderboardTableProps {
 	data: Leaderboard;
-	initialProgramIds?: string[];
+	initialGroupIds?: string[];
 }
 
 export function LeaderboardTable({
 	data,
-	initialProgramIds = [],
+	initialGroupIds = [],
 }: ILeaderboardTableProps) {
 	const [rowSelection, setRowSelection] = useState({});
-	const [programIds, setProgramIds] = useState<string[]>(initialProgramIds);
+	const [groupIds, setGroupIds] = useState<string[]>(initialGroupIds);
 	const [sorting, setSorting] = useState<SortingState>([
 		{ id: "meters", desc: true },
 	]);
@@ -151,27 +155,26 @@ export function LeaderboardTable({
 		pageSize: 10,
 	});
 
-	const programsQuery = trpcClient.programs.getPrograms.useQuery();
-	const programOptions: Option[] = useMemo(
+	const groupsQuery = trpcClient.groups.getGroups.useQuery();
+	const groupOptions: Option[] = useMemo(
 		() =>
-			(programsQuery.data?.data ?? []).map((p) => ({
-				value: p.id,
-				label: p.name,
+			(groupsQuery.data?.data ?? []).map((group) => ({
+				value: group.id,
+				label: group.name,
 			})),
-		[programsQuery.data],
+		[groupsQuery.data],
 	);
-	const selectedProgramOptions = useMemo(
-		() => programOptions.filter((o) => programIds.includes(o.value)),
-		[programOptions, programIds],
+	const selectedGroupOptions = useMemo(
+		() => groupOptions.filter((o) => groupIds.includes(o.value)),
+		[groupOptions, groupIds],
 	);
 
 	const filteredData = useMemo(() => {
-		if (programIds.length === 0) return data;
-		return data.filter((item) => {
-			const memberships = item.memberships ?? [];
-			return memberships.some((m) => programIds.includes(m.programId));
-		});
-	}, [data, programIds]);
+		if (groupIds.length === 0) return data;
+		return data.filter((item) =>
+			item.groups.some((group) => groupIds.includes(group.id)),
+		);
+	}, [data, groupIds]);
 
 	const table = useReactTable({
 		data: filteredData,
@@ -199,15 +202,15 @@ export function LeaderboardTable({
 			<div className="flex items-center justify-between gap-3 p-4 max-md:flex-wrap lg:px-6">
 				<h2 className="text-base font-semibold md:hidden">Leaderboard</h2>
 				<Label htmlFor="view-selector" className="sr-only">
-					Programs
+					Groups
 				</Label>
 				<MultiSelect
 					className="min-w-[240px]"
 					commandProps={{ className: "max-md:order-last" }}
-					placeholder="All Programs"
-					options={programOptions}
-					value={selectedProgramOptions}
-					onChange={(opts) => setProgramIds(opts.map((o) => o.value))}
+					placeholder="All Groups"
+					options={groupOptions}
+					value={selectedGroupOptions}
+					onChange={(opts) => setGroupIds(opts.map((o) => o.value))}
 				/>
 
 				<div className="flex items-center gap-2">
@@ -247,9 +250,9 @@ export function LeaderboardTable({
 								<span className="truncate text-sm font-medium">
 									{row.original.name}
 								</span>
-								{row.original.activeMembership && (
+								{row.original.groups.length > 0 && (
 									<span className="truncate text-xs text-muted-foreground">
-										{row.original.activeMembership.name}
+										{row.original.groups.map((group) => group.name).join(" · ")}
 									</span>
 								)}
 							</span>

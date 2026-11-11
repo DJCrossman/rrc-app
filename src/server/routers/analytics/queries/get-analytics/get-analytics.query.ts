@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import { AnalyticsPeriodDays } from "@/schemas";
 import type { ViewerContext } from "@/server/context";
 import { getWeekStreak, startOfWeek } from "../../common/get-week-streak";
 import { toMetersTimeSeries } from "../../common/to-meters-time-series";
@@ -13,7 +14,10 @@ export async function getAnalyticsQuery(
 	const currStart = now.startOf("month").toJSDate();
 	const prevStart = now.minus({ months: 1 }).startOf("month").toJSDate();
 	const prevEnd = now.startOf("month").toJSDate();
-	const thirtyDaysAgo = now.minus({ days: 30 }).startOf("day").toJSDate();
+	const seriesStart = now
+		.minus({ days: AnalyticsPeriodDays.three_months })
+		.startOf("day")
+		.toJSDate();
 
 	const [currAgg, prevAgg] = await Promise.all([
 		athleteId
@@ -134,7 +138,7 @@ export async function getAnalyticsQuery(
 
 	const seriesRows = athleteId
 		? await db.activity.findMany({
-				where: { athleteId, startDate: { gte: thirtyDaysAgo } },
+				where: { athleteId, startDate: { gte: seriesStart } },
 				select: { startDate: true, type: true, distance: true },
 				orderBy: { startDate: "asc" },
 			})

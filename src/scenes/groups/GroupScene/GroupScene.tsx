@@ -1,5 +1,6 @@
 "use client";
 
+import { keepPreviousData } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useCurrentUser } from "@/hooks/useAuth";
 import { routes } from "@/lib/routes";
@@ -26,7 +27,10 @@ export const GroupScene = ({ group }: GroupSceneProps) => {
 	const metersQuery = trpcClient.analytics.getGroupMeters.useQuery({
 		id: group.id,
 	});
-	const leaderboardQuery = trpcClient.analytics.getLeaderboard.useQuery();
+	const leaderboardQuery = trpcClient.analytics.getLeaderboard.useQuery(
+		{ period },
+		{ placeholderData: keepPreviousData },
+	);
 	const memberIds = useMemo(
 		() => new Set(group.members.map((member) => member.id)),
 		[group.members],
@@ -64,7 +68,7 @@ export const GroupScene = ({ group }: GroupSceneProps) => {
 						data={(leaderboardQuery.data?.data ?? []).filter((row) =>
 							memberIds.has(row.id),
 						)}
-						initialProgramIds={group.programs.map((program) => program.id)}
+						initialGroupIds={[group.id]}
 					/>
 				)}
 			</div>
