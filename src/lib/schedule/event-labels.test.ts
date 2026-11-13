@@ -12,7 +12,6 @@ describe("formatEventTime", () => {
 	it("collapses the meridiem when both ends share it", () => {
 		expect(
 			formatEventTime({
-				type: "training",
 				startAt: "2026-10-20T12:00:00Z",
 				endAt: "2026-10-20T13:30:00Z",
 				allDay: false,
@@ -24,7 +23,6 @@ describe("formatEventTime", () => {
 	it("keeps both meridiems when the event crosses noon", () => {
 		expect(
 			formatEventTime({
-				type: "training",
 				startAt: "2026-10-20T17:00:00Z",
 				endAt: "2026-10-20T19:00:00Z",
 				allDay: false,
@@ -36,7 +34,6 @@ describe("formatEventTime", () => {
 	it("labels all-day events", () => {
 		expect(
 			formatEventTime({
-				type: "regatta",
 				startAt: "2026-10-24T06:00:00Z",
 				endAt: null,
 				allDay: true,
@@ -45,22 +42,9 @@ describe("formatEventTime", () => {
 		).toBe("All day");
 	});
 
-	it("shows a regatta without an end as a deadline", () => {
+	it("shows only the start for an event without an end", () => {
 		expect(
 			formatEventTime({
-				type: "regatta",
-				startAt: "2026-10-22T23:00:00Z",
-				endAt: null,
-				allDay: false,
-				timezone,
-			}),
-		).toBe("Due 5:00 PM");
-	});
-
-	it("shows only the start for other events without an end", () => {
-		expect(
-			formatEventTime({
-				type: "training",
 				startAt: new Date("2026-10-22T12:00:00Z"),
 				endAt: null,
 				allDay: false,

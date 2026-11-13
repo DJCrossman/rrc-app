@@ -10,13 +10,11 @@ export const EVENT_TYPE_LABELS: Record<EventType, string> = {
 };
 
 export function formatEventTime({
-	type,
 	startAt,
 	endAt,
 	allDay,
 	timezone,
 }: {
-	type: EventType;
 	startAt: Date | string;
 	endAt: Date | string | null;
 	allDay: boolean;
@@ -27,9 +25,7 @@ export function formatEventTime({
 	}
 	const start = toZoned(startAt, timezone);
 	if (!endAt) {
-		return type === "regatta"
-			? `Due ${formatClock(start)}`
-			: formatClock(start);
+		return formatClock(start);
 	}
 	const end = toZoned(endAt, timezone);
 	const sameMeridiem =
