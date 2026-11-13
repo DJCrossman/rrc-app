@@ -35,12 +35,14 @@ interface ActivityTableProps {
 	initialData: ActivitiesResult;
 	athletes?: Athletes;
 	athleteIds?: string[];
+	onOpenActivity?: (activity: Activity) => void;
 }
 
 export function ActivityTable({
 	initialData,
 	athletes,
 	athleteIds,
+	onOpenActivity,
 }: ActivityTableProps) {
 	const router = useRouter();
 	const { user, isAdmin } = useCurrentUser();
@@ -202,6 +204,7 @@ export function ActivityTable({
 										<li key={activity.id}>
 											<Link
 												href={`${routes.activities.view(activity.id)}${athleteIds?.length ? `&athleteIds=${athleteIds.join(",")}` : ""}`}
+												onNavigate={() => onOpenActivity?.(activity)}
 												className="flex items-center gap-3 rounded-xl border bg-card p-3.5 text-card-foreground hover:bg-muted md:rounded-lg md:px-3 md:py-2"
 											>
 												<span

@@ -4,6 +4,7 @@ import { IconPlus, IconRefresh } from "@tabler/icons-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
+import { startTransition, useOptimistic } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { AthleteProfilePrompt } from "@/components/athlete-profile-prompt";
 import { MobilePageHeader } from "@/components/mobile-page-header";
@@ -87,6 +88,9 @@ export const ActivityListScene = ({
 }: ActivityListSceneProps) => {
 	const router = useRouter();
 	const { hasAthlete } = useCurrentUser();
+	// The list row already holds the whole activity, so the drawer shows it
+	// while the navigation that loads it from the server is still in flight.
+	const [openActivity, setOpenActivity] = useOptimistic(selectedActivity);
 	const listHref = athleteIds?.length
 		? `${routes.activities.list()}?athleteIds=${athleteIds.join(",")}`
 		: routes.activities.list();
@@ -165,6 +169,9 @@ export const ActivityListScene = ({
 								initialData={initialData}
 								athletes={athletes}
 								athleteIds={athleteIds}
+								onOpenActivity={(activity) =>
+									startTransition(() => setOpenActivity(activity))
+								}
 							/>
 						</div>
 					</div>
@@ -185,8 +192,8 @@ export const ActivityListScene = ({
 				/>
 			)}
 			<ActivityDetailsDrawer
-				isOpen={!!selectedActivity}
-				activity={selectedActivity}
+				isOpen={!!openActivity}
+				activity={openActivity}
 				boats={boats}
 				ergs={ergs}
 				workouts={workouts}
@@ -194,7 +201,12 @@ export const ActivityListScene = ({
 					await updateActivity.mutateAsync(data);
 				}}
 				onUploadErgActivityScreenshot={uploadErgActivityScreenshot}
-				onClose={() => router.push(listHref)}
+				onClose={() =>
+					startTransition(() => {
+						setOpenActivity(undefined);
+						router.push(listHref);
+					})
+				}
 			/>
 		</SidebarProvider>
 	);
