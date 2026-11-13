@@ -17,7 +17,7 @@ OUTPUT SHAPE:
 
 FIELD RULES:
 - workoutType: "time" if the workout is primarily time-bounded (e.g. "90'", "60 min"); "distance" if primarily distance-bounded (e.g. "2000m", "5km"); "other" if neither is clear.
-- elapsedTime: total duration in milliseconds. "70'" = 4200000, "90'" = 5400000, "2x20'" = 2400000. Omit if no time present.
+- elapsedTime: total duration in milliseconds (minutes x 60000). "60'" = 3600000, "70'" = 4200000, "80'" = 4800000, "90'" = 5400000, "2x20'" = 2400000. When the description starts with a session total ("90', 4x15' w/3' rest, ..."), elapsedTime is that total and nothing else: do not add the pieces or the rests to it. Omit if no time present.
 - distance: total distance in meters. "2000m" = 2000, "5km" = 5000, "2x2000m" = 4000. Omit if no distance present.
 - intervalCount: total intervals. "3x3km" = 3, "2x2km + 4x500m" = 6, steady state = 1.
 - fragments (optional): include ONLY when specific rate/split details are present. Each fragment:
@@ -58,6 +58,16 @@ Output:
   "workoutType": "time",
   "elapsedTime": 5400000,
   "intervalCount": 2
+}
+\`\`\`
+
+Input: "80', 5x10' w/2' rest, 4'@R20, 3'@R22, 3'@R24"
+Output:
+\`\`\`json
+{
+  "workoutType": "time",
+  "elapsedTime": 4800000,
+  "intervalCount": 5
 }
 \`\`\`
 
