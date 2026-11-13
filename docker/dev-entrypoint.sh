@@ -18,6 +18,12 @@ else
 	echo "▷ SKIP_INSTALL=1 — skipping install + prisma generate"
 fi
 
+# Dummy instances point Clerk at this container: serve the Clerk emulator here
+# for as long as the container lives (see scripts/clerk-emulator.ts).
+if [[ "${CLERK_API_URL:-}" == http://127.0.0.1:* ]]; then
+	bun scripts/clerk-emulator.ts &
+fi
+
 # 3. Apply migrations to this instance's Neon branch. prisma.config.ts reads
 #    DATABASE_URL, so we override it with the UNPOOLED endpoint for this command
 #    only — Neon's pooled (PgBouncer) connection can't run DDL/advisory locks.

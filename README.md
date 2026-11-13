@@ -254,6 +254,9 @@ bun run instance:migrate   # Apply migrations to an instance's Neon branch
 bun run instance:reset     # Re-fork an instance's Neon branch from its parent
 bun run instance:down      # Pause an instance (keeps its Neon branch)
 bun run instance:destroy   # Remove an instance + delete its Neon branch
+
+bun run instance:create --dummy   # Same, but with invented data and a local Clerk emulator
+bun run instance:e2e              # Headless Playwright suite (e2e/) against a dummy instance
 ```
 
 ## Database (Neon)

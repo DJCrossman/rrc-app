@@ -65,6 +65,8 @@ branch (sanitized), the host port is auto-allocated from 3001, and the Neon bran
 | `bun run instance:reset` | Re-fork this instance's Neon branch from its parent (clean slate for re-testing migrations). |
 | `bun run instance:down` | Pause: stop the container but **keep** the Neon branch + volumes. |
 | `bun run instance:destroy` | Full teardown: remove container + volumes + image + **delete the Neon branch** + env file. |
+| `bun run instance:create --dummy` | Same as `create`, then replace every row with invented data and swap Clerk for a local emulator. Use it for anything you record, screenshot or browser-test. |
+| `bun run instance:e2e` | Run the headless Playwright suite in `e2e/` against this worktree's dummy instance. Refuses any other instance. Extra args go to Playwright. |
 
 ### Lifecycle rule (the Neon branch is bound to the container)
 
@@ -89,6 +91,26 @@ bun run instance:migrate       # applies to this branch only
 bun run instance:reset         # re-fork from parent to test again from clean
 bun run instance:migrate
 ```
+
+### Dummy instances and e2e
+
+A plain instance is a fork of production: real members' names, results and push
+subscriptions. **Never record, screenshot or browser-test one.** Use a dummy instance:
+
+```bash
+bun run instance:create --dummy   # invented athletes, activities, events and chat
+bun run instance:e2e              # desktop + 390px phone, a video per test in e2e/.output/
+```
+
+- The data is `scripts/lib/dummy-data.ts`. The wipe only runs on an `inst/` branch whose
+  host differs from `main`'s. `instance:reset` re-seeds, and the instance stays dummy until
+  destroyed.
+- Clerk is `@emulators/clerk`, started inside the container (`scripts/clerk-emulator.ts`).
+  It has no Frontend API, so `/login` does not work and nobody can sign in by hand. Tests
+  sign in with `signInAs(page, "admin" | "member")` from `e2e/sign-in.ts`, using a session
+  that `instance:e2e` mints. Sessions last one hour.
+- `failed_to_load_clerk_js` in the browser console is expected there; pages do not need it.
+- Throwaway recording specs go in `e2e/recordings/` (gitignored).
 
 ### Verifying an instance is up (important operational detail)
 

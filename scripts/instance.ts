@@ -20,10 +20,17 @@
 import { basename, isAbsolute, join, resolve } from "node:path";
 import { spawn } from "bun";
 import {
+	DUMMY_ORGANIZATION_ID,
+	E2E_ADMIN_USER_ID,
+	E2E_MEMBER_USER_ID,
+	replaceWithDummyData,
+} from "./lib/dummy-data";
+import {
 	branchExists,
 	connectionStrings,
 	createBranch,
 	deleteBranch,
+	type NeonEnv,
 	requireNeonEnv,
 	resetBranch,
 } from "./lib/neon";
@@ -38,6 +45,7 @@ interface InstanceRecord {
 	parent: string;
 	projectDir: string;
 	createdAt: string;
+	dummy?: boolean;
 }
 
 type Registry = Record<string, InstanceRecord>;
@@ -239,12 +247,23 @@ async function generateEnvFile(
 	pooled: string,
 	unpooled: string,
 	baseEnvPath: string,
+	dummy: boolean,
 ): Promise<string> {
 	const base = parseEnv(await Bun.file(baseEnvPath).text());
 
 	// Override the per-instance values.
 	base.set("DATABASE_URL", pooled);
 	base.set("DATABASE_URL_UNPOOLED", unpooled);
+	if (dummy) {
+		// Served inside the container by docker/dev-entrypoint.sh (scripts/clerk-emulator.ts).
+		base.set("CLERK_API_URL", "http://127.0.0.1:4011");
+		base.set("CLERK_SECRET_KEY", "sk_test_emulator");
+		base.set(
+			"NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
+			`pk_test_${btoa("127.0.0.1:4011$")}`,
+		);
+		base.set("NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID", DUMMY_ORGANIZATION_ID);
+	}
 	base.set(
 		"STRAVA_CALLBACK_URL",
 		`http://localhost:${port}/api/v1/strava/callback`,
@@ -323,6 +342,7 @@ async function cmdCreate(positional: string[], flags: Record<string, string>) {
 		? existing.port
 		: nextFreePort(reg, flags.port ? Number(flags.port) : undefined);
 	const branch = existing?.branch ?? `inst/${name}`;
+	const dummy = flags.dummy === "true" || existing?.dummy === true;
 
 	// Spin the Neon branch up alongside the container.
 	if (await branchExists(branch, neon)) {
@@ -340,6 +360,7 @@ async function cmdCreate(positional: string[], flags: Record<string, string>) {
 	const { pooled, unpooled } = await connectionStrings(branch, neon);
 
 	const baseEnvPath = await resolveBaseEnv(flags["base-env"]);
+	if (dummy) await replaceBranchWithDummyData(branch, unpooled, neon);
 	const envPath = await generateEnvFile(
 		projectDir,
 		name,
@@ -347,6 +368,7 @@ async function cmdCreate(positional: string[], flags: Record<string, string>) {
 		pooled,
 		unpooled,
 		baseEnvPath,
+		dummy,
 	);
 	console.log(`📝 Wrote ${envPath}`);
 
@@ -357,6 +379,7 @@ async function cmdCreate(positional: string[], flags: Record<string, string>) {
 		parent,
 		projectDir,
 		createdAt: existing?.createdAt ?? new Date().toISOString(),
+		...(dummy && { dummy: true }),
 	};
 	reg[name] = rec;
 	await writeRegistry(reg);
@@ -370,6 +393,45 @@ async function cmdCreate(positional: string[], flags: Record<string, string>) {
 			`   Neon branch: ${branch}  (parent: ${parent})\n` +
 			`   Logs: bun run instance:logs ${name}`,
 	);
+}
+
+/**
+ * Migrate the instance's branch, then swap every row in it for invented data so
+ * no real member ever shows up in a demo or an e2e run. Exits on any failure.
+ */
+async function replaceBranchWithDummyData(
+	branch: string,
+	unpooled: string,
+	neon: NeonEnv,
+) {
+	const main = await connectionStrings("main", neon);
+	const mainHosts = [main.pooled, main.unpooled].map(
+		(url) => new URL(url).host,
+	);
+	const targetHost = new URL(unpooled).host;
+	if (!branch.startsWith("inst/") || mainHosts.includes(targetHost)) {
+		console.error(
+			`❌ Refusing to wipe '${branch}' (host ${targetHost}): only an inst/ branch that is not on main's host can hold dummy data.`,
+		);
+		process.exit(1);
+	}
+
+	console.log(`▶ Applying migrations to '${branch}'...`);
+	const migrateCode = await inherit(
+		["bunx", "--bun", "prisma", "migrate", "deploy"],
+		{ env: { DATABASE_URL: unpooled } },
+	);
+	if (migrateCode !== 0) process.exit(migrateCode);
+
+	console.log(`🧹 Replacing every row on '${branch}' with dummy data...`);
+	try {
+		await replaceWithDummyData(unpooled);
+	} catch (error) {
+		console.error(
+			`❌ Failed to fill '${branch}' with dummy data: ${error instanceof Error ? error.message : error}`,
+		);
+		process.exit(1);
+	}
 }
 
 async function cmdList() {
@@ -438,8 +500,24 @@ async function cmdReset(positional: string[]) {
 	await loadBaseEnv();
 	const neon = requireNeonEnv();
 	console.log(`♻️  Resetting Neon branch '${rec.branch}' to '${rec.parent}'...`);
+	if (rec.dummy) {
+		console.log(
+			`⏸  Stopping '${project(rec.name)}' so it never serves the re-forked data...`,
+		);
+		await compose(rec, ["down"]);
+	}
 	const code = await resetBranch(rec.branch, neon);
 	if (code !== 0) process.exit(code);
+	if (rec.dummy) {
+		const { unpooled } = await connectionStrings(rec.branch, neon);
+		await replaceBranchWithDummyData(rec.branch, unpooled, neon);
+		const upCode = await compose(rec, ["up", "-d"]);
+		if (upCode !== 0) process.exit(upCode);
+		console.log(
+			`✅ '${rec.branch}' re-forked from '${rec.parent}', migrated and refilled with dummy data.`,
+		);
+		return;
+	}
 	console.log(
 		`✅ '${rec.branch}' re-forked from '${rec.parent}'.\n` +
 			`   Run 'bun run instance:migrate ${rec.name}' to re-apply migrations.`,
@@ -492,6 +570,66 @@ async function cmdDestroy(positional: string[]) {
 	console.log(`\n✅ Instance '${rec.name}' destroyed.`);
 }
 
+async function cmdE2e(playwrightArgs: string[]) {
+	const name = await resolveName();
+	const rec = (await readRegistry())[name];
+	if (!rec?.dummy) {
+		console.error(
+			`❌ e2e only runs against a dummy instance, and '${name}' ${rec ? "is not one" : "does not exist"}.\n` +
+				`   Create one with: bun run instance:create --dummy`,
+		);
+		process.exit(1);
+	}
+	// The emulator's signing key only lives in the container, so mint there.
+	const mint = spawn(
+		[
+			"docker",
+			"compose",
+			"-p",
+			project(rec.name),
+			"exec",
+			"-T",
+			"app",
+			"bun",
+			"-e",
+			`const headers = { Authorization: "Bearer " + process.env.CLERK_SECRET_KEY, "Content-Type": "application/json" };
+			const sessions = await Promise.all(${JSON.stringify([E2E_ADMIN_USER_ID, E2E_MEMBER_USER_ID])}.map(async (user_id) => {
+				const session = await fetch(process.env.CLERK_API_URL + "/v1/sessions", { method: "POST", headers, body: JSON.stringify({ user_id }) }).then((r) => r.json());
+				const token = await fetch(process.env.CLERK_API_URL + "/v1/sessions/" + session.id + "/tokens", { method: "POST", headers }).then((r) => r.json());
+				return token.jwt;
+			}));
+			if (!sessions.every(Boolean)) process.exit(1);
+			console.log(sessions.join(" "));`,
+		],
+		{
+			stdout: "pipe",
+			stderr: "inherit",
+			cwd: rec.projectDir,
+			env: { ...process.env, ...composeEnv(rec) },
+		},
+	);
+	const [adminSession, memberSession] = (await new Response(mint.stdout).text())
+		.trim()
+		.split(" ");
+	if ((await mint.exited) !== 0 || !memberSession) {
+		console.error(
+			`❌ Could not mint e2e sessions in '${project(rec.name)}'. Is it running? Start it with: bun run instance:create`,
+		);
+		process.exit(1);
+	}
+	const code = await inherit(
+		["bunx", "playwright", "test", ...playwrightArgs],
+		{
+			env: {
+				E2E_BASE_URL: `http://localhost:${rec.port}`,
+				E2E_ADMIN_SESSION: adminSession,
+				E2E_MEMBER_SESSION: memberSession,
+			},
+		},
+	);
+	process.exit(code);
+}
+
 // ── entry ──────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -514,17 +652,20 @@ async function main() {
 			return cmdDown(positional);
 		case "destroy":
 			return cmdDestroy(positional);
+		case "e2e":
+			return cmdE2e(rest);
 		default:
 			console.error(
 				`Usage: bun run scripts/instance.ts <command> [name] [flags]\n\n` +
 					`Commands:\n` +
-					`  create [name] [--parent main] [--port N] [--base-env path]\n` +
+					`  create [name] [--parent main] [--port N] [--base-env path] [--dummy]\n` +
 					`  list\n` +
 					`  logs [name]\n` +
 					`  migrate [name]\n` +
 					`  reset [name]\n` +
 					`  down|stop [name]\n` +
-					`  destroy [name]\n\n` +
+					`  destroy [name]\n` +
+					`  e2e [playwright args]   (dummy instances only)\n\n` +
 					`When [name] is omitted it is derived from the current git branch.`,
 			);
 			process.exit(sub ? 1 : 0);

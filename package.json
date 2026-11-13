@@ -28,7 +28,8 @@
 		"instance:migrate": "bun run scripts/instance.ts migrate",
 		"instance:reset": "bun run scripts/instance.ts reset",
 		"instance:down": "bun run scripts/instance.ts down",
-		"instance:destroy": "bun run scripts/instance.ts destroy"
+		"instance:destroy": "bun run scripts/instance.ts destroy",
+		"instance:e2e": "bun run scripts/instance.ts e2e"
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.6.0",
@@ -75,7 +76,10 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.3.8",
+		"@emulators/clerk": "0.13.1",
+		"@emulators/core": "0.13.1",
 		"@hookform/devtools": "^4.4.0",
+		"@playwright/test": "^1.65.0",
 		"@tailwindcss/postcss": "^4.1.18",
 		"@types/luxon": "^3.7.1",
 		"@types/node": "^25.0.1",

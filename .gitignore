@@ -42,6 +42,10 @@ next-env.d.ts
 
 # playwright
 .playwright-mcp/
+e2e/.output/
+e2e/recordings/
+playwright-report/
+test-results/
 /src/generated/prisma
 
 # test examples
