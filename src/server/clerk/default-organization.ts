@@ -4,6 +4,9 @@ import { envVars } from "@/lib/env";
 /** A Clerk organization role, e.g. "org:admin" | "org:member", or null when not a member. */
 export type DefaultOrgRole = string | null;
 
+/** Whether the user is in the default organization, and if not, why. */
+export type DefaultOrgJoinOutcome = "member" | "full" | "failed";
+
 const ROLE_TTL_MS = 60_000;
 const roleCache = new Map<
 	string,
@@ -54,12 +57,13 @@ export async function isDefaultOrgAdmin(userId: string): Promise<boolean> {
 /**
  * Ensure the user is a member of the default organization. Never creates a new
  * organization — self-signups join the shared club org as a plain member.
+ * Resolves to "full" when the organization has no member spots left.
  */
 export async function ensureDefaultOrganizationMembership(
 	userId: string,
-): Promise<void> {
+): Promise<DefaultOrgJoinOutcome> {
 	if (await getDefaultOrgRole(userId)) {
-		return;
+		return "member";
 	}
 	const client = await clerkClient();
 	try {
@@ -69,10 +73,22 @@ export async function ensureDefaultOrganizationMembership(
 			role: "org:member",
 		});
 		cacheRole(userId, "org:member");
+		return "member";
 	} catch (error) {
 		// Concurrent requests may both try to add the membership; drop the cached
 		// miss so the next lookup reflects reality.
 		console.error("Failed to add default organization membership:", error);
 		roleCache.delete(userId);
+		if (await getDefaultOrgRole(userId).catch(() => null)) {
+			return "member";
+		}
+		// Clerk counts pending invitations toward the organization's member limit.
+		if (
+			(error as { errors?: { code?: string }[] })?.errors?.[0]?.code ===
+			"organization_membership_quota_exceeded"
+		) {
+			return "full";
+		}
+		return "failed";
 	}
 }

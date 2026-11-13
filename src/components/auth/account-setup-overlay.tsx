@@ -19,6 +19,7 @@ export function AccountSetupOverlay() {
 	const queryClient = useQueryClient();
 	const started = useRef(false);
 	const [failed, setFailed] = useState(false);
+	const [clubIsFull, setClubIsFull] = useState(false);
 
 	const pending = isLoaded && !isSignedIn;
 
@@ -27,7 +28,14 @@ export function AccountSetupOverlay() {
 		try {
 			// The default-org membership is created server-side on the onboarding
 			// page; reload so the client sees it, then activate to clear the task.
-			await fetch("/api/v1/auth/join-default-org", { method: "POST" });
+			const response = await fetch("/api/v1/auth/join-default-org", {
+				method: "POST",
+			});
+			setClubIsFull(response.status === 409);
+			if (!response.ok) {
+				setFailed(true);
+				return;
+			}
 			await clerk.session?.reload();
 			await clerk.setActive({
 				organization: envVars.NEXT_PUBLIC_DEFAULT_ORGANIZATION_ID,
@@ -55,9 +63,17 @@ export function AccountSetupOverlay() {
 		<div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-3 bg-background text-center">
 			{failed ? (
 				<>
-					<p className="text-sm text-muted-foreground">
-						We couldn't finish setting up your account.
-					</p>
+					{clubIsFull && (
+						<p className="max-w-xs px-4 text-sm text-muted-foreground">
+							The club's member list is full. Ask your coach to make room, then
+							try again.
+						</p>
+					)}
+					{!clubIsFull && (
+						<p className="text-sm text-muted-foreground">
+							We couldn't finish setting up your account.
+						</p>
+					)}
 					<button
 						type="button"
 						className="text-sm underline hover:text-primary"

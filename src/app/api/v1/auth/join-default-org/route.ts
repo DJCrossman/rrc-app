@@ -10,6 +10,18 @@ export async function POST() {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 	}
 
-	await ensureDefaultOrganizationMembership(session.userId);
+	const outcome = await ensureDefaultOrganizationMembership(session.userId);
+	if (outcome === "full") {
+		return NextResponse.json(
+			{ error: "The club has no member spots left" },
+			{ status: 409 },
+		);
+	}
+	if (outcome === "failed") {
+		return NextResponse.json(
+			{ error: "Failed to join the club" },
+			{ status: 502 },
+		);
+	}
 	return NextResponse.json({ ok: true });
 }
