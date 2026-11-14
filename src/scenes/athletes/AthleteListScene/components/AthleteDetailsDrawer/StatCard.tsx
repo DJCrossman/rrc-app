@@ -37,10 +37,13 @@ export const StatCard = ({ title, stat, distance }: StatCardProps) => {
 			{stat ? (
 				<>
 					<span className="text-[17px] font-semibold tabular-nums">
-						{formatCompactDuration(stat.duration)}
+						{formatCompactSplit(stat.duration, distance)}
+						<span className="text-xs font-normal text-muted-foreground">
+							/500m
+						</span>
 					</span>
 					<span className="text-xs text-muted-foreground tabular-nums">
-						{formatCompactSplit(stat.duration, distance)}/500m ·{" "}
+						{formatCompactDuration(stat.duration)} ·{" "}
 						{DateTime.fromISO(stat.date).toFormat("MMM d, yyyy")}
 					</span>
 				</>
